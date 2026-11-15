@@ -1,0 +1,155 @@
+
+name: Update BTC market data (OKX)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-btc-market-data
+  cancel-in-progress: true
+
+jobs:
+  fetch-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch OKX data
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request, urllib.parse
+          from datetime import datetime, timezone
+
+          BASE = "https://www.okx.com"
+          INST = "BTC-USDT-SWAP"
+
+          def get(path, params=None, required=True):
+              query = urllib.parse.urlencode(params or {})
+              url = BASE + path + ("?" + query if query else "")
+              req = urllib.request.Request(url, headers={
+                  "User-Agent": "market-dashboard/1.0"
+              })
+              try:
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      data = json.loads(r.read().decode())
+                  if data.get("code") != "0":
+                      raise RuntimeError(data.get("msg", "OKX API error"))
+                  return data.get("data", [])
+              except Exception as e:
+                  if required:
+                      raise
+                  print("WARNING:", path, e)
+                  return {"_error": str(e)}
+
+          def candles(bar):
+              return {"klines": get("/api/v5/market/candles", {
+                  "instId": INST, "bar": bar, "limit": "300"
+              })}
+
+          oi = get("/api/v5/public/open-interest", {
+              "instType": "SWAP", "instId": INST
+          }, False)
+
+          funding = get("/api/v5/public/funding-rate", {
+              "instId": INST
+          }, False)
+
+          funding_history = get("/api/v5/public/funding-rate-history", {
+              "instId": INST, "limit": "100"
+          }, False)
+
+          oi_history = get("/api/v5/rubik/stat/contracts/open-interest-history", {
+              "instId": INST, "period": "4H", "limit": "100"
+          }, False)
+
+          long_short = get("/api/v5/rubik/stat/contracts/long-short-account-ratio", {
+              "ccy": "BTC", "period": "4H"
+          }, False)
+
+          taker = get("/api/v5/rubik/stat/taker-volume", {
+              "ccy": "BTC", "instType": "CONTRACTS", "period": "4H"
+          }, False)
+
+          def normalize(rows, kind):
+              if isinstance(rows, dict):
+                  return rows
+              result = []
+              for x in rows or []:
+                  if isinstance(x, dict):
+                      item = dict(x)
+                      item.setdefault("ts", item.get("timestamp"))
+                      result.append(item)
+                  elif isinstance(x, list):
+                      if kind == "oi" and len(x) >= 3:
+                          result.append({
+                              "ts": x[0], "oi": x[1], "oiCcy": x[2]
+                          })
+                      elif kind == "ls" and len(x) >= 2:
+                          result.append({
+                              "ts": x[0], "longShortRatio": x[1]
+                          })
+                      elif kind == "taker" and len(x) >= 3:
+                          buy, sell = float(x[1]), float(x[2])
+                          result.append({
+                              "ts": x[0],
+                              "buyVol": buy,
+                              "sellVol": sell,
+                              "buySellRatio": buy / sell if sell else None
+                          })
+              return result
+
+          payload = {
+              "schemaVersion": 2,
+              "generatedAt": datetime.now(timezone.utc).isoformat(),
+              "source": "OKX public API",
+              "symbol": INST,
+              "timeframes": {
+                  "4h": candles("4H"),
+                  "1d": candles("1D"),
+                  "1w": candles("1W")
+              },
+              "derivatives": {
+                  "openInterest": oi,
+                  "openInterestHistory": normalize(oi_history, "oi"),
+                  "funding": funding,
+                  "fundingHistory": funding_history,
+                  "longShortRatio": normalize(long_short, "ls"),
+                  "takerRatio": normalize(taker, "taker")
+              }
+          }
+
+          assert payload["timeframes"]["4h"]["klines"], "No BTC candles"
+
+          os.makedirs("data", exist_ok=True)
+          with open("data/btc.json", "w", encoding="utf-8") as f:
+              json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+
+          print("BTC data updated successfully")
+          for key, value in payload["derivatives"].items():
+              print(key, ":", len(value) if isinstance(value, list) else "available")
+          PY
+
+      - name: Validate JSON
+        run: |
+          python -m json.tool data/btc.json > /dev/null
+          echo "JSON is valid"
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/btc.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update BTC market data"
+            git push
+          fi
