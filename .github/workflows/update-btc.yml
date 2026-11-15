@@ -1,5 +1,5 @@
 
-name: Update BTC Data
+name: Update Multi-Coin Market Data
 
 on:
   workflow_dispatch:
@@ -9,169 +9,202 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-multi-coin-market-data
+  cancel-in-progress: true
+
 jobs:
-  update:
+  fetch-and-publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install requests
-        run: pip install requests
-
-      - name: Fetch OKX data
+      - name: Collect market data
+        env:
+          PYTHONUNBUFFERED: "1"
         run: |
           python - <<'PY'
-          import requests
           import json
-          import datetime
           import os
+          import time
+          import urllib.request
+          import urllib.parse
+          from datetime import datetime, timezone
 
-          BASE = "https://www.okx.com"
-          INST = "BTC-USDT-SWAP"
+          BINANCE = "https://fapi.binance.com"
+          OKX = "https://www.okx.com"
 
-          session = requests.Session()
-          session.headers.update({
-              "User-Agent": "BTC-Dashboard/1.0"
-          })
+          COINS = ["BTC", "LTC", "BCH", "UNI", "XMR"]
 
-          def get(path, params=None):
-              r = session.get(
-                  BASE + path,
-                  params=params,
-                  timeout=25
+          def request(base, path, params=None):
+              query = urllib.parse.urlencode(params or {})
+              url = base + path + (("?" + query) if query else "")
+              req = urllib.request.Request(
+                  url,
+                  headers={"User-Agent": "multi-coin-dashboard/1.0"}
               )
-              r.raise_for_status()
-              result = r.json()
+              with urllib.request.urlopen(req, timeout=25) as response:
+                  return json.loads(response.read().decode("utf-8"))
 
-              if result.get("code") != "0":
-                  raise Exception(
-                      result.get("msg", "OKX API error")
+          def safe_request(base, path, params=None):
+              try:
+                  return request(base, path, params)
+              except Exception as exc:
+                  return {"_error": str(exc)}
+
+          def okx_data(path, params):
+              result = safe_request(OKX, path, params)
+              if isinstance(result, dict) and result.get("code") == "0":
+                  return result.get("data", [])
+              return result
+
+          markets = {}
+
+          for coin in COINS:
+              symbol = coin + "USDT"
+              inst_id = coin + "-USDT-SWAP"
+
+              print("Collecting:", coin)
+
+              timeframes = {}
+
+              for tf in ("4h", "1d", "1w"):
+                  result = safe_request(
+                      BINANCE,
+                      "/fapi/v1/klines",
+                      {
+                          "symbol": symbol,
+                          "interval": tf,
+                          "limit": 500
+                      }
                   )
 
-              return result.get("data", [])
+                  if isinstance(result, list):
+                      timeframes[tf] = {"klines": result}
+                  else:
+                      timeframes[tf] = {
+                          "klines": [],
+                          "error": result.get("_error", "Unavailable")
+                      }
 
-          def safe(path, params=None):
-              try:
-                  return get(path, params)
-              except Exception as e:
-                  print("API ERROR:", path, str(e))
-                  return {"_error": str(e)}
+              derivatives = {
+                  "source": "OKX",
+                  "instrument": inst_id,
 
-          data = {
-              "schemaVersion": 1,
-              "generatedAt": datetime.datetime.now(
-                  datetime.timezone.utc
-              ).isoformat(),
-              "source": "OKX API",
-              "symbol": INST,
-              "timeframes": {},
-              "derivatives": {}
-          }
+                  "openInterest": okx_data(
+                      "/api/v5/public/open-interest",
+                      {
+                          "instType": "SWAP",
+                          "instId": inst_id
+                      }
+                  ),
 
-          # PRICE CANDLES
-          for tf, bar in [
-              ("4h", "4H"),
-              ("1d", "1Dutc"),
-              ("1w", "1Wutc")
-          ]:
-              data["timeframes"][tf] = safe(
-                  "/api/v5/market/candles",
-                  {
-                      "instId": INST,
-                      "bar": bar,
-                      "limit": "300"
-                  }
+                  "openInterestHistory": okx_data(
+                      "/api/v5/rubik/stat/contracts/open-interest-history",
+                      {
+                          "instId": inst_id,
+                          "period": "4H"
+                      }
+                  ),
+
+                  "funding": okx_data(
+                      "/api/v5/public/funding-rate",
+                      {"instId": inst_id}
+                  ),
+
+                  "fundingHistory": okx_data(
+                      "/api/v5/public/funding-rate-history",
+                      {
+                          "instId": inst_id,
+                          "limit": "100"
+                      }
+                  ),
+
+                  "longShortRatio": okx_data(
+                      "/api/v5/rubik/stat/contracts/long-short-account-ratio",
+                      {
+                          "ccy": coin,
+                          "period": "1H"
+                      }
+                  ),
+
+                  "takerRatio": okx_data(
+                      "/api/v5/rubik/stat/taker-volume",
+                      {
+                          "ccy": coin,
+                          "instType": "CONTRACTS",
+                          "period": "1H"
+                      }
+                  )
+              }
+
+              markets[coin] = {
+                  "symbol": symbol,
+                  "okxInstrument": inst_id,
+                  "timeframes": timeframes,
+                  "derivatives": derivatives
+              }
+
+              print(
+                  coin,
+                  "4h candles:",
+                  len(timeframes["4h"].get("klines", []))
               )
 
-          # CURRENT OPEN INTEREST
-          data["derivatives"]["openInterest"] = safe(
-              "/api/v5/public/open-interest",
-              {
-                  "instType": "SWAP",
-                  "instId": INST
-              }
-          )
+              time.sleep(0.3)
 
-          # CURRENT FUNDING RATE
-          data["derivatives"]["funding"] = safe(
-              "/api/v5/public/funding-rate",
-              {
-                  "instId": INST
-              }
-          )
+          if not markets["BTC"]["timeframes"]["4h"]["klines"]:
+              raise RuntimeError("BTC 4h candles unavailable")
 
-          # FUNDING HISTORY
-          data["derivatives"]["fundingHistory"] = safe(
-              "/api/v5/public/funding-rate-history",
-              {
-                  "instId": INST,
-                  "limit": "30"
-              }
-          )
-
-          # OPEN INTEREST HISTORY
-          data["derivatives"]["openInterestHistory"] = safe(
-              "/api/v5/rubik/stat/contracts/open-interest-history",
-              {
-                  "instId": INST,
-                  "period": "4H",
-                  "limit": "30"
-              }
-          )
-
-          # LONG / SHORT ACCOUNT RATIO
-          data["derivatives"]["longShortRatio"] = safe(
-              "/api/v5/rubik/stat/contracts/long-short-account-ratio-contract",
-              {
-                  "instId": INST,
-                  "period": "4H",
-                  "limit": "30"
-              }
-          )
-
-          # TAKER BUY / SELL VOLUME
-          data["derivatives"]["takerRatio"] = safe(
-              "/api/v5/rubik/stat/taker-volume",
-              {
-                  "ccy": "BTC",
-                  "instType": "CONTRACTS",
-                  "period": "1H"
-              }
-          )
+          payload = {
+              "schemaVersion": 2,
+              "generatedAt": datetime.now(timezone.utc).isoformat(),
+              "priceSource": "Binance USD-M Futures",
+              "derivativesSource": "OKX",
+              "markets": markets
+          }
 
           os.makedirs("data", exist_ok=True)
 
-          with open("data/btc.json", "w") as f:
+          with open("data/markets.json", "w", encoding="utf-8") as f:
               json.dump(
-                  data,
+                  payload,
                   f,
-                  separators=(",", ":"),
-                  ensure_ascii=False
+                  ensure_ascii=False,
+                  separators=(",", ":")
               )
 
-          print("OKX data collection completed")
-          print("Generated:", data["generatedAt"])
+          print("Generated data/markets.json")
 
-          for name, value in data["derivatives"].items():
-              if isinstance(value, dict) and "_error" in value:
-                  print(name, "FAILED:", value["_error"])
-              else:
-                  print(name, "OK")
-
+          for coin, item in markets.items():
+              print(
+                  coin,
+                  "4h:",
+                  len(item["timeframes"]["4h"].get("klines", [])),
+                  "OI:",
+                  len(item["derivatives"].get("openInterestHistory", [])),
+                  "Funding:",
+                  len(item["derivatives"].get("fundingHistory", [])),
+                  "Long/Short:",
+                  len(item["derivatives"].get("longShortRatio", [])),
+                  "Taker:",
+                  len(item["derivatives"].get("takerRatio", []))
+              )
           PY
 
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/btc.json
-          git diff --cached --quiet || git commit -m "Update BTC market data"
-          git pull --rebase origin main
-          git push
+
+          git add data/markets.json
+
+          if git diff --cached --quiet; then
+            echo "No data changes."
+          else
+            git commit -m "Update multi-coin market data"
+            git push
+          fi
