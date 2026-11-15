@@ -1,40 +1,41 @@
+
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1220">
-<title>BTC & GOLD | داشبورد تحلیل</title>
+<meta name="theme-color" content="#09111e">
+<title>داشبورد چندارزی بازار</title>
 <style>
 :root{color-scheme:dark;--bg:#09111e;--panel:#101b2b;--line:#26364b;--text:#edf4ff;--muted:#9aacc3;--blue:#55aef5;--green:#34c78a;--red:#ef727b;--amber:#e6b65b}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
 header{padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-h1{font-size:16px;margin:0;font-weight:700}.sub{font-size:11px;color:var(--muted);margin-top:4px}
-main{width:100%;max-width:none;margin:0;padding:0}
-.controls{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px}
+h1{font-size:16px;margin:0}.sub{font-size:11px;color:var(--muted);margin-top:4px}
+main{width:100%;max-width:none;margin:0}.controls{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px}
 button{font:inherit;color:var(--text);background:#15243a;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12px}
 button.active{background:#17436a;border-color:var(--blue)}
-.chart-wrap{width:100%;height:calc(100dvh - 165px);min-height:440px;overflow:hidden}#tv_chart{height:100%;width:100%}
+.chart-wrap{width:100%;height:calc(100dvh - 165px);min-height:390px;overflow:hidden}#tv_chart{height:100%;width:100%}
 .bottom{padding:8px 10px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line)}
 .status{font-size:11px;color:var(--muted);flex:1;min-width:120px}
 .analysis{display:none;padding:10px;background:var(--bg);border-top:1px solid var(--line)}.analysis.open{display:block}
 .metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
-.metric .k{font-size:11px;color:var(--muted);margin-bottom:6px}.metric .v{font-size:16px;font-weight:700;overflow-wrap:anywhere}
-.metric .s{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.6}
+.metric,.plot-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.metric .k,.plot-title{font-size:11px;color:var(--muted);margin-bottom:6px}.metric .v{font-size:16px;font-weight:700;overflow-wrap:anywhere}.metric .s{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.6}
 .good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
-.section-title{font-size:13px;margin:14px 2px 8px}.small{font-size:11px;line-height:1.8;color:var(--muted)}
-table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th{color:var(--muted);font-weight:400}.actions{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
-#loadState{font-size:11px;color:var(--muted);margin:8px 2px}
-@media(min-width:800px){.chart-wrap{height:calc(100vh - 165px)}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:500px){header{padding:10px}.chart-wrap{height:calc(100dvh - 155px);min-height:390px}.controls{padding:6px 8px}.controls button{flex:1;padding:9px 6px}}
+.section-title{font-size:13px;margin:14px 2px 8px}.chart-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+.plot-area{height:190px;position:relative}.plot-empty{font-size:11px;color:var(--muted);padding:22px 5px;text-align:center}
+.small{font-size:11px;line-height:1.8;color:var(--muted)}table{width:100%;border-collapse:collapse;font-size:11px}
+th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{color:var(--muted);font-weight:400}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}#loadState{font-size:11px;color:var(--muted);margin:8px 2px}
+@media(min-width:800px){.chart-wrap{height:calc(100vh - 165px)}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.chart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){header{padding:10px}.chart-wrap{height:calc(100dvh - 155px)}.controls{padding:6px 8px}.controls button{flex:1;padding:9px 6px}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <header>
- <div><h1>BTC / GOLD</h1><div class="sub">نمودار TradingView · داده‌های مشتقات BTC از OKX</div></div>
- <div class="sub" id="marketLabel">BTC-USDT-SWAP</div>
+ <div><h1>داشبورد تحلیل بازار</h1><div class="sub">کندل و حجم: Binance · مشتقات: OKX</div></div>
+ <div class="sub" id="marketLabel">BTCUSDT</div>
 </header>
 <main>
  <div class="controls">
@@ -56,380 +57,144 @@ th{color:var(--muted);font-weight:400}.actions{display:flex;gap:6px;flex-wrap:wr
   <button onclick="refreshData()">به‌روزرسانی</button>
  </div>
  <section id="analysis" class="analysis">
-  <div id="loadState">برای دریافت داده‌ها دکمه «به‌روزرسانی» را بزن.</div>
+  <div id="loadState">در حال آماده‌سازی…</div>
   <div class="metrics">
-   <div class="metric"><div class="k">RSI (14)</div><div class="v" id="rsi">—</div><div class="s">محاسبه از کندل‌های OKX</div></div>
+   <div class="metric"><div class="k">RSI (14)</div><div class="v" id="rsi">—</div><div class="s">محاسبه از کندل‌های Binance</div></div>
    <div class="metric"><div class="k">Stoch RSI · K / D</div><div class="v" id="stoch">—</div><div class="s">تنظیم ۱۴، هموارسازی ۳/۳</div></div>
-   <div class="metric"><div class="k">CVD تخمینی</div><div class="v" id="cvd">—</div><div class="s">برآورد از شکل کندل و حجم پایه؛ دلتا واقعی تیک نیست</div></div>
+   <div class="metric"><div class="k">CVD تخمینی</div><div class="v" id="cvd">—</div><div class="s">تخمین از OHLCV؛ دلتا واقعی معاملات نیست</div></div>
    <div class="metric"><div class="k">Open Interest</div><div class="v" id="oi">—</div><div class="s" id="oiChange">در انتظار داده</div></div>
-   <div class="metric"><div class="k">Funding Rate</div><div class="v" id="funding">—</div><div class="s" id="fundingNext">آخرین نرخ ثبت‌شده</div></div>
-   <div class="metric"><div class="k">Long / Short</div><div class="v" id="ls">—</div><div class="s" id="lsDetail">نسبت حساب‌ها؛ نه اندازه پوزیشن‌ها</div></div>
-   <div class="metric"><div class="k">Taker Buy / Sell</div><div class="v" id="taker">—</div><div class="s">نسبت حجم خرید تهاجمی به فروش تهاجمی</div></div>
-   <div class="metric"><div class="k">Liquidations</div><div class="v warn" id="liq">در دسترس نیست</div><div class="s">فید لیکوییدیشن در این نسخه متصل نیست.</div></div>
+   <div class="metric"><div class="k">Funding Rate</div><div class="v" id="funding">—</div><div class="s" id="fundingNext">آخرین نرخ دریافتی</div></div>
+   <div class="metric"><div class="k">Long / Short</div><div class="v" id="ls">—</div><div class="s" id="lsDetail">نسبت حساب‌ها</div></div>
+   <div class="metric"><div class="k">Taker Buy / Sell</div><div class="v" id="taker">—</div><div class="s">نسبت حجم خرید تهاجمی به فروش</div></div>
+   <div class="metric"><div class="k">Liquidations</div><div class="v warn">در دسترس نیست</div><div class="s">هنوز منبع لیکوییدیشن متصل نشده است.</div></div>
   </div>
-  <div class="section-title">تاریخچه Open Interest</div>
-  <div class="small">تغییرات OI بر اساس تاریخچه OKX؛ واحد OI در قرارداد BTC برحسب BTC نمایش داده می‌شود.</div>
-  <div style="overflow-x:auto"><table><thead><tr><th>زمان</th><th>OI (BTC)</th><th>OI (USD)</th></tr></thead><tbody id="oiHistoryRows"><tr><td colspan="3">در انتظار داده</td></tr></tbody></table></div>
-  <div class="section-title">تاریخچه Funding Rate</div>
-  <div style="overflow-x:auto"><table><thead><tr><th>زمان تسویه</th><th>Funding</th></tr></thead><tbody id="fundingHistoryRows"><tr><td colspan="2">در انتظار داده</td></tr></tbody></table></div>
-  <div class="section-title">تاریخچه نسبت Long / Short و Taker</div>
+  <div class="section-title">نمودارهای اندیکاتورها</div>
+  <div class="small">نمودارهای مشتقات فقط با داده تاریخی واقعی رسم می‌شوند. نبود داده به‌صورت پیام نمایش داده می‌شود.</div>
+  <div class="chart-grid">
+   <div class="plot-card"><div class="plot-title">RSI (14) · سطوح ۳۰ و ۷۰</div><div class="plot-area"><canvas id="rsiChart"></canvas></div></div>
+   <div class="plot-card"><div class="plot-title">Stoch RSI · K / D · سطوح ۲۰ و ۸۰</div><div class="plot-area"><canvas id="stochChart"></canvas></div></div>
+   <div class="plot-card"><div class="plot-title">CVD تخمینی از OHLCV</div><div class="plot-area"><canvas id="cvdChart"></canvas></div></div>
+   <div class="plot-card"><div class="plot-title">Open Interest (OKX)</div><div class="plot-area" id="oiPlot"><canvas id="oiChart"></canvas></div></div>
+   <div class="plot-card"><div class="plot-title">Funding Rate (OKX)</div><div class="plot-area" id="fundingPlot"><canvas id="fundingChart"></canvas></div></div>
+   <div class="plot-card"><div class="plot-title">Long / Short Ratio (OKX)</div><div class="plot-area" id="lsPlot"><canvas id="lsChart"></canvas></div></div>
+   <div class="plot-card"><div class="plot-title">Taker Buy / Sell (OKX)</div><div class="plot-area" id="takerPlot"><canvas id="takerChart"></canvas></div></div>
+  </div>
+  <div class="section-title">تاریخچه مشتقات</div>
+  <div style="overflow-x:auto"><table><thead><tr><th>زمان</th><th>Open Interest</th><th>OI USD</th></tr></thead><tbody id="oiHistoryRows"><tr><td colspan="3">در انتظار داده</td></tr></tbody></table></div>
+  <div class="section-title">تاریخچه Funding</div>
+  <div style="overflow-x:auto"><table><thead><tr><th>زمان</th><th>Funding</th></tr></thead><tbody id="fundingHistoryRows"><tr><td colspan="2">در انتظار داده</td></tr></tbody></table></div>
+  <div class="section-title">تاریخچه Long / Short و Taker</div>
   <div style="overflow-x:auto"><table><thead><tr><th>زمان</th><th>Long / Short</th><th>Buy / Sell</th></tr></thead><tbody id="ratioHistoryRows"><tr><td colspan="3">در انتظار داده</td></tr></tbody></table></div>
-  <div class="section-title">وضعیت داده‌های منتشرشده</div>
-  <div class="small" id="liqState">داده‌ها از فایل JSON منتشرشده توسط GitHub Actions خوانده می‌شوند.</div>
-  <div class="section-title">سیگنال‌های آزمایشی تاریخی</div>
-  <div class="small">قواعد اولیه و قابل بازبینی: RSI، تقاطع Stoch RSI و جهت CVD تخمینی. این‌ها توصیه معاملاتی نیستند و هنوز بک‌تست/بهینه‌سازی نشده‌اند.</div>
+  <div class="section-title">وضعیت منبع داده</div><div class="small" id="sourceState">—</div>
+  <div class="section-title">سیگنال‌های آزمایشی</div>
+  <div class="small">قواعد نمایشی و آزمایشی‌اند؛ توصیه معاملاتی یا استراتژی بک‌تست‌شده نیستند.</div>
   <div class="actions"><button onclick="exportJSON()">خروجی JSON</button><button onclick="exportCSV()">خروجی CSV</button></div>
   <div style="overflow-x:auto"><table><thead><tr><th>زمان کندل</th><th>قیمت</th><th>RSI</th><th>K / D</th><th>سیگنال</th></tr></thead><tbody id="signals"><tr><td colspan="5">هنوز داده‌ای دریافت نشده</td></tr></tbody></table></div>
-  <p class="small" style="margin-top:12px">منبع داده مشتقات و کندل‌های BTC: OKX API از طریق GitHub Actions. تاریخچه OI، Funding، Long/Short و Taker در جدول‌ها نمایش داده می‌شود. CVD تخمینی است و لیکوییدیشن هنوز متصل نیست.</p>
  </section>
 </main>
 <script>
-let market='BTC',tf='240',lastReport=null,refreshBusy=false;
-const cryptoSymbols={BTC:'BTCUSDT',LTC:'LTCUSDT',BCH:'BCHUSDT',UNI:'UNIUSDT',XMR:'XMRUSDT'};
 const $=id=>document.getElementById(id);
-const DATA_URL='./data/btc.json';
-
-function tvSymbol(){
- return market==='GOLD'?'OANDA:XAUUSD':'BINANCE:'+cryptoSymbols[market]+'.P';
-}
-function tfName(){
- return tf==='240'?'۴ ساعته':tf==='D'?'روزانه':'هفتگی';
-}
-function interval(){
- return tf==='240'?'4h':tf==='D'?'1d':'1w';
-}
+const COINS=['BTC','LTC','BCH','UNI','XMR'];
+const SYMBOLS={BTC:'BTCUSDT',LTC:'LTCUSDT',BCH:'BCHUSDT',UNI:'UNIUSDT',XMR:'XMRUSDT'};
+let market='BTC',tf='240',lastReport=null,refreshBusy=false;
+const plotInstances={};
+const DATA_URL='./data/markets.json';
+function interval(){return tf==='240'?'4h':tf==='D'?'1d':'1w'}
+function tvSymbol(){return market==='GOLD'?'OANDA:XAUUSD':'BINANCE:'+SYMBOLS[market]+'.P'}
+function tfName(){return tf==='240'?'۴ ساعته':tf==='D'?'روزانه':'هفتگی'}
 function renderChart(){
- const host=$('tv_chart');
- host.innerHTML='';
- const script=document.createElement('script');
- script.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
- script.async=true;
- script.type='text/javascript';
- script.text=JSON.stringify({
-  autosize:true,
-  symbol:tvSymbol(),
-  interval:tf,
-  timezone:'Asia/Tehran',
-  theme:'dark',
-  style:'1',
-  locale:'en',
-  allow_symbol_change:false,
-  calendar:false,
-  details:false,
-  hotlist:false,
-  hide_side_toolbar:true,
-  withdateranges:true,
-  save_image:false,
-  studies:['STD;RSI','STD;StochasticRSI'],
-  support_host:'https://www.tradingview.com'
- });
- host.appendChild(script);
- $('marketLabel').textContent=market==='GOLD'?'XAUUSD':cryptoSymbols[market]+'.P';
- $('chartStatus').textContent=market==='GOLD'?'نمودار طلای OANDA · '+tfName():'نمودار '+market+' در TradingView · '+tfName();
+ const host=$('tv_chart');host.innerHTML='';
+ const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';s.async=true;s.type='text/javascript';
+ s.text=JSON.stringify({autosize:true,symbol:tvSymbol(),interval:tf,timezone:'Asia/Tehran',theme:'dark',style:'1',locale:'en',allow_symbol_change:false,calendar:false,details:false,hotlist:false,hide_side_toolbar:true,withdateranges:true,save_image:false,studies:['STD;RSI','STD;StochasticRSI'],support_host:'https://www.tradingview.com'});
+ host.appendChild(s);
+ $('marketLabel').textContent=market==='GOLD'?'XAUUSD':SYMBOLS[market];
+ $('chartStatus').textContent=(market==='GOLD'?'نمودار طلای OANDA':'نمودار '+market+' · Binance Futures')+' · '+tfName();
 }
-function setMarket(m){
- market=m;
- document.querySelectorAll('[data-market]').forEach(b=>b.classList.toggle('active',b.dataset.market===m));
- renderChart();
- if(m==='BTC')refreshData();
- else clearOtherMarket();
-}
-function setTf(t,el){
- tf=t;
- document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('active',b===el));
- renderChart();
- if(market==='BTC')refreshData();
-}
-function toggleAnalysis(){
- $('analysis').classList.toggle('open');
- if($('analysis').classList.contains('open')&&market==='BTC')refreshData();
-}
-function clearOtherMarket(){
- ['rsi','stoch','cvd','oi','oiChange','funding','fundingNext','ls','lsDetail','taker'].forEach(id=>$(id).textContent='—');
- ['oiHistoryRows','fundingHistoryRows','ratioHistoryRows'].forEach(id=>$(id).innerHTML='<tr><td colspan="3">داده‌ای برای این نماد وجود ندارد.</td></tr>');
- $('liq').textContent='در این نسخه دریافت نمی‌شود';
- $('loadState').textContent='داده‌های مشتقات فعلاً فقط برای BTC از OKX دریافت می‌شوند.';
- $('signals').innerHTML='<tr><td colspan="5">برای این نماد داده‌ای دریافت نشده.</td></tr>';
- lastReport=null;
-}
-async function fetchData(){
- const response=await fetch(DATA_URL+'?t='+Date.now(),{cache:'no-store'});
- if(!response.ok)throw new Error('HTTP '+response.status+' · فایل data/btc.json پیدا نشد');
- return await response.json();
-}
-function fmt(n,d=2){
- const v=Number(n);
- return Number.isFinite(v)?v.toLocaleString('en-US',{maximumFractionDigits:d}):'—';
-}
+function setMarket(m){market=m;document.querySelectorAll('[data-market]').forEach(b=>b.classList.toggle('active',b.dataset.market===m));renderChart();refreshData()}
+function setTf(t,el){tf=t;document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('active',b===el));renderChart();refreshData()}
+function toggleAnalysis(){$('analysis').classList.toggle('open');if($('analysis').classList.contains('open'))refreshData()}
+async function fetchData(){const r=await fetch(DATA_URL+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('فایل data/markets.json پیدا نشد (HTTP '+r.status+')');return r.json()}
 function arr(x){return Array.isArray(x)?x:[]}
-function num(obj,keys){
- for(const k of keys){
-  const raw=obj?.[k];
-  if(raw!==undefined&&raw!==null&&raw!==''&&Number.isFinite(Number(raw)))return Number(raw);
- }
- return null;
+function num(o,keys){for(const k of keys){let v=o?.[k];if(v!==undefined&&v!==null&&v!==''&&Number.isFinite(Number(v)))return Number(v)}return null}
+function fmt(n,d=2){return Number.isFinite(Number(n))?Number(n).toLocaleString('en-US',{maximumFractionDigits:d}):'—'}
+function tsOf(x){let v=num(x,['ts','timestamp','fundingTime','time']);if(v===null)return 0;return v<1e12?v*1000:v}
+function dateLabel(v){let n=Number(v);if(!n)return '—';if(n<1e12)n*=1000;return new Date(n).toLocaleString('fa-IR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function dateShort(v){return dateLabel(v).split('،')[0]}
+function newest(list){return arr(list).filter(x=>x&&typeof x==='object').slice().sort((a,b)=>tsOf(b)-tsOf(a))[0]||{}}
+function newestFirst(list){return arr(list).slice().sort((a,b)=>tsOf(b)-tsOf(a))}
+function normalizeCandles(raw){
+ let src=Array.isArray(raw)?raw:arr(raw?.klines);
+ return src.filter(k=>Array.isArray(k)&&k.length>=6).map(k=>({time:Number(k[0]),open:Number(k[1]),high:Number(k[2]),low:Number(k[3]),close:Number(k[4]),volume:Number(k[5])})).filter(b=>Number.isFinite(b.time)&&Number.isFinite(b.close)&&Number.isFinite(b.volume)).sort((a,b)=>a.time-b.time);
 }
-function tsOf(x){
- return Number(x?.ts??x?.timestamp??x?.fundingTime??0);
+function calcRSI(c,n=14){let o=Array(c.length).fill(null),g=0,l=0;if(c.length<=n)return o;for(let i=1;i<=n;i++){let d=c[i]-c[i-1];g+=Math.max(d,0);l+=Math.max(-d,0)}let ag=g/n,al=l/n;o[n]=al===0?100:100-100/(1+ag/al);for(let i=n+1;i<c.length;i++){let d=c[i]-c[i-1];ag=(ag*(n-1)+Math.max(d,0))/n;al=(al*(n-1)+Math.max(-d,0))/n;o[i]=al===0?100:100-100/(1+ag/al)}return o}
+function sma(a,i,n){let z=a.slice(Math.max(0,i-n+1),i+1).filter(v=>v!==null&&Number.isFinite(v));return z.length===n?z.reduce((s,v)=>s+v,0)/n:null}
+function calcStoch(r){let raw=Array(r.length).fill(null);for(let i=0;i<r.length;i++){let w=r.slice(Math.max(0,i-13),i+1).filter(v=>v!==null);if(w.length===14){let lo=Math.min(...w),hi=Math.max(...w);raw[i]=hi===lo?0:100*(r[i]-lo)/(hi-lo)}}let k=raw.map((_,i)=>sma(raw,i,3)),d=k.map((_,i)=>sma(k,i,3));return{k,d}}
+function analyze(bars){let closes=bars.map(b=>b.close),rsi=calcRSI(closes),{k,d}=calcStoch(rsi),cum=0,cvd=[];bars.forEach(b=>{cum+=b.volume*(b.close-b.open)/Math.max(b.high-b.low,1e-12);cvd.push(cum)});let rows=[];for(let i=2;i<bars.length;i++){let up=k[i-1]!=null&&d[i-1]!=null&&k[i-1]<=d[i-1]&&k[i]>d[i],down=k[i-1]!=null&&d[i-1]!=null&&k[i-1]>=d[i-1]&&k[i]<d[i],signal='WATCH';if(rsi[i]!=null&&rsi[i]<35&&up&&cvd[i]>cvd[i-1])signal='BUY';else if(rsi[i]!=null&&rsi[i]>65&&down&&cvd[i]<cvd[i-1])signal='SELL';rows.push({time:bars[i].time,price:bars[i].close,rsi:rsi[i],k:k[i],d:d[i],cvd:cvd[i],signal})}return{bars,rsi,k,d,cvd,rows}}
+function drawPlot(id,labels,sets,opts={}){let c=$(id);if(!c)return;if(plotInstances[id])plotInstances[id].destroy();plotInstances[id]=new Chart(c,{type:opts.type||'line',data:{labels,datasets:sets.map(s=>({label:s.label,data:s.data,borderColor:s.color||'#55aef5',backgroundColor:s.color||'rgba(85,174,245,.15)',borderWidth:1.7,pointRadius:0,tension:.18,fill:false,type:s.type||'line'}))},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#cbd5e1',boxWidth:12,font:{size:10}}}},scales:{x:{ticks:{color:'#9aacc3',maxTicksLimit:6,font:{size:9}},grid:{color:'rgba(154,172,195,.08)'}},y:{ticks:{color:'#9aacc3',font:{size:9}},grid:{color:'rgba(154,172,195,.08)'},...(opts.y||{})}}}})}
+function emptyPlot(id,msg){let el=$(id);if(el)el.innerHTML='<div class="plot-empty">'+msg+'</div>'}
+function historySeries(list,keys){return newestFirst(list).slice().reverse().map(x=>({t:tsOf(x),v:num(x,keys)})).filter(x=>x.t&&x.v!==null)}
+function drawAll(a,d){
+ let labels=a.bars.map(b=>dateShort(b.time));
+ drawPlot('rsiChart',labels,[{label:'RSI',data:a.rsi,color:'#55aef5'},{label:'70',data:labels.map(()=>70),color:'#ef727b'},{label:'30',data:labels.map(()=>30),color:'#34c78a'}],{y:{min:0,max:100}});
+ drawPlot('stochChart',labels,[{label:'K',data:a.k,color:'#34c78a'},{label:'D',data:a.d,color:'#e6b65b'},{label:'80',data:labels.map(()=>80),color:'#ef727b'},{label:'20',data:labels.map(()=>20),color:'#55aef5'}],{y:{min:0,max:100}});
+ drawPlot('cvdChart',labels,[{label:'CVD تخمینی',data:a.cvd,color:'#b18cff'}]);
+ let oi=historySeries(d.openInterestHistory,['oiCcy','oi','sumOpenInterest']);
+ if(oi.length)drawPlot('oiChart',oi.map(x=>dateShort(x.t)),[{label:'Open Interest',data:oi.map(x=>x.v)}]);else emptyPlot('oiPlot','تاریخچه OI برای این ارز در داده دریافتی موجود نیست');
+ let f=historySeries(d.fundingHistory,['fundingRate','realizedRate']);
+ if(f.length)drawPlot('fundingChart',f.map(x=>dateShort(x.t)),[{label:'Funding %',data:f.map(x=>x.v*100),color:'#e6b65b',type:'bar'}],{type:'bar'});else emptyPlot('fundingPlot','تاریخچه Funding موجود نیست');
+ let ls=historySeries(d.longShortRatio,['longShortRatio','longShortAccountRatio','ratio']);
+ if(ls.length)drawPlot('lsChart',ls.map(x=>dateShort(x.t)),[{label:'Long / Short',data:ls.map(x=>x.v),color:'#34c78a'}]);else emptyPlot('lsPlot','تاریخچه Long / Short موجود نیست');
+ let tk=arr(d.takerRatio).slice().sort((a,b)=>tsOf(a)-tsOf(b)).map(x=>({t:tsOf(x),v:num(x,['buySellRatio','buySellVolRatio','takerBuySellRatio'])??(()=>{let b=num(x,['buyVol','buyVolume']),s=num(x,['sellVol','sellVolume']);return b!==null&&s?b/s:null})()})).filter(x=>x.t&&x.v!==null);
+ if(tk.length)drawPlot('takerChart',tk.map(x=>dateShort(x.t)),[{label:'Taker Buy / Sell',data:tk.map(x=>x.v),color:'#ef727b'}]);else emptyPlot('takerPlot','تاریخچه Taker موجود نیست');
 }
-function newest(list){
- const a=arr(list).filter(x=>x&&typeof x==='object');
- if(!a.length)return {};
- return a.sort((x,y)=>tsOf(y)-tsOf(x))[0];
+function renderTables(d){
+ let oi=newestFirst(d.openInterestHistory).slice(0,15);
+ $('oiHistoryRows').innerHTML=oi.length?oi.map(x=>`<tr><td>${dateLabel(tsOf(x))}</td><td>${fmt(num(x,['oiCcy','oi','sumOpenInterest']),4)}</td><td>${fmt(num(x,['oiUsd','sumOpenInterestValue']),0)}</td></tr>`).join(''):'<tr><td colspan="3">تاریخچه OI دریافت نشده یا API خطا داده است.</td></tr>';
+ let f=newestFirst(d.fundingHistory).slice(0,15);
+ $('fundingHistoryRows').innerHTML=f.length?f.map(x=>`<tr><td>${dateLabel(tsOf(x))}</td><td>${num(x,['fundingRate','realizedRate'])===null?'—':fmt(num(x,['fundingRate','realizedRate'])*100,5)+'%'}</td></tr>`).join(''):'<tr><td colspan="2">تاریخچه Funding موجود نیست.</td></tr>';
+ let ls=newestFirst(d.longShortRatio),tk=newestFirst(d.takerRatio),n=Math.min(15,Math.max(ls.length,tk.length)),rows=[];
+ for(let i=0;i<n;i++){let l=ls[i]||{},t=tk[i]||{},lr=num(l,['longShortRatio','longShortAccountRatio','ratio']),tr=num(t,['buySellRatio','buySellVolRatio','takerBuySellRatio']);if(tr===null){let b=num(t,['buyVol','buyVolume']),s=num(t,['sellVol','sellVolume']);if(b!==null&&s)tr=b/s}rows.push(`<tr><td>${dateLabel(tsOf(l)||tsOf(t))}</td><td>${lr===null?'—':fmt(lr,3)}</td><td>${tr===null?'—':fmt(tr,3)}</td></tr>`)}
+ $('ratioHistoryRows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="3">تاریخچه نسبت‌ها موجود نیست.</td></tr>';
 }
-function newestFirst(list){
- return arr(list).slice().sort((x,y)=>tsOf(y)-tsOf(x));
-}
-function dateLabel(value){
- const n=Number(value);
- return n?new Date(n).toLocaleString('fa-IR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-}
-function normalizeOKXCandles(raw){
- const source=Array.isArray(raw)?raw:arr(raw?.klines);
- return source.filter(k=>Array.isArray(k)&&k.length>=6)
-  .filter(k=>k.length<9||String(k[8])==='1')
-  .map(k=>({
-   time:Number(k[0]),
-   open:Number(k[1]),
-   high:Number(k[2]),
-   low:Number(k[3]),
-   close:Number(k[4]),
-   volume:Number(k[6]||k[5])
-  }))
-  .filter(b=>Number.isFinite(b.time)&&Number.isFinite(b.close)&&Number.isFinite(b.volume))
-  .sort((a,b)=>a.time-b.time);
-}
-function calcRSI(closes,len=14){
- let out=Array(closes.length).fill(null),gain=0,loss=0;
- if(closes.length<=len)return out;
- for(let i=1;i<=len;i++){
-  let ch=closes[i]-closes[i-1];
-  gain+=Math.max(ch,0);
-  loss+=Math.max(-ch,0);
- }
- let ag=gain/len,al=loss/len;
- out[len]=al===0?100:100-100/(1+ag/al);
- for(let i=len+1;i<closes.length;i++){
-  let ch=closes[i]-closes[i-1];
-  ag=(ag*(len-1)+Math.max(ch,0))/len;
-  al=(al*(len-1)+Math.max(-ch,0))/len;
-  out[i]=al===0?100:100-100/(1+ag/al);
- }
- return out;
-}
-function smaAt(a,end,len){
- let vals=a.slice(Math.max(0,end-len+1),end+1).filter(x=>x!==null&&Number.isFinite(x));
- return vals.length===len?vals.reduce((s,x)=>s+x,0)/len:null;
-}
-function stoch(rsi,len=14){
- let raw=Array(rsi.length).fill(null);
- for(let i=0;i<rsi.length;i++){
-  let w=rsi.slice(Math.max(0,i-len+1),i+1).filter(x=>x!==null);
-  if(w.length===len){
-   let lo=Math.min(...w),hi=Math.max(...w);
-   raw[i]=hi===lo?0:100*(rsi[i]-lo)/(hi-lo);
-  }
- }
- let k=raw.map((_,i)=>smaAt(raw,i,3));
- let d=k.map((_,i)=>smaAt(k,i,3));
- return{k,d};
-}
-function analyzeBars(bars){
- const closes=bars.map(b=>b.close);
- const rsi=calcRSI(closes);
- const {k,d}=stoch(rsi);
- let cum=0,cvd=[];
- bars.forEach(b=>{
-  let range=Math.max(b.high-b.low,1e-12);
-  cum+=b.volume*(b.close-b.open)/range;
-  cvd.push(cum);
- });
- let rows=[];
- for(let i=2;i<bars.length;i++){
-  let crossUp=k[i-1]!==null&&d[i-1]!==null&&k[i-1]<=d[i-1]&&k[i]>d[i];
-  let crossDown=k[i-1]!==null&&d[i-1]!==null&&k[i-1]>=d[i-1]&&k[i]<d[i];
-  let sig='WATCH';
-  if(rsi[i]!==null&&rsi[i]<35&&crossUp&&cvd[i]>cvd[i-1])sig='BUY';
-  else if(rsi[i]!==null&&rsi[i]>65&&crossDown&&cvd[i]<cvd[i-1])sig='SELL';
-  rows.push({
-   time:bars[i].time,
-   price:bars[i].close,
-   rsi:rsi[i],
-   k:k[i],
-   d:d[i],
-   cvd:cvd[i],
-   signal:sig
-  });
- }
- return{bars,rsi,k,d,cvd,rows};
-}
-function getOpenInterest(der){
- const oi=newest(der.openInterest);
- const hist=newestFirst(der.openInterestHistory);
- const currentBTC=num(oi,['oiCcy']);
- const currentContracts=num(oi,['oi']);
- const currentUSD=num(oi,['oiUsd']);
- const previous=hist.length>1?num(hist[1],['oiCcy','oi']):null;
- const currentForChange=currentBTC??currentContracts;
- return{
-  current:currentForChange,
-  currentBTC,
-  currentContracts,
-  currentUSD,
-  change:previous&&currentForChange!==null?100*(currentForChange-previous)/previous:null,
-  history:hist
- };
-}
-function renderHistory(der){
- const oi=newestFirst(der.openInterestHistory).slice(0,12);
- $('oiHistoryRows').innerHTML=oi.length?oi.map(x=>
-  `<tr><td>${dateLabel(tsOf(x))}</td><td>${fmt(num(x,['oiCcy','oi']),3)}</td><td>${fmt(num(x,['oiUsd']),0)}</td></tr>`
- ).join(''):'<tr><td colspan="3">تاریخچه OI دریافت نشده یا API خطا داده است.</td></tr>';
-
- const fh=newestFirst(der.fundingHistory).slice(0,12);
- $('fundingHistoryRows').innerHTML=fh.length?fh.map(x=>
-  `<tr><td>${dateLabel(x.fundingTime??x.ts)}</td><td>${num(x,['fundingRate','realizedRate'])===null?'—':(num(x,['fundingRate','realizedRate'])*100).toFixed(4)+'%'}</td></tr>`
- ).join(''):'<tr><td colspan="2">تاریخچه Funding دریافت نشده یا API خطا داده است.</td></tr>';
-
- const ls=newestFirst(der.longShortRatio);
- const tk=newestFirst(der.takerRatio);
- const merged=[];
- const count=Math.min(12,Math.max(ls.length,tk.length));
-
- for(let i=0;i<count;i++){
-  const l=ls[i]||{},t=tk[i]||{};
-  const lr=num(l,['longShortRatio','ratio']);
-  const br=num(t,['buySellRatio'])??(()=>{
-   const b=num(t,['buyVol','buyVolume']);
-   const v=num(t,['sellVol','sellVolume']);
-   return b!==null&&v?b/v:null;
-  })();
-  merged.push(`<tr><td>${dateLabel(tsOf(l)||tsOf(t))}</td><td>${lr===null?'—':fmt(lr,3)+' : 1'}</td><td>${br===null?'—':fmt(br,3)+' : 1'}</td></tr>`);
- }
- $('ratioHistoryRows').innerHTML=merged.length?merged.join(''):'<tr><td colspan="3">تاریخچه نسبت‌ها دریافت نشده یا API خطا داده است.</td></tr>';
-}
+function clearMetrics(msg){['rsi','stoch','cvd','oi','oiChange','funding','fundingNext','ls','lsDetail','taker'].forEach(id=>$(id).textContent='—');$('loadState').textContent=msg;$('signals').innerHTML='<tr><td colspan="5">داده‌ای برای نمایش وجود ندارد.</td></tr>';['oiHistoryRows','fundingHistoryRows','ratioHistoryRows'].forEach(id=>$(id).innerHTML='<tr><td colspan="3">داده‌ای موجود نیست.</td></tr>');['oiPlot','fundingPlot','lsPlot','takerPlot'].forEach(id=>emptyPlot(id,'داده‌ای برای این نماد موجود نیست'))}
 async function refreshData(){
- if(market!=='BTC'||refreshBusy)return;
- refreshBusy=true;
- $('loadState').textContent='در حال دریافت داده BTC از GitHub…';
-
+ if(refreshBusy)return;refreshBusy=true;
  try{
-  const data=await fetchData();
-  const raw=data.timeframes?.[interval()]||data.timeframes?.['4h'];
-  const bars=normalizeOKXCandles(raw);
-
-  if(bars.length<20)throw new Error('کندل‌های OKX ناقص یا ناموجود هستند');
-
-  const a=analyzeBars(bars);
-  const last=a.rows[a.rows.length-1];
-  const der=data.derivatives||{};
-  const oiData=getOpenInterest(der);
-
-  const funding=newest(der.funding);
-  const f=num(funding,['fundingRate']);
-  const fundingTime=funding.nextFundingTime;
-
-  const ls=newest(der.longShortRatio);
-  const ratio=num(ls,['longShortRatio','ratio']);
-  const longPct=ratio!==null?100*ratio/(1+ratio):null;
-  const shortPct=ratio!==null?100/(1+ratio):null;
-
-  const tk=newest(der.takerRatio);
-  const buy=num(tk,['buyVol','buyVolume']);
-  const sell=num(tk,['sellVol','sellVolume']);
-  const takerRatio=num(tk,['buySellRatio'])??(buy!==null&&sell?buy/sell:null);
-
-  $('rsi').textContent=last?.rsi!=null?fmt(last.rsi):'—';
-  $('rsi').className='v '+(last&&last.rsi<30?'good':last&&last.rsi>70?'bad':'');
-
-  $('stoch').textContent=last?.k!=null?fmt(last.k)+' / '+fmt(last.d):'—';
-  $('cvd').textContent=last?fmt(last.cvd,3)+' BTC':'—';
-
-  $('oi').textContent=oiData.current!==null?fmt(oiData.current,3)+(oiData.currentBTC!==null?' BTC':' contracts'):'—';
-  $('oiChange').textContent=oiData.change!==null?(oiData.change>0?'+':'')+fmt(oiData.change)+'% نسبت به رکورد قبلی':'تاریخچه کافی نیست';
-  $('oiChange').className='s '+(oiData.change===null?'':oiData.change>=0?'good':'bad');
-
-  $('funding').textContent=f!==null?(f*100).toFixed(4)+'%':'—';
-  $('funding').className='v '+(f===null?'':f>0?'bad':f<0?'good':'');
-  $('fundingNext').textContent='تسویه بعدی: '+(fundingTime?new Date(Number(fundingTime)).toLocaleString('fa-IR'):'—');
-
-  $('ls').textContent=ratio!==null?fmt(ratio,3)+' : 1':'—';
-  $('lsDetail').textContent=ratio!==null?'لانگ '+fmt(longPct)+'٪ · شورت '+fmt(shortPct)+'٪':'داده موجود نیست';
-  $('taker').textContent=takerRatio!==null?fmt(takerRatio,3)+' : 1':'—';
-
-  $('liq').textContent='در این نسخه دریافت نمی‌شود';
-
-  renderHistory(der);
-
-  $('liqState').textContent='منبع: OKX API · آخرین دریافت: '+(data.generatedAt?new Date(data.generatedAt).toLocaleString('fa-IR'):'نامشخص')+' · '+bars.length+' کندل '+interval();
-
-  const recent=a.rows.slice(-20).reverse();
-  $('signals').innerHTML=recent.map(x=>
-   `<tr><td>${dateLabel(x.time)}</td><td>${fmt(x.price,1)}</td><td>${x.rsi===null?'—':fmt(x.rsi)}</td><td>${x.k===null?'—':fmt(x.k)+' / '+fmt(x.d)}</td><td class="${x.signal==='BUY'?'good':x.signal==='SELL'?'bad':'warn'}">${x.signal}</td></tr>`
-  ).join('');
-
-  lastReport={
-   createdAt:new Date().toISOString(),
-   source:'GitHub Actions → OKX API → data/btc.json',
-   timeframe:interval(),
-   latest:{
-    rsi:last?.rsi,
-    stochK:last?.k,
-    stochD:last?.d,
-    estimatedCvd:last?.cvd,
-    openInterest:oiData.current,
-    openInterestChangePercent:oiData.change,
-    fundingRate:f,
-    longShortRatio:ratio,
-    takerBuySellRatio:takerRatio
-   },
-   derivatives:der,
-   signals:a.rows
-  };
-
-  $('loadState').textContent='دریافت موفق از GitHub · آخرین به‌روزرسانی: '+(data.generatedAt?new Date(data.generatedAt).toLocaleString('fa-IR'):'نامشخص')+' · '+bars.length+' کندل';
-
- }catch(e){
-  $('loadState').textContent='خطا در دریافت یا پردازش داده: '+e.message;
- }finally{
-  refreshBusy=false;
- }
+  if(market==='GOLD'){clearMetrics('داده‌های تحلیلی طلا هنوز به فایل بازار متصل نشده‌اند؛ نمودار TradingView فعال است.');$('sourceState').textContent='نمودار طلا: OANDA · داده مشتقات: در این نسخه متصل نیست.';return}
+  $('loadState').textContent='در حال دریافت داده '+market+'…';
+  let payload=await fetchData(),item=payload.markets?.[market];
+  if(!item)throw new Error('داده '+market+' در markets.json پیدا نشد');
+  let raw=item.timeframes?.[interval()]||item.timeframes?.['4h'],bars=normalizeCandles(raw);
+  if(bars.length<20)throw new Error('کندل‌های '+market+' ناقص یا ناموجودند');
+  let a=analyze(bars),d=item.derivatives||{},last=a.rows[a.rows.length-1]||{},oiNow=newest(d.openInterest),oiHist=newestFirst(d.openInterestHistory);
+  let oiValue=num(oiNow,['oiCcy','oi','oiUsd']),oiPrev=oiHist.length>1?num(oiHist[1],['oiCcy','oi','sumOpenInterest']):null;
+  let oiChange=oiValue!==null&&oiPrev?100*(oiValue-oiPrev)/oiPrev:null;
+  let fund=newest(d.funding),f=num(fund,['fundingRate']);
+  let lsr=newest(d.longShortRatio),ls=num(lsr,['longShortRatio','longShortAccountRatio','ratio']);
+  let tak=newest(d.takerRatio),tr=num(tak,['buySellRatio','buySellVolRatio','takerBuySellRatio']);
+  if(tr===null){let b=num(tak,['buyVol','buyVolume']),s=num(tak,['sellVol','sellVolume']);if(b!==null&&s)tr=b/s}
+  drawAll(a,d);renderTables(d);
+  $('rsi').textContent=last.rsi==null?'—':fmt(last.rsi);$('rsi').className='v '+(last.rsi<30?'good':last.rsi>70?'bad':'');
+  $('stoch').textContent=last.k==null?'—':fmt(last.k)+' / '+fmt(last.d);
+  $('cvd').textContent=last.cvd==null?'—':fmt(last.cvd,3)+' '+market;
+  $('oi').textContent=oiValue===null?'—':fmt(oiValue,3);
+  $('oiChange').textContent=oiChange===null?'تغییر تاریخی قابل محاسبه نیست':(oiChange>0?'+':'')+fmt(oiChange)+'% نسبت به رکورد قبلی';
+  $('funding').textContent=f===null?'—':fmt(f*100,5)+'%';$('funding').className='v '+(f>0?'bad':f<0?'good':'');
+  $('fundingNext').textContent='آخرین نرخ OKX · زمان: '+dateLabel(tsOf(fund));
+  $('ls').textContent=ls===null?'—':fmt(ls,3)+' : 1';
+  $('lsDetail').textContent=ls===null?'داده موجود نیست':'نسبت حساب‌های Long به Short';
+  $('taker').textContent=tr===null?'—':fmt(tr,3)+' : 1';
+  $('signals').innerHTML=a.rows.slice(-20).reverse().map(x=>`<tr><td>${dateLabel(x.time)}</td><td>${fmt(x.price,5)}</td><td>${x.rsi==null?'—':fmt(x.rsi)}</td><td>${x.k==null?'—':fmt(x.k)+' / '+fmt(x.d)}</td><td class="${x.signal==='BUY'?'good':x.signal==='SELL'?'bad':'warn'}">${x.signal}</td></tr>`).join('');
+  $('sourceState').textContent='قیمت و حجم: Binance USD-M Futures · مشتقات: OKX · نماد: '+item.okxInstrument+' · بروزرسانی فایل: '+(payload.generatedAt?new Date(payload.generatedAt).toLocaleString('fa-IR'):'نامشخص');
+  $('loadState').textContent='دریافت موفق · '+market+' · '+interval()+' · '+bars.length+' کندل';
+  lastReport={market,timeframe:interval(),generatedAt:payload.generatedAt,source:{candles:'Binance USD-M Futures',derivatives:'OKX'},latest:{rsi:last.rsi,stochK:last.k,stochD:last.d,estimatedCvd:last.cvd,openInterest:oiValue,openInterestChangePercent:oiChange,fundingRate:f,longShortRatio:ls,takerBuySellRatio:tr},derivatives:d,signals:a.rows};
+ }catch(e){$('loadState').textContent='خطا: '+e.message;$('sourceState').textContent='فایل مورد انتظار: data/markets.json';lastReport=null}
+ finally{refreshBusy=false}
 }
-function download(name,content,type){
- const blob=new Blob([content],{type});
- const url=URL.createObjectURL(blob);
- const a=document.createElement('a');
- a.href=url;
- a.download=name;
- a.click();
- setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-function exportJSON(){
- if(!lastReport){
-  alert('ابتدا داده‌های بازار را به‌روزرسانی کن.');
-  return;
- }
- download('btc_analysis.json',JSON.stringify(lastReport,null,2),'application/json');
-}
-function exportCSV(){
- if(!lastReport){
-  alert('ابتدا داده‌های بازار را به‌روزرسانی کن.');
-  return;
- }
- const rows=[
-  ['timestamp','price','rsi','stoch_k','stoch_d','estimated_cvd','signal'],
-  ...lastReport.signals.map(x=>[
-   new Date(x.time).toISOString(),
-   x.price,x.rsi,x.k,x.d,x.cvd,x.signal
-  ])
- ];
- const csv='\uFEFF'+rows.map(r=>
-  r.map(v=>'"'+(v??'').toString().replaceAll('"','""')+'"').join(',')
- ).join('\n');
- download('btc_signals.csv',csv,'text/csv;charset=utf-8');
-}
+function download(name,content,type){let blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function exportJSON(){if(!lastReport){alert('ابتدا داده‌ها را به‌روزرسانی کن.');return}download(market.toLowerCase()+'_analysis.json',JSON.stringify(lastReport,null,2),'application/json')}
+function exportCSV(){if(!lastReport){alert('ابتدا داده‌ها را به‌روزرسانی کن.');return}let rows=[['timestamp','price','rsi','stoch_k','stoch_d','estimated_cvd','signal'],...lastReport.signals.map(x=>[new Date(x.time).toISOString(),x.price,x.rsi,x.k,x.d,x.cvd,x.signal])];let csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+(v??'').toString().replaceAll('"','""')+'"').join(',')).join('\n');download(market.toLowerCase()+'_signals.csv',csv,'text/csv;charset=utf-8')}
 renderChart();
-refreshData();
 </script>
 </body>
 </html>
