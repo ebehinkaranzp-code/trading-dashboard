@@ -1,0 +1,695 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101722">
+<title>Trading Dashboard</title>
+
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0b111a;
+  --panel:#141e2b;
+  --panel2:#192637;
+  --border:#26364a;
+  --text:#e6edf5;
+  --muted:#91a2b7;
+  --green:#19c784;
+  --red:#f05b68;
+  --blue:#399cff;
+  --yellow:#f5c451;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Tahoma,sans-serif;
+}
+header{
+  padding:18px 16px;
+  border-bottom:1px solid var(--border);
+  background:#101925;
+}
+header h1{font-size:21px;margin:0 0 6px}
+header p{font-size:12px;color:var(--muted);margin:0}
+main{max-width:1400px;margin:auto;padding:14px}
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-bottom:14px;
+}
+select,button{
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:11px 14px;
+  border-radius:8px;
+  font-size:14px;
+}
+button{cursor:pointer}
+button:hover{border-color:var(--blue)}
+.status{
+  padding:12px;
+  margin-bottom:14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  font-size:13px;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;
+  margin-bottom:14px;
+}
+.card,.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+}
+.card{padding:13px}
+.card .label{font-size:12px;color:var(--muted)}
+.card .value{font-size:20px;font-weight:bold;margin-top:8px;direction:ltr;text-align:right}
+.panel{padding:13px;margin-bottom:14px;min-width:0}
+.panel h2{font-size:15px;margin:0 0 12px}
+.chart-wrap{position:relative;width:100%;height:300px}
+.chart-wrap.small{height:170px}
+canvas{width:100%;height:100%;display:block}
+.chart-legend{
+  display:flex;gap:15px;flex-wrap:wrap;
+  font-size:11px;color:var(--muted);margin-top:8px
+}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.blue{color:var(--blue)}
+.yellow{color:var(--yellow)}
+.grid2{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:12px;
+}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:10px 7px;border-bottom:1px solid var(--border);text-align:right}
+th{color:var(--muted);font-weight:normal}
+.buy{color:var(--green);font-weight:bold}
+.sell{color:var(--red);font-weight:bold}
+.watch{color:var(--yellow)}
+.footer{color:var(--muted);font-size:11px;text-align:center;padding:15px}
+@media(max-width:600px){
+  main{padding:9px}
+  .chart-wrap{height:250px}
+  .chart-wrap.small{height:150px}
+  header h1{font-size:18px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>داشبورد تحلیل بازار</h1>
+  <p>Market Data · Technical Indicators · Spot Analysis</p>
+</header>
+
+<main>
+  <div class="toolbar">
+    <select id="coin">
+      <option>BTC</option>
+      <option>LTC</option>
+      <option>BCH</option>
+      <option>UNI</option>
+      <option>XMR</option>
+    </select>
+
+    <select id="timeframe">
+      <option value="4h">4 ساعت</option>
+      <option value="1d">روزانه</option>
+      <option value="1w">هفتگی</option>
+    </select>
+
+    <button id="refresh">بروزرسانی داده‌ها</button>
+  </div>
+
+  <div class="status" id="status">در حال دریافت اطلاعات بازار...</div>
+
+  <section class="cards">
+    <div class="card">
+      <div class="label">قیمت آخر</div>
+      <div class="value" id="price">—</div>
+    </div>
+    <div class="card">
+      <div class="label">تغییر آخرین کندل</div>
+      <div class="value" id="change">—</div>
+    </div>
+    <div class="card">
+      <div class="label">RSI</div>
+      <div class="value" id="rsi">—</div>
+    </div>
+    <div class="card">
+      <div class="label">Stoch RSI K</div>
+      <div class="value" id="stoch">—</div>
+    </div>
+    <div class="card">
+      <div class="label">سیگنال</div>
+      <div class="value" id="signal">—</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>نمودار قیمت و کندل‌ها</h2>
+    <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+    <div class="chart-legend">
+      <span><i class="dot" style="background:var(--green)"></i>صعودی</span>
+      <span><i class="dot" style="background:var(--red)"></i>نزولی</span>
+    </div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>RSI (14)</h2>
+      <div class="chart-wrap small"><canvas id="rsiChart"></canvas></div>
+    </section>
+    <section class="panel">
+      <h2>Stochastic RSI</h2>
+      <div class="chart-wrap small"><canvas id="stochChart"></canvas></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>CVD تخمینی</h2>
+    <div class="chart-wrap small"><canvas id="cvdChart"></canvas></div>
+    <div class="chart-legend">این CVD از حجم و محل بسته‌شدن کندل تخمین زده می‌شود و معادل دلتا واقعی معاملات نیست.</div>
+  </section>
+
+  <section class="panel">
+    <h2>اطلاعات مشتقه OKX</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="label">Open Interest</div>
+        <div class="value" id="oi">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Funding Rate</div>
+        <div class="value" id="funding">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Long / Short</div>
+        <div class="value" id="ls">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Taker Buy / Sell</div>
+        <div class="value" id="taker">—</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Open Interest History</h2>
+      <div class="chart-wrap small"><canvas id="oiChart"></canvas></div>
+    </section>
+    <section class="panel">
+      <h2>Funding History</h2>
+      <div class="chart-wrap small"><canvas id="fundingChart"></canvas></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>آخرین کندل‌ها و سیگنال‌ها</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>زمان</th>
+            <th>قیمت</th>
+            <th>RSI</th>
+            <th>Stoch K</th>
+            <th>Stoch D</th>
+            <th>سیگنال</th>
+          </tr>
+        </thead>
+        <tbody id="signalRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="footer" id="updated">آخرین بروزرسانی: —</div>
+</main>
+
+<script>
+"use strict";
+
+const DATA_URL="./data/markets.json";
+
+let marketData=null;
+let currentAnalysis=null;
+
+const $=id=>document.getElementById(id);
+
+function number(v){
+  const n=Number(v);
+  return Number.isFinite(n)?n:null;
+}
+
+function fmt(v,d=2){
+  if(v===null||!Number.isFinite(Number(v)))return "—";
+  return Number(v).toLocaleString("en-US",{maximumFractionDigits:d});
+}
+
+function formatTime(t){
+  const n=Number(t);
+  if(!Number.isFinite(n))return "—";
+  return new Date(n).toLocaleString("en-US",{
+    month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"
+  });
+}
+
+function calcRSI(values,period=14){
+  const out=Array(values.length).fill(null);
+  if(values.length<=period)return out;
+
+  let gain=0,loss=0;
+  for(let i=1;i<=period;i++){
+    const diff=values[i]-values[i-1];
+    if(diff>0)gain+=diff;
+    else loss-=diff;
+  }
+
+  let avgGain=gain/period;
+  let avgLoss=loss/period;
+
+  out[period]=avgLoss===0?100:100-(100/(1+avgGain/avgLoss));
+
+  for(let i=period+1;i<values.length;i++){
+    const diff=values[i]-values[i-1];
+    avgGain=(avgGain*(period-1)+Math.max(diff,0))/period;
+    avgLoss=(avgLoss*(period-1)+Math.max(-diff,0))/period;
+    out[i]=avgLoss===0?100:100-(100/(1+avgGain/avgLoss));
+  }
+  return out;
+}
+
+function stochRSI(rsi,period=14,smoothK=3,smoothD=3){
+  const raw=Array(rsi.length).fill(null);
+
+  for(let i=period-1;i<rsi.length;i++){
+    const slice=rsi.slice(i-period+1,i+1);
+    if(slice.some(v=>!Number.isFinite(v)))continue;
+    const lo=Math.min(...slice);
+    const hi=Math.max(...slice);
+    raw[i]=hi===lo?0:(rsi[i]-lo)/(hi-lo)*100;
+  }
+
+  function sma(values,length){
+    return values.map((v,i)=>{
+      if(i<length-1)return null;
+      const s=values.slice(i-length+1,i+1);
+      if(s.some(x=>!Number.isFinite(x)))return null;
+      return s.reduce((a,b)=>a+b,0)/length;
+    });
+  }
+
+  const k=sma(raw,smoothK);
+  const d=sma(k,smoothD);
+  return {k,d};
+}
+
+function normalizeCandles(rows){
+  if(!Array.isArray(rows))return [];
+
+  return rows.filter(row=>
+    Array.isArray(row)&&row.length>=9&&
+    String(row[8])==="1"
+  ).map(row=>({
+    time:Number(row[0]),
+    open:Number(row[1]),
+    high:Number(row[2]),
+    low:Number(row[3]),
+    close:Number(row[4]),
+    baseVolume:Number(row[5]),
+    quoteVolume:Number(row[7]),
+    volume:Number(row[7])>0?Number(row[7]):Number(row[5])
+  })).filter(b=>
+    Number.isFinite(b.time)&&
+    Number.isFinite(b.open)&&
+    Number.isFinite(b.high)&&
+    Number.isFinite(b.low)&&
+    Number.isFinite(b.close)&&
+    Number.isFinite(b.volume)&&
+    b.close>0&&b.low>0&&b.high>=b.low&&b.volume>=0
+  ).sort((a,b)=>a.time-b.time)
+   .filter((b,i,arr)=>i===0||b.time!==arr[i-1].time);
+}
+
+function analyzeKlines(klines){
+  const bars=normalizeCandles(klines);
+  if(bars.length<30){
+    return {bars,rsi:[],k:[],d:[],cvd:[],rows:[],status:"INSUFFICIENT_DATA"};
+  }
+
+  const closes=bars.map(b=>b.close);
+  const rsi=calcRSI(closes);
+  const stoch=stochRSI(rsi);
+
+  let cumulative=0;
+  const cvd=bars.map(b=>{
+    const range=Math.max(b.high-b.low,1e-12);
+    const pressure=((b.close-b.low)-(b.high-b.close))/range;
+    cumulative+=b.volume*pressure;
+    return cumulative;
+  });
+
+  const rows=bars.map((b,i)=>{
+    let signal="WATCH";
+
+    if(i>0&&Number.isFinite(rsi[i])&&
+       Number.isFinite(stoch.k[i])&&
+       Number.isFinite(stoch.d[i])&&
+       Number.isFinite(stoch.k[i-1])&&
+       Number.isFinite(stoch.d[i-1])){
+
+      const crossUp=stoch.k[i-1]<=stoch.d[i-1]&&stoch.k[i]>stoch.d[i];
+      const crossDown=stoch.k[i-1]>=stoch.d[i-1]&&stoch.k[i]<stoch.d[i];
+
+      if(rsi[i]<35&&crossUp&&cvd[i]>cvd[i-1])signal="BUY";
+      else if(rsi[i]>65&&crossDown&&cvd[i]<cvd[i-1])signal="SELL";
+    }
+
+    return {
+      time:b.time,price:b.close,rsi:rsi[i],
+      k:stoch.k[i],d:stoch.d[i],cvd:cvd[i],signal
+    };
+  });
+
+  return {bars,rsi,k:stoch.k,d:stoch.d,cvd,rows,status:"OK"};
+}
+
+function setupCanvas(canvas){
+  const rect=canvas.getBoundingClientRect();
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=Math.max(1,Math.floor(rect.width*ratio));
+  canvas.height=Math.max(1,Math.floor(rect.height*ratio));
+  const ctx=canvas.getContext("2d");
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  return {ctx,w:rect.width,h:rect.height};
+}
+
+function drawLineChart(id,values,options={}){
+  const canvas=$(id);
+  const {ctx,w,h}=setupCanvas(canvas);
+  ctx.clearRect(0,0,w,h);
+
+  const valid=values.map(number).filter(v=>v!==null);
+  if(valid.length<2){
+    ctx.fillStyle="#91a2b7";
+    ctx.font="12px Arial";
+    ctx.fillText("داده کافی نیست",12,25);
+    return;
+  }
+
+  let min=options.min??Math.min(...valid);
+  let max=options.max??Math.max(...valid);
+  if(min===max){min-=1;max+=1}
+
+  const left=48,right=12,top=12,bottom=20;
+  const cw=w-left-right,ch=h-top-bottom;
+
+  ctx.strokeStyle="#26364a";
+  ctx.lineWidth=1;
+
+  for(let i=0;i<=4;i++){
+    const y=top+ch*i/4;
+    ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
+    const val=max-(max-min)*i/4;
+    ctx.fillStyle="#91a2b7";
+    ctx.font="10px Arial";
+    ctx.fillText(fmt(val,options.digits??1),2,y+3);
+  }
+
+  if(options.lines){
+    options.lines.forEach(line=>{
+      const y=top+(max-line.value)/(max-min)*ch;
+      ctx.strokeStyle=line.color;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  }
+
+  const points=values.map((v,i)=>({
+    x:left+(i/(values.length-1))*cw,
+    y:top+(max-(number(v)??min))/(max-min)*ch,
+    valid:number(v)!==null
+  }));
+
+  ctx.strokeStyle=options.color||"#399cff";
+  ctx.lineWidth=1.8;
+  ctx.beginPath();
+  let started=false;
+  points.forEach(p=>{
+    if(!p.valid){started=false;return}
+    if(!started){ctx.moveTo(p.x,p.y);started=true}
+    else ctx.lineTo(p.x,p.y);
+  });
+  ctx.stroke();
+}
+
+function drawCandles(id,bars){
+  const canvas=$(id);
+  const {ctx,w,h}=setupCanvas(canvas);
+  ctx.clearRect(0,0,w,h);
+
+  if(!bars.length){
+    ctx.fillStyle="#91a2b7";
+    ctx.fillText("کندلی وجود ندارد",12,25);
+    return;
+  }
+
+  const visible=bars.slice(-100);
+  const max=Math.max(...visible.map(b=>b.high));
+  const min=Math.min(...visible.map(b=>b.low));
+  const pad=15;
+  const chartH=h-35;
+  const chartW=w-65;
+  const range=Math.max(max-min,1e-12);
+
+  ctx.strokeStyle="#26364a";
+  ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad+chartH*i/4;
+    ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(w-10,y);ctx.stroke();
+    const p=max-range*i/4;
+    ctx.fillStyle="#91a2b7";
+    ctx.font="10px Arial";
+    ctx.fillText(fmt(p,2),2,y+3);
+  }
+
+  const step=chartW/visible.length;
+  const candleW=Math.max(2,step*.62);
+
+  visible.forEach((b,i)=>{
+    const x=45+i*step+step/2;
+    const y=v=>pad+(max-v)/range*chartH;
+    const up=b.close>=b.open;
+    const color=up?"#19c784":"#f05b68";
+
+    ctx.strokeStyle=color;
+    ctx.fillStyle=color;
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(x,y(b.high));
+    ctx.lineTo(x,y(b.low));
+    ctx.stroke();
+
+    const top=y(Math.max(b.open,b.close));
+    const bottom=y(Math.min(b.open,b.close));
+    ctx.fillRect(
+      x-candleW/2,
+      top,
+      candleW,
+      Math.max(1,bottom-top)
+    );
+  });
+}
+
+function getLast(data){
+  return Array.isArray(data)&&data.length?data[0]:null;
+}
+
+function findValue(obj,keys){
+  if(!obj||typeof obj!=="object")return null;
+  for(const key of keys){
+    if(obj[key]!==undefined){
+      const n=number(obj[key]);
+      if(n!==null)return n;
+    }
+  }
+  return null;
+}
+
+function renderDerivatives(derivatives){
+  const d=derivatives||{};
+
+  const oi=getLast(d.openInterest);
+  const funding=getLast(d.funding);
+  const ls=getLast(d.longShortRatio);
+  const taker=getLast(d.takerRatio);
+
+  $("oi").textContent=fmt(findValue(oi,["oi","oiCcy","oiUsd"]),2);
+  $("funding").textContent=fmt(findValue(funding,["fundingRate"]),6);
+  $("ls").textContent=fmt(findValue(ls,["longShortRatio","ratio"]),3);
+
+  const buy=findValue(taker,["buyVol","buyVolCcy","buyVolUsd"]);
+  const sell=findValue(taker,["sellVol","sellVolCcy","sellVolUsd"]);
+
+  $("taker").textContent=
+    buy!==null&&sell!==null
+    ?fmt(buy,2)+" / "+fmt(sell,2)
+    :"—";
+
+  const oiHistory=d.openInterestHistory||[];
+  drawLineChart(
+    "oiChart",
+    oiHistory.map(row=>Array.isArray(row)?Number(row[1]):number(row.oi)),
+    {color:"#399cff",digits:2}
+  );
+
+  const fundingHistory=d.fundingHistory||[];
+  drawLineChart(
+    "fundingChart",
+    fundingHistory.map(row=>number(row.fundingRate)),
+    {color:"#f5c451",digits:6}
+  );
+}
+
+function render(){
+  if(!marketData)return;
+
+  const coin=$("coin").value;
+  const tf=$("timeframe").value;
+  const market=marketData.markets?.[coin];
+
+  if(!market){
+    $("status").textContent="اطلاعات این ارز در فایل داده وجود ندارد.";
+    return;
+  }
+
+  const timeframe=market.timeframes?.[tf];
+  const raw=timeframe?.klines||[];
+  const analysis=analyzeKlines(raw);
+  currentAnalysis=analysis;
+
+  if(analysis.status!=="OK"){
+    $("status").textContent=
+      coin+" | "+tf+" | کندل معتبر کافی دریافت نشده است. تعداد: "+
+      analysis.bars.length;
+    return;
+  }
+
+  const bars=analysis.bars;
+  const last=bars[bars.length-1];
+  const previous=bars[bars.length-2];
+  const lastRow=analysis.rows[analysis.rows.length-1];
+  const change=(last.close-previous.close)/previous.close*100;
+
+  $("price").textContent=fmt(last.close,4);
+  $("change").textContent=fmt(change,2)+"%";
+  $("change").className="value "+(change>=0?"green":"red");
+
+  $("rsi").textContent=fmt(lastRow.rsi,2);
+  $("stoch").textContent=fmt(lastRow.k,2);
+
+  $("signal").textContent=lastRow.signal;
+  $("signal").className="value "+
+    (lastRow.signal==="BUY"?"green":
+     lastRow.signal==="SELL"?"red":"yellow");
+
+  $("status").textContent=
+    coin+" | "+tf+" | "+bars.length+
+    " کندل معتبر | منبع: "+(timeframe.source||"OKX");
+
+  drawCandles("priceChart",bars);
+
+  drawLineChart("rsiChart",analysis.rsi,{
+    min:0,max:100,color:"#399cff",
+    lines:[
+      {value:70,color:"#f05b68"},
+      {value:30,color:"#19c784"}
+    ]
+  });
+
+  const stochValues=analysis.k.map((v,i)=>v);
+  drawLineChart("stochChart",stochValues,{
+    min:0,max:100,color:"#f5c451",
+    lines:[
+      {value:80,color:"#f05b68"},
+      {value:20,color:"#19c784"}
+    ]
+  });
+
+  drawLineChart("cvdChart",analysis.cvd,{color:"#19c784"});
+  renderDerivatives(market.derivatives);
+
+  const rows=analysis.rows.slice(-12).reverse();
+  $("signalRows").innerHTML=rows.map(row=>{
+    const cls=row.signal==="BUY"?"buy":
+      row.signal==="SELL"?"sell":"watch";
+
+    return `<tr>
+      <td>${formatTime(row.time)}</td>
+      <td>${fmt(row.price,4)}</td>
+      <td>${fmt(row.rsi,2)}</td>
+      <td>${fmt(row.k,2)}</td>
+      <td>${fmt(row.d,2)}</td>
+      <td class="${cls}">${row.signal}</td>
+    </tr>`;
+  }).join("");
+
+  $("updated").textContent=
+    "آخرین بروزرسانی داده: "+
+    (marketData.generatedAt||"نامشخص");
+}
+
+async function loadData(){
+  $("status").textContent="در حال دریافت اطلاعات بازار...";
+
+  try{
+    const response=await fetch(DATA_URL+"?t="+Date.now(),{
+      cache:"no-store"
+    });
+
+    if(!response.ok){
+      throw new Error("HTTP "+response.status);
+    }
+
+    const data=await response.json();
+
+    if(!data.markets){
+      throw new Error("ساختار فایل markets.json معتبر نیست");
+    }
+
+    marketData=data;
+    render();
+  }catch(error){
+    $("status").textContent=
+      "خطا در دریافت داده: "+error.message+
+      " | مسیر مورد انتظار: data/markets.json";
+  }
+}
+
+$("coin").addEventListener("change",render);
+$("timeframe").addEventListener("change",render);
+$("refresh").addEventListener("click",loadData);
+
+window.addEventListener("resize",()=>{
+  if(currentAnalysis&&currentAnalysis.status==="OK")render();
+});
+
+loadData();
+</script>
+</body>
+</html>
