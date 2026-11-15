@@ -16,22 +16,128 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Update market data
+      - name: Fetch market data
         run: |
-          mkdir -p data
-          echo "Market data workflow started"
-          date -u +"%Y-%m-%dT%H:%M:%SZ"
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+          from datetime import datetime, timezone
 
-      - name: Commit changes
+          BASE = "https://www.okx.com"
+          COINS = {
+              "BTC": "BTC-USDT",
+              "LTC": "LTC-USDT",
+              "BCH": "BCH-USDT",
+              "UNI": "UNI-USDT",
+              "XMR": "XMR-USDT"
+          }
+          TIMEFRAMES = {
+              "4h": "4H",
+              "1d": "1D",
+              "1w": "1W"
+          }
+
+          def get(path, params):
+              query = "&".join(f"{k}={v}" for k, v in params.items())
+              url = f"{BASE}{path}?{query}"
+              req = urllib.request.Request(
+                  url, headers={"User-Agent": "TradingDashboard/1.0"}
+              )
+              with urllib.request.urlopen(req, timeout=20) as r:
+                  result = json.loads(r.read())
+              if result.get("code") != "0":
+                  raise RuntimeError(str(result))
+              return result.get("data", [])
+
+          def safe_get(path, params):
+              try:
+                  return get(path, params)
+              except Exception as e:
+                  print(f"Optional data unavailable: {e}")
+                  return []
+
+          markets = {}
+
+          for coin, symbol in COINS.items():
+              print("Fetching", coin)
+              timeframes = {}
+
+              for tf, interval in TIMEFRAMES.items():
+                  candles = get(
+                      "/api/v5/market/history-candles",
+                      {"instId": symbol, "bar": interval, "limit": "100"}
+                  )
+                  candles.reverse()
+                  timeframes[tf] = {"klines": candles}
+
+              derivatives = {
+                  "openInterest": [],
+                  "openInterestHistory": [],
+                  "funding": [],
+                  "fundingHistory": [],
+                  "longShortRatio": [],
+                  "takerRatio": []
+              }
+
+              swap = coin + "-USDT-SWAP"
+
+              derivatives["openInterest"] = safe_get(
+                  "/api/v5/public/open-interest",
+                  {"instId": swap}
+              )
+              derivatives["openInterestHistory"] = safe_get(
+                  "/api/v5/rubik/stat/contracts/open-interest-history",
+                  {"instId": swap, "period": "4H", "limit": "100"}
+              )
+              derivatives["funding"] = safe_get(
+                  "/api/v5/public/funding-rate",
+                  {"instId": swap}
+              )
+              derivatives["fundingHistory"] = safe_get(
+                  "/api/v5/public/funding-rate-history",
+                  {"instId": swap, "limit": "100"}
+              )
+              derivatives["longShortRatio"] = safe_get(
+                  "/api/v5/rubik/stat/contracts/long-short-account-ratio",
+                  {"ccy": coin, "period": "4H"}
+              )
+              derivatives["takerRatio"] = safe_get(
+                  "/api/v5/rubik/stat/taker-volume",
+                  {"ccy": coin, "period": "4H"}
+              )
+
+              markets[coin] = {
+                  "symbol": symbol,
+                  "timeframes": timeframes,
+                  "derivatives": derivatives
+              }
+
+          output = {
+              "generatedAt": datetime.now(timezone.utc).isoformat(),
+              "source": "OKX",
+              "markets": markets
+          }
+
+          import os
+          os.makedirs("data", exist_ok=True)
+
+          with open("data/markets.json", "w") as f:
+              json.dump(output, f, ensure_ascii=False, separators=(",", ":"))
+
+          print("Market data updated successfully")
+          PY
+
+      - name: Commit data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/
+          git add data/markets.json
           git diff --cached --quiet || git commit -m "Update market data"
           git push
