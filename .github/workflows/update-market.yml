@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: update-market-data
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -110,6 +110,13 @@ jobs:
 
           markets = {}
           symbol_errors = {}
+          previous_markets = {}
+          try:
+              with open("data/markets.json", encoding="utf-8") as old_file:
+                  old_payload = json.load(old_file)
+              previous_markets = old_payload.get("markets", {}) or {}
+          except Exception:
+              previous_markets = {}
 
           for coin, candidates in COINS.items():
               print("Fetching", coin, candidates)
@@ -126,7 +133,17 @@ jobs:
                       selected_timeframes = timeframes
                       break
               if selected_symbol is None:
-                  symbol_errors[coin] = ["کمتر از ۳۰ کندل معتبر 4H از همه نمادهای جایگزین دریافت شد"]
+                  reason = "کمتر از ۳۰ کندل معتبر 4H از همه نمادهای جایگزین دریافت شد"
+                  symbol_errors[coin] = [reason]
+                  # Keep the last known good payload visible instead of making a
+                  # temporary API issue erase the market from the dashboard.
+                  old_item = previous_markets.get(coin)
+                  if old_item:
+                      old_item = dict(old_item)
+                      old_item["dataStatus"] = "stale"
+                      old_item["lastSuccessfulAt"] = old_item.get("updatedAt") or old_payload.get("generatedAt")
+                      old_item["fetchError"] = reason
+                      markets[coin] = old_item
                   continue
 
               # Gold has a real OKX SWAP market, but Rubik long/short and taker
@@ -161,6 +178,8 @@ jobs:
                   "symbol": selected_symbol,
                   "okxInstrument": selected_symbol,
                   "source": "OKX",
+                  "updatedAt": iso_now(),
+                  "dataStatus": "fresh",
                   "timeframes": selected_timeframes,
                   "derivatives": derivatives,
               }
@@ -169,8 +188,9 @@ jobs:
           if "GOLD" in markets:
               markets["XAU"] = markets["GOLD"]
 
-          # BTC is the dashboard's required baseline. Never publish an empty BTC payload.
-          if "BTC" not in markets:
+          # BTC is the only hard requirement. ETH/gold API hiccups must not
+          # cancel the entire run or prevent publication of the other markets.
+          if "BTC" not in markets or len(markets["BTC"].get("timeframes", {}).get("4h", {}).get("klines", [])) < 30:
               raise SystemExit("BTC 4H data unavailable or invalid; existing markets.json preserved.")
 
           generated = iso_now()
@@ -239,11 +259,11 @@ jobs:
               raise SystemExit("Validation failed: BTC 4H candles < 30")
           for symbol, item in markets.items():
               rows = item.get("timeframes", {}).get("4h", {}).get("klines", [])
-              if symbol in ("BTC", "ETH", "GOLD", "XAU") and len(rows) < 30:
-                  raise SystemExit("Validation failed: required 4H data missing for " + symbol)
+              if item.get("dataStatus") == "stale":
+                  continue
               if any(len(row) < 9 or str(row[8]) != "1" for row in rows):
                   raise SystemExit("Validation failed: unconfirmed candle in " + symbol)
-          print("Validation OK:", {k: len(v["timeframes"]["4h"]["klines"]) for k,v in markets.items()})
+          print("Validation OK:", {k: len(v.get("timeframes", {}).get("4h", {}).get("klines", [])) for k,v in markets.items()})
           PY
 
       - name: Commit market data and diagnostics
