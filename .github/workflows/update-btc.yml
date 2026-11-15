@@ -24,19 +24,32 @@ jobs:
       - name: Install requests
         run: pip install requests
 
-      - name: Fetch Binance data
+      - name: Fetch OKX data
         run: |
           python - <<'PY'
           import requests, json, datetime, os
 
-          BASE = "https://fapi.binance.com"
-          S = requests.Session()
-          S.headers.update({"User-Agent": "BTC-Dashboard/1.0"})
+          BASE = "https://www.okx.com"
+          INST = "BTC-USDT-SWAP"
+
+          session = requests.Session()
+          session.headers.update({
+              "User-Agent": "BTC-Dashboard/1.0"
+          })
 
           def get(path, params=None):
-              r = S.get(BASE + path, params=params, timeout=20)
+              r = session.get(
+                  BASE + path,
+                  params=params,
+                  timeout=25
+              )
               r.raise_for_status()
-              return r.json()
+              result = r.json()
+
+              if result.get("code") != "0":
+                  raise Exception(result.get("msg", "OKX API error"))
+
+              return result.get("data", [])
 
           def safe(path, params=None):
               try:
@@ -46,47 +59,83 @@ jobs:
 
           data = {
               "schemaVersion": 1,
-              "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "source": "Binance USD-M Futures",
-              "symbol": "BTCUSDT",
+              "generatedAt": datetime.datetime.now(
+                  datetime.timezone.utc
+              ).isoformat(),
+              "source": "OKX API",
+              "symbol": "BTC-USDT-SWAP",
               "timeframes": {},
               "derivatives": {}
           }
 
-          for tf in ["4h", "1d", "1w"]:
+          for tf, bar in [
+              ("4h", "4H"),
+              ("1d", "1Dutc"),
+              ("1w", "1Wutc")
+          ]:
               data["timeframes"][tf] = safe(
-                  "/fapi/v1/klines",
-                  {"symbol": "BTCUSDT", "interval": tf, "limit": 500}
+                  "/api/v5/market/candles",
+                  {
+                      "instId": INST,
+                      "bar": bar,
+                      "limit": "300"
+                  }
               )
 
           data["derivatives"]["openInterest"] = safe(
-              "/fapi/v1/openInterest", {"symbol": "BTCUSDT"}
-          )
-
-          data["derivatives"]["openInterestHistory"] = safe(
-              "/futures/data/openInterestHist",
-              {"symbol": "BTCUSDT", "period": "4h", "limit": 30}
+              "/api/v5/public/open-interest",
+              {
+                  "instType": "SWAP",
+                  "instId": INST
+              }
           )
 
           data["derivatives"]["funding"] = safe(
-              "/fapi/v1/premiumIndex", {"symbol": "BTCUSDT"}
+              "/api/v5/public/funding-rate",
+              {"instId": INST}
+          )
+
+          data["derivatives"]["fundingHistory"] = safe(
+              "/api/v5/public/funding-rate-history",
+              {
+                  "instId": INST,
+                  "limit": "30"
+              }
+          )
+
+          data["derivatives"]["openInterestHistory"] = safe(
+              "/api/v5/rubik/stat/contracts/open-interest-history",
+              {
+                  "ccy": "BTC",
+                  "instType": "SWAP",
+                  "period": "4H",
+                  "limit": "30"
+              }
           )
 
           data["derivatives"]["longShortRatio"] = safe(
-              "/futures/data/globalLongShortAccountRatio",
-              {"symbol": "BTCUSDT", "period": "4h", "limit": 30}
+              "/api/v5/rubik/stat/contracts/long-short-account-ratio",
+              {
+                  "ccy": "BTC",
+                  "period": "4H"
+              }
           )
 
           data["derivatives"]["takerRatio"] = safe(
-              "/futures/data/takerlongshortRatio",
-              {"symbol": "BTCUSDT", "period": "4h", "limit": 30}
+              "/api/v5/rubik/stat/taker-volume",
+              {
+                  "ccy": "BTC",
+                  "period": "4H"
+              }
           )
 
           os.makedirs("data", exist_ok=True)
+
           with open("data/btc.json", "w") as f:
               json.dump(data, f, separators=(",", ":"))
 
-          print("BTC data updated:", data["generatedAt"])
+          print("OKX data collection completed")
+          print("Generated:", data["generatedAt"])
           PY
 
       - name: Commit updated data
