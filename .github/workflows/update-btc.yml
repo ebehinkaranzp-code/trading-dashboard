@@ -1,3 +1,4 @@
+
 name: Update BTC Data
 
 on:
@@ -7,9 +8,7 @@ on:
 
 permissions:
   contents: write
-concurrency:
-  group: update-btc-data
-  cancel-in-progress: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -29,7 +28,10 @@ jobs:
       - name: Fetch OKX data
         run: |
           python - <<'PY'
-          import requests, json, datetime, os
+          import requests
+          import json
+          import datetime
+          import os
 
           BASE = "https://www.okx.com"
           INST = "BTC-USDT-SWAP"
@@ -49,7 +51,9 @@ jobs:
               result = r.json()
 
               if result.get("code") != "0":
-                  raise Exception(result.get("msg", "OKX API error"))
+                  raise Exception(
+                      result.get("msg", "OKX API error")
+                  )
 
               return result.get("data", [])
 
@@ -57,6 +61,7 @@ jobs:
               try:
                   return get(path, params)
               except Exception as e:
+                  print("API ERROR:", path, str(e))
                   return {"_error": str(e)}
 
           data = {
@@ -65,11 +70,12 @@ jobs:
                   datetime.timezone.utc
               ).isoformat(),
               "source": "OKX API",
-              "symbol": "BTC-USDT-SWAP",
+              "symbol": INST,
               "timeframes": {},
               "derivatives": {}
           }
 
+          # PRICE CANDLES
           for tf, bar in [
               ("4h", "4H"),
               ("1d", "1Dutc"),
@@ -84,6 +90,7 @@ jobs:
                   }
               )
 
+          # CURRENT OPEN INTEREST
           data["derivatives"]["openInterest"] = safe(
               "/api/v5/public/open-interest",
               {
@@ -92,11 +99,15 @@ jobs:
               }
           )
 
+          # CURRENT FUNDING RATE
           data["derivatives"]["funding"] = safe(
               "/api/v5/public/funding-rate",
-              {"instId": INST}
+              {
+                  "instId": INST
+              }
           )
 
+          # FUNDING HISTORY
           data["derivatives"]["fundingHistory"] = safe(
               "/api/v5/public/funding-rate-history",
               {
@@ -105,39 +116,55 @@ jobs:
               }
           )
 
+          # OPEN INTEREST HISTORY
           data["derivatives"]["openInterestHistory"] = safe(
               "/api/v5/rubik/stat/contracts/open-interest-history",
               {
-                  "ccy": "BTC",
-                  "instType": "SWAP",
+                  "instId": INST,
                   "period": "4H",
                   "limit": "30"
               }
           )
 
+          # LONG / SHORT ACCOUNT RATIO
           data["derivatives"]["longShortRatio"] = safe(
-              "/api/v5/rubik/stat/contracts/long-short-account-ratio",
+              "/api/v5/rubik/stat/contracts/long-short-account-ratio-contract",
               {
-                  "ccy": "BTC",
-                  "period": "4H"
+                  "instId": INST,
+                  "period": "4H",
+                  "limit": "30"
               }
           )
 
+          # TAKER BUY / SELL VOLUME
           data["derivatives"]["takerRatio"] = safe(
               "/api/v5/rubik/stat/taker-volume",
               {
                   "ccy": "BTC",
-                  "period": "4H"
+                  "instType": "CONTRACTS",
+                  "period": "1H"
               }
           )
 
           os.makedirs("data", exist_ok=True)
 
           with open("data/btc.json", "w") as f:
-              json.dump(data, f, separators=(",", ":"))
+              json.dump(
+                  data,
+                  f,
+                  separators=(",", ":"),
+                  ensure_ascii=False
+              )
 
           print("OKX data collection completed")
           print("Generated:", data["generatedAt"])
+
+          for name, value in data["derivatives"].items():
+              if isinstance(value, dict) and "_error" in value:
+                  print(name, "FAILED:", value["_error"])
+              else:
+                  print(name, "OK")
+
           PY
 
       - name: Commit updated data
