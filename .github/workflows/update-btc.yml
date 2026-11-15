@@ -1,0 +1,98 @@
+name: Update BTC Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Fetch Binance data
+        run: |
+          python - <<'PY'
+          import requests, json, datetime, os
+
+          BASE = "https://fapi.binance.com"
+          S = requests.Session()
+          S.headers.update({"User-Agent": "BTC-Dashboard/1.0"})
+
+          def get(path, params=None):
+              r = S.get(BASE + path, params=params, timeout=20)
+              r.raise_for_status()
+              return r.json()
+
+          def safe(path, params=None):
+              try:
+                  return get(path, params)
+              except Exception as e:
+                  return {"_error": str(e)}
+
+          data = {
+              "schemaVersion": 1,
+              "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "source": "Binance USD-M Futures",
+              "symbol": "BTCUSDT",
+              "timeframes": {},
+              "derivatives": {}
+          }
+
+          for tf in ["4h", "1d", "1w"]:
+              data["timeframes"][tf] = safe(
+                  "/fapi/v1/klines",
+                  {"symbol": "BTCUSDT", "interval": tf, "limit": 500}
+              )
+
+          data["derivatives"]["openInterest"] = safe(
+              "/fapi/v1/openInterest", {"symbol": "BTCUSDT"}
+          )
+
+          data["derivatives"]["openInterestHistory"] = safe(
+              "/futures/data/openInterestHist",
+              {"symbol": "BTCUSDT", "period": "4h", "limit": 30}
+          )
+
+          data["derivatives"]["funding"] = safe(
+              "/fapi/v1/premiumIndex", {"symbol": "BTCUSDT"}
+          )
+
+          data["derivatives"]["longShortRatio"] = safe(
+              "/futures/data/globalLongShortAccountRatio",
+              {"symbol": "BTCUSDT", "period": "4h", "limit": 30}
+          )
+
+          data["derivatives"]["takerRatio"] = safe(
+              "/futures/data/takerlongshortRatio",
+              {"symbol": "BTCUSDT", "period": "4h", "limit": 30}
+          )
+
+          os.makedirs("data", exist_ok=True)
+          with open("data/btc.json", "w") as f:
+              json.dump(data, f, separators=(",", ":"))
+
+          print("BTC data updated:", data["generatedAt"])
+          PY
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/btc.json
+          git diff --cached --quiet || git commit -m "Update BTC market data"
+          git push
