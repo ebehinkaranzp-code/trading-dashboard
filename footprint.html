@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Footprint / Order Flow</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--line:#26364d;--muted:#91a2b9;--text:#e8eef7;--green:#25b985;--red:#e36b73;--blue:#6ea8fe}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,Tahoma,Arial}
+header{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+a{color:var(--blue);text-decoration:none}.controls{display:flex;gap:8px;flex-wrap:wrap;padding:14px}
+select,input,button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px}
+button{cursor:pointer}.wrap{padding:0 14px 20px;max-width:1100px;margin:auto}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 12px}
+.stat,.tablebox,.notice{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
+.stat small{display:block;color:var(--muted)}.stat strong{display:block;font-size:17px;margin-top:5px;overflow-wrap:anywhere}
+.tablebox{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px;text-align:center;font-variant-numeric:tabular-nums}
+th,td{padding:9px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--panel)}
+.buy{color:var(--green)}.sell{color:var(--red)}.delta{font-weight:700}.bar{height:6px;background:#25354a;border-radius:8px;overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--green)}
+.notice{margin:0 0 12px;color:var(--muted);line-height:1.8}.status{padding:10px 2px;color:var(--muted)}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}header{align-items:flex-start}}
+</style></head>
+<body>
+<header><div><h1>Footprint / Order Flow</h1><div class="sub">تجمیع معاملات واقعی ثبت‌شده در OKX بر اساس قیمت و سمت خریدار/فروشنده</div></div><a href="./index.html">بازگشت به داشبورد</a></header>
+<div class="wrap">
+<div class="controls">
+<select id="coin"><option>BTC</option><option>ETH</option><option>LTC</option><option>BCH</option><option>UNI</option><option>GOLD</option></select>
+<input id="day" type="date">
+<label>گام قیمت <input id="step" type="number" min="0" step="any" placeholder="خودکار" style="width:110px"></label>
+<button id="load">بارگذاری</button>
+</div>
+<div class="notice">این صفحه از معاملات خام (trade-level) استفاده می‌کند، نه تخمین دلتا از روی کندل. هر ردیف حجم خرید تهاجمی، فروش تهاجمی و دلتا را در یک بازه قیمت نشان می‌دهد. داده فقط از زمانی موجود است که آرشیو فعال شده باشد؛ تاریخ‌های قدیمی‌تر لزوماً در دسترس نیستند.</div>
+<div class="stats">
+<div class="stat"><small>تعداد معاملات آرشیوشده</small><strong id="count">—</strong></div>
+<div class="stat"><small>حجم خرید تهاجمی</small><strong id="buys" class="buy">—</strong></div>
+<div class="stat"><small>حجم فروش تهاجمی</small><strong id="sells" class="sell">—</strong></div>
+<div class="stat"><small>دلتا کل</small><strong id="totalDelta">—</strong></div>
+</div>
+<div class="status" id="status">در انتظار بارگذاری</div>
+<div class="tablebox"><table><thead><tr><th>قیمت</th><th>خرید (Ask)</th><th>فروش (Bid)</th><th>دلتا</th><th>نسبت خرید</th><th>شدت</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const today=new Date().toISOString().slice(0,10);$('day').value=today;
+const fmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:8});
+function render(data){
+ const trades=Array.isArray(data.trades)?data.trades:[];
+ if(!trades.length){$('status').textContent='برای این نماد و تاریخ معامله آرشیوشده‌ای پیدا نشد.';return}
+ let step=Number($('step').value);
+ if(!(step>0)){const prices=trades.map(t=>Number(t.px)).filter(x=>x>0);const p=prices[0]||1;step=p>=1000?1:p>=10?.1:.01}
+ const levels=new Map();let buy=0,sell=0,valid=0;
+ for(const t of trades){
+  const p=Number(t.px),q=Number(t.sz);if(!(p>0&&q>=0)||!['buy','sell'].includes(String(t.side).toLowerCase()))continue;
+  const level=Math.floor(p/step)*step;const key=level.toFixed(10);
+  if(!levels.has(key))levels.set(key,{price:level,buy:0,sell:0});
+  const v=levels.get(key);if(String(t.side).toLowerCase()==='buy'){v.buy+=q;buy+=q}else{v.sell+=q;sell+=q}valid++;
+ }
+ const arr=[...levels.values()].sort((a,b)=>b.price-a.price);
+ $('count').textContent=fmt(valid);$('buys').textContent=fmt(buy);$('sells').textContent=fmt(sell);
+ const delta=buy-sell;$('totalDelta').textContent=(delta>0?'+':'')+fmt(delta);$('totalDelta').className=delta>=0?'buy':'sell';
+ const max=Math.max(1,...arr.map(x=>Math.max(x.buy,x.sell)));
+ $('rows').innerHTML=arr.map(x=>{const d=x.buy-x.sell,tot=x.buy+x.sell,ratio=tot?100*x.buy/tot:0;
+ return `<tr><td>${fmt(x.price)}</td><td class="buy">${fmt(x.buy)}</td><td class="sell">${fmt(x.sell)}</td><td class="delta ${d>=0?'buy':'sell'}">${d>0?'+':''}${fmt(d)}</td><td>${ratio.toFixed(1)}%</td><td><div class="bar"><i style="width:${100*Math.max(x.buy,x.sell)/max}%"></i></div></td></tr>`}).join('');
+ $('status').textContent=`${data.symbol||'—'} · ${data.date||'—'} · گام قیمت: ${fmt(step)} · منبع: ${data.source||'OKX'}`;
+}
+async function load(){
+ const coin=$('coin').value,day=$('day').value;
+ $('status').textContent='در حال دریافت آرشیو...';$('rows').innerHTML='';
+ try{const r=await fetch(`./data/history/${encodeURIComponent(coin)}/${day}.json?t=${Date.now()}`,{cache:'no-store'});
+ if(!r.ok)throw Error('HTTP '+r.status);render(await r.json())}
+ catch(e){$('status').textContent='آرشیو دریافت نشد: '+e.message+' — ممکن است هنوز اجرای جدید Workflow داده‌ای برای این روز نساخته باشد.'}
+}
+$('load').addEventListener('click',load);$('coin').addEventListener('change',load);
+</script></body></html>
