@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>BTC & GOLD | داشبورد تحلیل</title>
+<style>
+:root{color-scheme:dark;--bg:#09111e;--panel:#101b2b;--line:#26364b;--text:#edf4ff;--muted:#9aacc3;--blue:#55aef5;--green:#34c78a;--red:#ef727b;--amber:#e6b65b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+header{padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:16px;margin:0;font-weight:700}.sub{font-size:11px;color:var(--muted);margin-top:4px}
+main{width:100%;max-width:none;margin:0;padding:0}
+.controls{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px}
+button{font:inherit;color:var(--text);background:#15243a;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12px}
+button.active{background:#17436a;border-color:var(--blue)}
+button:disabled{opacity:.45}
+.chart-wrap{width:100%;height:calc(100dvh - 165px);min-height:440px;overflow:hidden}
+#tv_chart{height:100%;width:100%}
+.bottom{padding:8px 10px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line)}
+.status{font-size:11px;color:var(--muted);flex:1;min-width:120px}
+.analysis{display:none;padding:10px;background:var(--bg);border-top:1px solid var(--line)}
+.analysis.open{display:block}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.metric .k{font-size:11px;color:var(--muted);margin-bottom:6px}
+.metric .v{font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.metric .s{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.6}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
+.section-title{font-size:13px;margin:14px 2px 8px}
+.small{font-size:11px;line-height:1.8;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{color:var(--muted);font-weight:400}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+#loadState{font-size:11px;color:var(--muted);margin:8px 2px}
+@media(min-width:800px){.chart-wrap{height:calc(100vh - 165px)}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:500px){header{padding:10px}.chart-wrap{height:calc(100dvh - 155px);min-height:390px}.controls{padding:6px 8px}.controls button{flex:1;padding:9px 6px}}
+</style>
+</head>
+<body>
+<header>
+ <div><h1>BTC / GOLD</h1><div class="sub">نمودار TradingView · داده BTC از GitHub</div></div>
+ <div class="sub" id="marketLabel">BTCUSDT.P</div>
+</header>
+<main>
+ <div class="controls">
+  <button data-market="BTC" class="active" onclick="setMarket('BTC')">BTC</button>
+  <button data-market="LTC" onclick="setMarket('LTC')">LTC</button>
+  <button data-market="BCH" onclick="setMarket('BCH')">BCH</button>
+  <button data-market="UNI" onclick="setMarket('UNI')">UNI</button>
+  <button data-market="XMR" onclick="setMarket('XMR')">XMR</button>
+  <button data-market="GOLD" onclick="setMarket('GOLD')">GOLD</button>
+  <span style="width:8px"></span>
+  <button data-tf="240" class="active" onclick="setTf('240',this)">۴ساعته</button>
+  <button data-tf="D" onclick="setTf('D',this)">روزانه</button>
+  <button data-tf="W" onclick="setTf('W',this)">هفتگی</button>
+ </div>
+ <section class="chart-wrap"><div id="tv_chart"></div></section>
+ <div class="bottom">
+  <span class="status" id="chartStatus">در حال بارگذاری نمودار…</span>
+  <button id="analysisToggle" onclick="toggleAnalysis()">تحلیل و داده‌ها</button>
+  <button onclick="refreshData()">به‌روزرسانی</button>
+ </div>
+ <section id="analysis" class="analysis">
+  <div id="loadState">برای دریافت داده‌ها دکمه «به‌روزرسانی» را بزن.</div>
+  <div class="metrics">
+   <div class="metric"><div class="k">RSI (14)</div><div class="v" id="rsi">—</div><div class="s">محاسبه از کندل‌های Binance Futures</div></div>
+   <div class="metric"><div class="k">Stoch RSI · K / D</div><div class="v" id="stoch">—</div><div class="s">تنظیم ۱۴، هموارسازی ۳/۳</div></div>
+   <div class="metric"><div class="k">CVD تخمینی</div><div class="v" id="cvd">—</div><div class="s">برآورد از شکل کندل و حجم؛ دلتا واقعی تیک نیست</div></div>
+   <div class="metric"><div class="k">Open Interest</div><div class="v" id="oi">—</div><div class="s" id="oiChange">در انتظار داده</div></div>
+   <div class="metric"><div class="k">Funding Rate</div><div class="v" id="funding">—</div><div class="s" id="fundingNext">آخرین نرخ ثبت‌شده</div></div>
+   <div class="metric"><div class="k">Global Long / Short</div><div class="v" id="ls">—</div><div class="s" id="lsDetail">نسبت تعداد حساب‌ها، نه اندازه پوزیشن‌ها</div></div>
+   <div class="metric"><div class="k">Taker Buy / Sell</div><div class="v" id="taker">—</div><div class="s">نسبت حجم خرید تهاجمی به فروش تهاجمی</div></div>
+   <div class="metric"><div class="k">Liquidations</div><div class="v warn" id="liq">در دسترس نیست</div><div class="s">آرشیو عمومی تاریخی از REST بدون محدودیت/احراز هویت در این نسخه نداریم.</div></div>
+  </div>
+  <div class="section-title">وضعیت داده‌های منتشرشده</div>
+  <div class="small" id="liqState">این نسخه فقط داده‌های دوره‌ای منتشرشده در GitHub را می‌خواند؛ فید زنده لیکوییدیشن هنوز متصل نیست.</div>
+  <div style="overflow-x:auto"><table><thead><tr><th>زمان</th><th>سمت سفارش اجباری</th><th>قیمت میانگین</th><th>حجم تقریبی USDT</th><th>برداشت</th></tr></thead><tbody id="liqRows"><tr><td colspan="5">در انتظار رویداد لیکوییدیشن</td></tr></tbody></table></div>
+  <div class="section-title">سیگنال‌های آزمایشی تاریخی</div>
+  <div class="small">قواعد اولیه و قابل بازبینی: RSI، تقاطع Stoch RSI و جهت CVD تخمینی. این‌ها توصیه معاملاتی نیستند و هنوز بک‌تست/بهینه‌سازی نشده‌اند.</div>
+  <div class="actions">
+   <button onclick="exportJSON()">خروجی JSON</button>
+   <button onclick="exportCSV()">خروجی CSV</button>
+  </div>
+  <div style="overflow-x:auto"><table><thead><tr><th>زمان کندل</th><th>قیمت</th><th>RSI</th><th>K / D</th><th>سیگنال</th></tr></thead><tbody id="signals"><tr><td colspan="5">هنوز داده‌ای دریافت نشده</td></tr></tbody></table></div>
+  <p class="small" style="margin-top:12px">داده BTC از فایل JSON منتشرشده توسط GitHub Actions خوانده می‌شود. منبع بالادستی Binance USDⓈ-M Futures است؛ گوشی مستقیماً به Binance وصل نمی‌شود. CVD در این نسخه تخمینی و مبتنی بر کندل است.</p>
+ </section>
+</main>
+<script>
+let market='BTC', tf='240', lastReport=null, refreshBusy=false, liqSocket=null, liqEvents=[];
+const cryptoSymbols={BTC:'BTCUSDT',LTC:'LTCUSDT',BCH:'BCHUSDT',UNI:'UNIUSDT',XMR:'XMRUSDT'};
+const $=id=>document.getElementById(id);
+function tvSymbol(){return market==='GOLD'?'OANDA:XAUUSD':'BINANCE:'+cryptoSymbols[market]+'.P'}
+function tfName(){return tf==='240'?'۴ ساعته':tf==='D'?'روزانه':'هفتگی'}
+function interval(){return tf==='240'?'4h':tf==='D'?'1d':'1w'}
+function renderChart(){
+ const host=$('tv_chart');host.innerHTML='';
+ const script=document.createElement('script');
+ script.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+ script.async=true;script.type='text/javascript';
+ script.text=JSON.stringify({autosize:true,symbol:tvSymbol(),interval:tf,timezone:'Asia/Tehran',
+  theme:'dark',style:'1',locale:'en',allow_symbol_change:false,calendar:false,details:false,
+  hotlist:false,hide_side_toolbar:true,withdateranges:true,save_image:false,
+  studies:['STD;RSI','STD;StochasticRSI'],support_host:'https://www.tradingview.com'});
+ host.appendChild(script);
+ $('marketLabel').textContent=market==='GOLD'?'XAUUSD':cryptoSymbols[market]+'.P';
+ $('chartStatus').textContent=market==='GOLD'?'نمودار طلای OANDA · '+tfName():'نمودار '+market+' پرپچوال بایننس · '+tfName();
+}
+function setMarket(m){
+ if(liqSocket){liqSocket.close();liqSocket=null}
+ market=m;
+ document.querySelectorAll('[data-market]').forEach(b=>b.classList.toggle('active',b.dataset.market===m));
+ renderChart();
+ if(m==='BTC'){refreshData()}else clearGoldData();
+}
+function setTf(t,el){
+ tf=t;document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('active',b===el));
+ renderChart();if(market==='BTC')refreshData();
+}
+function toggleAnalysis(){
+ $('analysis').classList.toggle('open');
+ if($('analysis').classList.contains('open') && market==='BTC') refreshData();
+}
+function clearGoldData(){
+ if(liqSocket){liqSocket.close();liqSocket=null}
+ ['rsi','stoch','cvd','oi','oiChange','funding','fundingNext','ls','lsDetail','taker'].forEach(id=>$(id).textContent='—');
+ $('liq').textContent='—';$('liqState').textContent='برای این نماد، جریان لیکوییدیشن در صورت پشتیبانی قرارداد متصل می‌شود.';
+ $('liqRows').innerHTML='<tr><td colspan="5">در حال انتظار برای انتخاب بازار کریپتو.</td></tr>';
+ $('loadState').textContent='برای طلا، نمودار و اندیکاتورهای TradingView نمایش داده می‌شوند؛ داده‌های مشتقات در این نسخه فقط برای نمادهای USDT بایننس هستند.';
+ $('signals').innerHTML='<tr><td colspan="5">داده‌ای دریافت نشده.</td></tr>';lastReport=null;
+}
+async function getJSON(url){
+ const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status+' · '+url);
+ return await r.json();
+}
+
+const DATA_URL='./data/btc.json';
+function period(){return tf==='W'?'1d':interval()}
+function fmt(n,d=2){return Number(n).toLocaleString('en-US',{maximumFractionDigits:d})}
+function calcRSI(closes,len=14){
+ let out=Array(closes.length).fill(null),gain=0,loss=0;
+ if(closes.length<=len)return out;
+ for(let i=1;i<=len;i++){let ch=closes[i]-closes[i-1];gain+=Math.max(ch,0);loss+=Math.max(-ch,0)}
+ let ag=gain/len,al=loss/len;out[len]=al===0?100:100-100/(1+ag/al);
+ for(let i=len+1;i<closes.length;i++){let ch=closes[i]-closes[i-1];ag=(ag*(len-1)+Math.max(ch,0))/len;al=(al*(len-1)+Math.max(-ch,0))/len;out[i]=al===0?100:100-100/(1+ag/al)}
+ return out;
+}
+function smaAt(a,end,len){let vals=a.slice(Math.max(0,end-len+1),end+1).filter(x=>x!==null&&Number.isFinite(x));return vals.length===len?vals.reduce((s,x)=>s+x,0)/len:null}
+function stoch(rsi,len=14){
+ let raw=Array(rsi.length).fill(null);
+ for(let i=0;i<rsi.length;i++){let w=rsi.slice(Math.max(0,i-len+1),i+1).filter(x=>x!==null);if(w.length===len){let lo=Math.min(...w),hi=Math.max(...w);raw[i]=hi===lo?0:100*(rsi[i]-lo)/(hi-lo)}}
+ let k=raw.map((_,i)=>smaAt(raw,i,3)),d=k.map((_,i)=>smaAt(k,i,3));return {k,d};
+}
+function analyzeKlines(klines){
+ const bars=klines.filter(k=>+k[6]<Date.now()).map(k=>({time:+k[0],open:+k[1],high:+k[2],low:+k[3],close:+k[4],volume:+k[5]}));
+ const closes=bars.map(b=>b.close),rsi=calcRSI(closes),{k,d}=stoch(rsi);
+ let cum=0,cvd=[];
+ bars.forEach(b=>{let range=Math.max(b.high-b.low,1e-12);cum+=b.volume*(b.close-b.open)/range;cvd.push(cum)});
+ let rows=[];
+ for(let i=2;i<bars.length;i++){
+  let crossUp=k[i-1]!==null&&d[i-1]!==null&&k[i-1]<=d[i-1]&&k[i]>d[i];
+  let crossDown=k[i-1]!==null&&d[i-1]!==null&&k[i-1]>=d[i-1]&&k[i]<d[i];
+  let sig='WATCH';
+  if(rsi[i]!==null&&rsi[i]<35&&crossUp&&cvd[i]>cvd[i-1])sig='BUY';
+  else if(rsi[i]!==null&&rsi[i]>65&&crossDown&&cvd[i]<cvd[i-1])sig='SELL';
+  rows.push({time:bars[i].time,price:bars[i].close,rsi:rsi[i],k:k[i],d:d[i],cvd:cvd[i],signal:sig});
+ }
+ return {bars,rsi,k,d,cvd,rows};
+}
+async function refreshData(){
+ if(market!=='BTC'||refreshBusy)return;
+ refreshBusy=true;$('loadState').textContent='در حال دریافت فایل داده BTC از GitHub…';
+ try{
+  const response=await fetch(DATA_URL+'?t='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status+' · فایل btc.json پیدا نشد');
+  const data=await response.json();
+  const frame=data.timeframes?.[interval()]||data.timeframes?.['4h'];
+  if(!frame?.klines?.length)throw new Error('داده کندل در فایل منتشرشده وجود ندارد');
+  const a=analyzeKlines(frame.klines),last=a.rows[a.rows.length-1];
+  const oi=data.derivatives?.openInterest;
+  const oiHist=data.derivatives?.openInterestHistory||[];
+  const oiPrev=oiHist.length>1?Number(oiHist[oiHist.length-2].sumOpenInterest):Number(oi?.openInterest||0);
+  const oiCurrent=Number(oi?.openInterest||0);
+  const oiPct=oiPrev?100*(oiCurrent-oiPrev)/oiPrev:0;
+  const premium=data.derivatives?.premiumIndex||{};
+  const ls=(data.derivatives?.longShort||[]).slice(-1)[0]||{};
+  const tk=(data.derivatives?.takerRatio||[]).slice(-1)[0]||{};
+  const f=Number(premium.lastFundingRate||0);
+  $('rsi').textContent=last?.rsi!=null?fmt(last.rsi):'—';
+  $('rsi').className='v '+(last&&last.rsi<30?'good':last&&last.rsi>70?'bad':'');
+  $('stoch').textContent=last?.k!=null?fmt(last.k)+' / '+fmt(last.d):'—';
+  $('cvd').textContent=last?fmt(last.cvd,3)+' BTC':'—';
+  $('oi').textContent=oiCurrent?fmt(oiCurrent,3)+' BTC':'—';
+  $('oiChange').textContent=(oiPct>=0?'+':'')+fmt(oiPct)+'% نسبت به رکورد قبلی';
+  $('oiChange').className='s '+(oiPct>=0?'good':'bad');
+  $('funding').textContent=(f*100).toFixed(4)+'%';
+  $('funding').className='v '+(f>0?'bad':f<0?'good':'');
+  $('fundingNext').textContent='نرخ بعدی: '+(premium.nextFundingTime?new Date(+premium.nextFundingTime).toLocaleString('fa-IR'):'—');
+  $('ls').textContent=ls.longShortRatio?fmt(ls.longShortRatio,3)+' : 1':'—';
+  $('lsDetail').textContent=ls.longAccount?'لانگ '+fmt(+ls.longAccount*100)+'٪ · شورت '+fmt(+ls.shortAccount*100)+'٪':'داده موجود نیست';
+  $('taker').textContent=tk.buySellRatio?fmt(tk.buySellRatio,3)+' : 1':'—';
+  $('liq').textContent='در این نسخه دریافت نمی‌شود';
+  $('liqState').textContent='داده‌های این فایل در زمان آخرین اجرای GitHub Actions جمع‌آوری شده‌اند؛ فید لحظه‌ای لیکوییدیشن فعال نیست.';
+  $('liqRows').innerHTML='<tr><td colspan="5">فید لیکوییدیشن در این نسخه غیرفعال است.</td></tr>';
+  const recent=a.rows.slice(-20).reverse();
+  $('signals').innerHTML=recent.map(x=>`<tr><td>${new Date(x.time).toLocaleString('fa-IR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td>${fmt(x.price,1)}</td><td>${x.rsi===null?'—':fmt(x.rsi)}</td><td>${x.k===null?'—':fmt(x.k)+' / '+fmt(x.d)}</td><td class="${x.signal==='BUY'?'good':x.signal==='SELL'?'bad':'warn'}">${x.signal}</td></tr>`).join('');
+  lastReport={createdAt:new Date().toISOString(),source:'GitHub Actions → Binance USD-M Futures → data/btc.json',timeframe:interval(),latest:{rsi:last?.rsi,stochK:last?.k,stochD:last?.d,estimatedCvd:last?.cvd,openInterest:oiCurrent,openInterestChangePercent:oiPct,fundingRate:f,longShortRatio:Number(ls.longShortRatio||0),takerBuySellRatio:Number(tk.buySellRatio||0)},signals:a.rows};
+  const stamp=data.generatedAt?new Date(data.generatedAt).toLocaleString('fa-IR'):'زمان نامشخص';
+  $('loadState').textContent='دریافت موفق از GitHub · آخرین به‌روزرسانی: '+stamp+' · '+frame.klines.length+' کندل 4h';
+ }catch(e){
+  $('loadState').textContent='دریافت فایل داده ناموفق بود: '+e.message+' · ابتدا GitHub Actions باید حداقل یک‌بار موفق اجرا شود.';
+ }finally{refreshBusy=false}
+}
+function connectLiquidations(){
+ $('liqState').textContent='فید زنده لیکوییدیشن در نسخه واسطه GitHub فعال نیست.';
+}
+function download(name,content,type){
+ const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function exportJSON(){if(!lastReport){alert('ابتدا داده‌های بازار انتخاب‌شده را به‌روزرسانی کن.');return}download(market.toLowerCase()+'_analysis.json',JSON.stringify(lastReport,null,2),'application/json')}
+function exportCSV(){if(!lastReport){alert('ابتدا داده‌های بازار انتخاب‌شده را به‌روزرسانی کن.');return}
+ const rows=[['timestamp','price','rsi','stoch_k','stoch_d','estimated_cvd','signal'],...lastReport.signals.map(x=>[new Date(x.time).toISOString(),x.price,x.rsi,x.k,x.d,x.cvd,x.signal])];
+ const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+(v??'').toString().replaceAll('"','""')+'"').join(',')).join('\n');
+ download(market.toLowerCase()+'_signals.csv',csv,'text/csv;charset=utf-8');
+}
+renderChart();
+refreshData();
+</script>
+</body>
+</html>
