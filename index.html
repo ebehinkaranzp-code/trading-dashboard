@@ -1,46 +1,230 @@
-function analyzeKlines(klines){
+function analyzeKlines(klines, source='auto') {
+ const errors=[];
+ const warnings=[];
+
+ // بررسی ورودی
+ if(!Array.isArray(klines)){
+  return {
+   bars:[],rsi:[],k:[],d:[],cvd:[],rows:[],
+   status:'ERROR',
+   errors:['Invalid candle data']
+  };
+ }
+
+ // تشخیص و استانداردسازی Binance و OKX
  const bars=klines
-  .filter(k=>Array.isArray(k)&&k.length>=9&&String(k[8])==='1')
-  .map(k=>({
-   time:Number(k[0]),
-   open:Number(k[1]),
-   high:Number(k[2]),
-   low:Number(k[3]),
-   close:Number(k[4]),
-   volume:Number(k[6])
-  }))
-  .filter(b=>Number.isFinite(b.close)&&Number.isFinite(b.volume))
+  .filter(row=>{
+   if(!Array.isArray(row)) return false;
+
+   // OKX: کندل بسته شده
+   if(row.length===9 && String(row[8])==='1')
+    return true;
+
+   // Binance: ساختار استاندارد Kline
+   if(row.length>=12)
+    return Number(row[6])>Number(row[0]);
+
+   return false;
+  })
+  .map(row=>{
+   const isBinance=row.length>=12;
+
+   const bar={
+    time:Number(row[0]),
+    open:Number(row[1]),
+    high:Number(row[2]),
+    low:Number(row[3]),
+    close:Number(row[4]),
+    baseVolume:Number(
+     isBinance ? row[5] : row[6]
+    ),
+    quoteVolume:Number(row[7])
+   };
+
+   bar.volume=Number.isFinite(bar.quoteVolume)&&bar.quoteVolume>0
+    ?bar.quoteVolume
+    :bar.baseVolume;
+
+   return bar;
+  })
+  .filter(b=>
+   Number.isFinite(b.time)&&
+   Number.isFinite(b.open)&&
+   Number.isFinite(b.high)&&
+   Number.isFinite(b.low)&&
+   Number.isFinite(b.close)&&
+   Number.isFinite(b.volume)&&
+   b.close>0&&
+   b.high>=b.low&&
+   b.low>0&&
+   b.volume>=0
+  )
   .sort((a,b)=>a.time-b.time);
 
- const closes=bars.map(b=>b.close);
- const rsi=calcRSI(closes);
- const {k,d}=stoch(rsi);
+ // حذف کندل‌های تکراری
+ const uniqueBars=[];
+ const seen=new Set();
 
- let cum=0,cvd=[];
  bars.forEach(b=>{
-  const range=Math.max(b.high-b.low,1e-12);
-  cum+=b.volume*(b.close-b.open)/range;
-  cvd.push(cum);
+  if(!seen.has(b.time)){
+   seen.add(b.time);
+   uniqueBars.push(b);
+  }
  });
 
- let rows=[];
- for(let i=2;i<bars.length;i++){
-  const crossUp=k[i-1]!==null&&d[i-1]!==null&&k[i-1]<=d[i-1]&&k[i]>d[i];
-  const crossDown=k[i-1]!==null&&d[i-1]!==null&&k[i-1]>=d[i-1]&&k[i]<d[i];
+ const cleanBars=uniqueBars;
 
-  let sig='WATCH';
-  if(rsi[i]!==null&&rsi[i]<35&&crossUp&&cvd[i]>cvd[i-1])sig='BUY';
-  else if(rsi[i]!==null&&rsi[i]>65&&crossDown&&cvd[i]<cvd[i-1])sig='SELL';
+ if(cleanBars.length<30){
+  return {
+   bars:cleanBars,
+   rsi:[],
+   k:[],
+   d:[],
+   cvd:[],
+   rows:[],
+   status:'INSUFFICIENT_DATA',
+   errors:['Not enough valid candles'],
+   warnings
+  };
+ }
+
+ // بررسی داده‌ها
+ if(cleanBars.length<100){
+  warnings.push('Limited candle history');
+ }
+
+ const closes=cleanBars.map(b=>b.close);
+
+ // محاسبه RSI
+ const rsi=calcRSI(closes);
+
+ // بررسی خروجی RSI
+ if(!Array.isArray(rsi)||rsi.length!==cleanBars.length){
+  return {
+   bars:cleanBars,
+   rsi:[],
+   k:[],
+   d:[],
+   cvd:[],
+   rows:[],
+   status:'CALCULATION_ERROR',
+   errors:['RSI calculation failed'],
+   warnings
+  };
+ }
+
+ // محاسبه Stochastic RSI
+ const result=stoch(rsi);
+ const k=result.k;
+ const d=result.d;
+
+ if(!Array.isArray(k)||!Array.isArray(d)){
+  return {
+   bars:cleanBars,
+   rsi,
+   k:[],
+   d:[],
+   cvd:[],
+   rows:[],
+   status:'CALCULATION_ERROR',
+   errors:['Stochastic RSI calculation failed'],
+   warnings
+  };
+ }
+
+ // CVD تخمینی بر اساس حجم و موقعیت بسته شدن کندل
+ let cumulative=0;
+ const cvd=[];
+
+ cleanBars.forEach(b=>{
+  const range=Math.max(b.high-b.low,1e-12);
+
+  const buyPressure=
+   ((b.close-b.low)-(b.high-b.close))/range;
+
+  cumulative+=b.volume*buyPressure;
+
+  cvd.push(cumulative);
+ });
+
+ // تولید سیگنال
+ const rows=[];
+
+ for(let i=0;i<cleanBars.length;i++){
+
+  const validValues=
+   Number.isFinite(rsi[i])&&
+   Number.isFinite(k[i])&&
+   Number.isFinite(d[i])&&
+   Number.isFinite(cvd[i]);
+
+  let signal='WATCH';
+
+  if(i>=1&&validValues){
+
+   const previousValid=
+    Number.isFinite(k[i-1])&&
+    Number.isFinite(d[i-1])&&
+    Number.isFinite(cvd[i-1]);
+
+   if(previousValid){
+
+    const crossUp=
+     k[i-1]<=d[i-1]&&
+     k[i]>d[i];
+
+    const crossDown=
+     k[i-1]>=d[i-1]&&
+     k[i]<d[i];
+
+    if(
+     rsi[i]<35&&
+     crossUp&&
+     cvd[i]>cvd[i-1]
+    ){
+     signal='BUY';
+    }
+
+    else if(
+     rsi[i]>65&&
+     crossDown&&
+     cvd[i]<cvd[i-1]
+    ){
+     signal='SELL';
+    }
+   }
+  }
 
   rows.push({
-   time:bars[i].time,
-   price:bars[i].close,
+   time:cleanBars[i].time,
+   price:cleanBars[i].close,
    rsi:rsi[i],
    k:k[i],
    d:d[i],
    cvd:cvd[i],
-   signal:sig
+   signal
   });
  }
- return {bars,rsi,k,d,cvd,rows};
+
+ // خروجی نهایی
+ return {
+  bars:cleanBars,
+  rsi,
+  k,
+  d,
+  cvd,
+  rows,
+  status:'OK',
+  errors,
+  warnings,
+  diagnostics:{
+   source,
+   inputCandles:klines.length,
+   validCandles:cleanBars.length,
+   invalidCandles:klines.length-cleanBars.length,
+   lastUpdate:cleanBars[cleanBars.length-1].time,
+   volumeType:'QUOTE_VOLUME',
+   cvdType:'ESTIMATED'
+  }
+ };
 }
