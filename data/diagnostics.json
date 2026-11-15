@@ -1,0 +1,59 @@
+{
+  "reportVersion": 1,
+  "generatedAt": "2026-11-15T20:44:20.147022+00:00",
+  "workflow": "Update BTC market data and diagnostics",
+  "repository": "ebehinkaranzp-code/trading-dashboard",
+  "runId": "43759732488",
+  "runNumber": "17",
+  "runUrl": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43759732488",
+  "commit": "bfdf1cf2626c152b6302afcab7604c9f7b60cf0f",
+  "steps": {
+    "fetch": "success",
+    "validation": "success"
+  },
+  "data": {
+    "btcFileExists": true,
+    "4hCandleCount": 300,
+    "derivatives": {
+      "openInterest": false,
+      "funding": true,
+      "longShort": true,
+      "taker": true
+    }
+  },
+  "apiChecks": {
+    "/api/v5/market/candles": {
+      "status": "success",
+      "records": 300
+    },
+    "/api/v5/public/open-interest": {
+      "status": "success",
+      "records": 1
+    },
+    "/api/v5/public/funding-rate": {
+      "status": "success",
+      "records": 1
+    },
+    "/api/v5/public/funding-rate-history": {
+      "status": "success",
+      "records": 100
+    },
+    "/api/v5/rubik/stat/contracts/open-interest-history": {
+      "status": "success",
+      "records": 100
+    },
+    "/api/v5/rubik/stat/contracts/long-short-account-ratio": {
+      "status": "error",
+      "message": "HTTP Error 400: Bad Request"
+    },
+    "/api/v5/rubik/stat/taker-volume": {
+      "status": "error",
+      "message": "HTTP Error 400: Bad Request"
+    }
+  },
+  "errors": [
+    "/api/v5/rubik/stat/contracts/long-short-account-ratio: HTTP Error 400: Bad Request",
+    "/api/v5/rubik/stat/taker-volume: HTTP Error 400: Bad Request"
+  ],
+  "overallStatus": "success"
+}
