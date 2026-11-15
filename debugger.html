@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09111e">
+<title>مرکز عیب‌یابی داشبورد</title>
+<style>
+:root{--bg:#09111e;--panel:#101b2b;--line:#26364b;--text:#edf4ff;--muted:#9aacc3;--blue:#55aef5;--green:#34c78a;--red:#ef727b;--amber:#e6b65b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Tahoma,Arial,sans-serif}
+header,main{max-width:1100px;margin:auto;padding:14px}header{border-bottom:1px solid var(--line)}
+h1{font-size:19px;margin:4px 0 8px}.muted,.hint{color:var(--muted);font-size:12px;line-height:1.9}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+button{background:#17314d;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 14px;font:inherit}
+button.primary{background:#17436a;border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:9px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px;min-width:0}
+.card h3{font-size:13px;margin:0 0 8px}.status{font-weight:bold;font-size:12px}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
+pre{white-space:pre-wrap;word-break:break-word;background:#070d16;border:1px solid var(--line);border-radius:9px;padding:12px;direction:ltr;text-align:left;font:11px/1.7 monospace;max-height:340px;overflow:auto}
+iframe{width:100%;height:430px;border:1px solid var(--line);border-radius:10px;background:#fff}
+#results{margin-top:12px}.section{margin:18px 0 9px;font-size:15px}
+</style>
+</head>
+<body>
+<header>
+<h1>مرکز عیب‌یابی داشبورد</h1>
+<div class="muted">بررسی خودکار فایل داده، ساختار بازارها، اندیکاتورهای مشتقات، کتابخانه‌ها و خطاهای اجرای صفحه اصلی</div>
+</header>
+<main>
+<div class="actions">
+<button class="primary" id="run">اجرای عیب‌یابی کامل</button>
+<button id="copy">کپی گزارش برای ChatGPT</button>
+<button id="download">دانلود گزارش JSON</button>
+</div>
+<div class="hint">برای بررسی خطاهای زمان اجرا، صفحه اصلی در کادر پایین باز می‌شود و یک بار به‌روزرسانی داده‌ها را اجرا می‌کند. گزارش فقط اطلاعات فنی و ساختار داده را جمع می‌کند؛ کلید خصوصی یا اطلاعات حساب در آن قرار نمی‌گیرد.</div>
+<div id="results" class="grid">
+<div class="card"><h3>وضعیت</h3><div class="status warn">هنوز بررسی اجرا نشده</div></div>
+</div>
+<h2 class="section">صفحه اصلی تحت آزمایش</h2>
+<iframe id="app" title="صفحه اصلی داشبورد" src="./index.html?debugger=1"></iframe>
+<h2 class="section">گزارش فنی</h2>
+<pre id="report">برای شروع، «اجرای عیب‌یابی کامل» را بزن.</pre>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const state={startedAt:null,finishedAt:null,checks:[],errors:[],network:[],runtime:{},data:{},environment:{}};
+let reportText='';
+function addCheck(name,status,detail){state.checks.push({name,status,detail:String(detail??'')});}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function render(){
+ const ok=state.checks.filter(x=>x.status==='ok').length,bad=state.checks.filter(x=>x.status==='error').length,warn=state.checks.filter(x=>x.status==='warning').length;
+ $('results').innerHTML=`<div class="card"><h3>جمع‌بندی</h3><div class="status ${bad?'bad':warn?'warn':'ok'}">${bad} خطا · ${warn} هشدار · ${ok} سالم</div></div>`+state.checks.map(x=>`<div class="card"><h3>${esc(x.name)}</h3><div class="status ${x.status==='ok'?'ok':x.status==='error'?'bad':'warn'}">${x.status==='ok'?'سالم':x.status==='error'?'خطا':'هشدار'}</div><div class="muted">${esc(x.detail)}</div></div>`).join('');
+ const output={...state,summary:{errors:bad,warnings:warn,passed:ok}};
+ reportText=JSON.stringify(output,null,2);$('report').textContent=reportText;
+}
+async function timedFetch(url){
+ const start=performance.now();
+ try{const r=await fetch(url+(url.includes('?')?'&':'?')+'diag='+Date.now(),{cache:'no-store'});const ms=Math.round(performance.now()-start);state.network.push({url,status:r.status,ok:r.ok,milliseconds:ms});if(!r.ok)throw new Error('HTTP '+r.status+' '+url);return await r.json();}
+ catch(e){state.network.push({url,error:e.message,milliseconds:Math.round(performance.now()-start)});throw e;}
+}
+function inspectRows(obj,key,aliases){
+ const arr=obj?.[key];if(!Array.isArray(arr))return {exists:false,count:0,keys:[]};
+ return {exists:true,count:arr.length,keys:arr[0]&&typeof arr[0]==='object'?Object.keys(arr[0]):[]};
+}
+async function run(){
+ state.startedAt=new Date().toISOString();state.finishedAt=null;state.checks=[];state.errors=[];state.network=[];state.runtime={};state.data={};state.environment={userAgent:navigator.userAgent,language:navigator.language,online:navigator.onLine,origin:location.origin};
+ try{
+  const payload=await timedFetch('./data/markets.json');
+  addCheck('دریافت data/markets.json','ok','فایل با موفقیت دریافت و JSON آن تجزیه شد');
+  state.data.generatedAt=payload.generatedAt??null;
+  state.data.rootKeys=Object.keys(payload||{});
+  const markets=payload.markets||{};
+  state.data.markets=Object.keys(markets);
+  addCheck('ساختار بازارها',Object.keys(markets).length?'ok':'error',Object.keys(markets).length?`بازارهای موجود: ${Object.keys(markets).join(', ')}`:'کلید markets خالی یا ناموجود است');
+  const names=['BTC','LTC','BCH','UNI','XMR'];
+  for(const coin of names){
+   const item=markets[coin];
+   if(!item){addCheck(coin,'warning','این بازار در فایل داده پیدا نشد');continue;}
+   const frames=item.timeframes||{};
+   const tfInfo={};
+   for(const tf of ['4h','1d','1w']){
+    const f=frames[tf],rows=Array.isArray(f)?f:(f?.klines||f?.candles||f?.data||[]);
+    tfInfo[tf]={count:Array.isArray(rows)?rows.length:0,shape:Array.isArray(f)?'array':f&&typeof f==='object'?Object.keys(f):typeof f};
+   }
+   const d=item.derivatives||{};
+   const deriv={
+    openInterest:inspectRows(d,'openInterest'),openInterestHistory:inspectRows(d,'openInterestHistory'),
+    funding:inspectRows(d,'funding'),fundingHistory:inspectRows(d,'fundingHistory'),
+    longShortRatio:inspectRows(d,'longShortRatio'),takerRatio:inspectRows(d,'takerRatio'),
+    derivativeKeys:Object.keys(d)
+   };
+   state.data[coin]={timeframes:tfInfo,derivatives:deriv};
+   const total=Object.values(tfInfo).reduce((s,x)=>s+x.count,0);
+   addCheck(coin+' کندل‌ها',total?'ok':'error',`4h: ${tfInfo['4h'].count} · 1d: ${tfInfo['1d'].count} · 1w: ${tfInfo['1w'].count}`);
+   const hasDeriv=Object.values(deriv).some(x=>x&&x.exists&&x.count>0);
+   addCheck(coin+' مشتقات',hasDeriv?'ok':'warning',`کلیدهای مشتقات: ${deriv.derivativeKeys.join(', ')||'هیچ‌کدام'}؛ OI=${deriv.openInterest.count}/${deriv.openInterestHistory.count} · Funding=${deriv.funding.count}/${deriv.fundingHistory.count} · L/S=${deriv.longShortRatio.count} · Taker=${deriv.takerRatio.count}`);
+  }
+  const age=payload.generatedAt?Date.now()-new Date(payload.generatedAt).getTime():null;
+  state.data.ageMinutes=Number.isFinite(age)?Math.round(age/60000):null;
+  addCheck('تازگی فایل داده',age===null?'warning':age>60*60*1000?'warning':'ok',age===null?'زمان generatedAt ثبت نشده':`آخرین تولید حدود ${Math.round(age/60000)} دقیقه پیش`);
+ }catch(e){state.errors.push({where:'دریافت/بررسی داده',message:e.message});addCheck('دریافت فایل داده','error',e.message);}
+ const frame=$('app');
+ try{
+  if(!frame.contentWindow||frame.contentDocument.readyState!=='complete')await new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(new Error('بارگذاری صفحه اصلی بیش از حد طول کشید')),15000);frame.addEventListener('load',()=>{clearTimeout(t);resolve();},{once:true});});
+  const w=frame.contentWindow,d=frame.contentDocument;
+  state.runtime.pageTitle=d.title;
+  state.runtime.libraries={Chart:!!w.Chart,LightweightCharts:!!w.LightweightCharts};
+  addCheck('کتابخانه Chart.js',w.Chart?'ok':'error',w.Chart?'بارگذاری شده':'Chart.js در صفحه اصلی در دسترس نیست');
+  addCheck('کتابخانه نمودار اصلی',w.LightweightCharts?'ok':'error',w.LightweightCharts?'Lightweight Charts بارگذاری شده':'کتابخانه نمودار اصلی در دسترس نیست');
+  const hook=(kind,detail)=>state.errors.push({where:'صفحه اصلی',kind,detail:String(detail)});
+  w.addEventListener('error',e=>hook('window.error',e.message+' @ '+e.filename+':'+e.lineno));
+  w.addEventListener('unhandledrejection',e=>hook('unhandledrejection',e.reason?.stack||e.reason?.message||e.reason));
+  const original=w.fetch.bind(w);
+  w.fetch=async(...args)=>{const url=String(args[0]?.url||args[0]);const t=performance.now();try{const res=await original(...args);state.network.push({from:'index.html',url,status:res.status,ok:res.ok,milliseconds:Math.round(performance.now()-t)});return res;}catch(e){state.network.push({from:'index.html',url,error:e.message});throw e;}};
+  const missing=['tv_chart','tvCvd','tvRsi','tvStoch','analysisButton','refreshButton'].filter(id=>!d.getElementById(id));
+  addCheck('عناصر ضروری صفحه',missing.length?'error':'ok',missing.length?'شناسه‌های مفقود: '+missing.join(', '):'همه عناصر ضروری پیدا شدند');
+  const refresh=d.getElementById('refreshButton');if(refresh)refresh.click();
+  await new Promise(r=>setTimeout(r,3500));
+  state.runtime.loadState=d.getElementById('loadState')?.textContent||d.getElementById('chartStatus')?.textContent||'نامشخص';
+  state.runtime.chartStatus=d.getElementById('chartStatus')?.textContent||'';
+  state.runtime.priceLabel=d.getElementById('tvPriceLabel')?.textContent||'';
+  addCheck('اجرای صفحه اصلی',state.errors.length?'warning':'ok',state.runtime.loadState);
+ }catch(e){state.errors.push({where:'iframe',message:e.message});addCheck('اجرای صفحه اصلی','error',e.message);}
+ if(state.errors.length)addCheck('خطاهای JavaScript','error',state.errors.map(x=>x.detail||x.message||x.kind).join(' | '));
+ else addCheck('خطاهای JavaScript','ok','خطای ثبت‌شده‌ای در زمان آزمایش دیده نشد');
+ state.finishedAt=new Date().toISOString();render();
+}
+$('run').addEventListener('click',run);
+$('copy').addEventListener('click',async()=>{if(!reportText)await run();try{await navigator.clipboard.writeText(reportText);$('copy').textContent='گزارش کپی شد ✓';}catch(e){$('report').focus();$('report').select?.();$('copy').textContent='متن گزارش را انتخاب و کپی کن';}});
+$('download').addEventListener('click',()=>{if(!reportText){run().then(download);return;}download();});
+function download(){const blob=new Blob([reportText],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='trading-dashboard-diagnostics.json';a.click();URL.revokeObjectURL(url);}
+</script>
+</body>
+</html>
