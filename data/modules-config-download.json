@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "id": "candlestick-intelligence",
+      "name": "هوش کندل و شکست خط روند",
+      "version": "1.0.0",
+      "enabled": true,
+      "entry": "./modules/candlestick-intelligence.js",
+      "pages": [
+        "./index.html",
+        "./signals.html"
+      ]
+    }
+  ]
+}
