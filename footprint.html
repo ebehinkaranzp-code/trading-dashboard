@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Footprint / Order Flow</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--line:#26364d;--muted:#91a2b9;--text:#e8eef7;--green:#25b985;--red:#e36b73;--blue:#6ea8fe;--amber:#e6b65b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Tahoma,Arial,sans-serif}
+header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:16px;margin:0}.sub{color:var(--muted);font-size:11px;margin-top:4px}
+a{color:var(--blue);text-decoration:none}.nav-link{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:#15243a;font-size:11px;white-space:nowrap}
+.controls{display:flex;gap:7px;flex-wrap:wrap;padding:12px 0;align-items:center}
+select,input,button{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font:inherit;font-size:12px;max-width:100%}
+button{cursor:pointer}button:hover,.nav-link:hover{border-color:var(--blue)}.wrap{padding:0 12px 20px;max-width:1100px;margin:auto}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.stat,.tablebox,.notice{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px;min-width:0}
+.stat small{display:block;color:var(--muted);font-size:11px}.stat strong{display:block;font-size:16px;margin-top:5px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.tablebox{overflow:auto}table{width:100%;border-collapse:collapse;min-width:540px;text-align:center;font-variant-numeric:tabular-nums;font-size:12px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--panel)}
+.buy{color:var(--green)}.sell{color:var(--red)}.delta{font-weight:700}.bar{height:6px;background:#25354a;border-radius:8px;overflow:hidden;min-width:60px}.bar i{display:block;height:100%;background:var(--green)}
+.notice{margin:0 0 10px;color:var(--muted);line-height:1.8;font-size:11px}.status{padding:9px 2px;color:var(--muted);font-size:11px;line-height:1.8}.status.error{color:var(--red)}.status.ok{color:var(--green)}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}header{align-items:flex-start}.controls>*{flex:1 1 auto}.controls input[type=date]{min-width:145px}}
+</style></head>
+<body>
+<header><div><h1>Footprint / Order Flow</h1><div class="sub">تجمیع معاملات ثبت‌شده در OKX بر اساس قیمت و سمت خریدار/فروشنده</div></div><a class="nav-link" href="./index.html">بازگشت به داشبورد</a></header>
+<div class="wrap">
+<div class="controls">
+<label>بازار <select id="coin"><option>BTC</option><option>ETH</option><option>LTC</option><option>BCH</option><option>UNI</option><option>GOLD</option></select></label>
+<label>تاریخ <input id="day" type="date"></label>
+<label>گام قیمت <input id="step" type="number" min="0" step="any" placeholder="خودکار" style="width:105px"></label>
+<button id="load" type="button">بارگذاری</button>
+</div>
+<div class="notice">این صفحه از معاملات آرشیوشده استفاده می‌کند، نه تخمین دلتا از روی کندل. هر ردیف حجم خرید تهاجمی، فروش تهاجمی و دلتا را در یک بازه قیمت نشان می‌دهد. آرشیو ممکن است به دلیل محدودیت دریافت، پوشش کامل تمام معاملات بازار را نداشته باشد؛ بنابراین این خروجی را CVD کامل بازار در نظر نگیرید.</div>
+<div class="stats">
+<div class="stat"><small>تعداد معاملات ثبت‌شده</small><strong id="count">—</strong></div>
+<div class="stat"><small>حجم خرید تهاجمی</small><strong id="buys" class="buy">—</strong></div>
+<div class="stat"><small>حجم فروش تهاجمی</small><strong id="sells" class="sell">—</strong></div>
+<div class="stat"><small>دلتا معاملات ثبت‌شده</small><strong id="totalDelta">—</strong></div>
+</div>
+<div class="status" id="status" role="status" aria-live="polite">در حال یافتن آخرین آرشیو...</div>
+<div class="tablebox"><table><thead><tr><th>قیمت</th><th>خرید تهاجمی</th><th>فروش تهاجمی</th><th>دلتا</th><th>نسبت خرید</th><th>شدت</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:8});
+const utcDayOffset=days=>{const d=new Date();d.setUTCDate(d.getUTCDate()-days);return d.toISOString().slice(0,10)};
+const setStatus=(message,kind='')=>{$('status').textContent=message;$('status').className='status '+kind};
+function render(data){
+ const trades=Array.isArray(data.trades)?data.trades:[];
+ if(!trades.length)return false;
+ let step=Number($('step').value);
+ if(!(step>0)){const prices=trades.map(t=>Number(t.px)).filter(x=>x>0);const p=prices[0]||1;step=p>=1000?1:p>=10?.1:.01}
+ const levels=new Map();let buy=0,sell=0,valid=0;
+ for(const t of trades){
+  const p=Number(t.px),q=Number(t.sz),side=String(t.side||'').toLowerCase();
+  if(!(p>0&&q>0)||!['buy','sell'].includes(side))continue;
+  const level=Math.floor(p/step)*step,key=level.toFixed(10);
+  if(!levels.has(key))levels.set(key,{price:level,buy:0,sell:0});
+  const v=levels.get(key);if(side==='buy'){v.buy+=q;buy+=q}else{v.sell+=q;sell+=q}valid++;
+ }
+ if(!valid)return false;
+ const items=[...levels.values()].sort((a,b)=>b.price-a.price);
+ $('count').textContent=fmt(valid);$('buys').textContent=fmt(buy);$('sells').textContent=fmt(sell);
+ const delta=buy-sell;$('totalDelta').textContent=(delta>0?'+':'')+fmt(delta);$('totalDelta').className=delta>=0?'buy':'sell';
+ const max=Math.max(1,...items.map(x=>Math.max(x.buy,x.sell)));
+ $('rows').innerHTML=items.map(x=>{const d=x.buy-x.sell,total=x.buy+x.sell,ratio=total?100*x.buy/total:0;
+  return `<tr><td>${fmt(x.price)}</td><td class="buy">${fmt(x.buy)}</td><td class="sell">${fmt(x.sell)}</td><td class="delta ${d>=0?'buy':'sell'}">${d>0?'+':''}${fmt(d)}</td><td>${ratio.toFixed(1)}%</td><td><div class="bar"><i style="width:${100*Math.max(x.buy,x.sell)/max}%"></i></div></td></tr>`}).join('');
+ const symbol=data.symbol||$('coin').value,date=data.date||$('day').value;
+ setStatus(`${symbol} · ${date} · گام قیمت: ${fmt(step)} · ${valid} معامله معتبر · منبع: ${data.source||'OKX'} · داده آرشیوشده ممکن است ناقص باشد.`,'ok');
+ return true;
+}
+async function fetchDay(coin,day){
+ const url=`./data/history/${encodeURIComponent(coin)}/${day}.json`;
+ const r=await fetch(url,{cache:'no-store'});
+ if(!r.ok)throw Error('HTTP '+r.status);
+ return r.json();
+}
+async function load(){
+ const coin=$('coin').value,requested=$('day').value;
+ $('rows').innerHTML='';$('count').textContent=$('buys').textContent=$('sells').textContent=$('totalDelta').textContent='—';
+ setStatus('در حال دریافت آرشیو '+coin+' برای '+requested+' ...');
+ try{
+  let data=await fetchDay(coin,requested),usedDay=requested;
+  if(!render(data)){
+   // If the selected/current day has no file or no trades, look back up to 7 UTC days.
+   let found=false;
+   for(let i=1;i<=7;i++){
+    const day=utcDayOffset(i);
+    try{const candidate=await fetchDay(coin,day);if(render(candidate)){usedDay=day;found=true;break}}catch(_){/* try the previous day */}
+   }
+   if(!found){setStatus('برای این نماد در تاریخ انتخاب‌شده و ۷ روز قبل، معامله آرشیوشده معتبری پیدا نشد. ممکن است آرشیو Workflow هنوز ساخته نشده باشد.','error');return}
+   $('day').value=usedDay;
+   setStatus(`برای تاریخ انتخاب‌شده داده‌ای نبود؛ آخرین آرشیو دارای معامله نمایش داده شد: ${usedDay}.`,'ok');
+  }
+ }catch(e){
+  // On missing selected day, still attempt recent dates.
+  let found=false;
+  for(let i=0;i<=7;i++){
+   const day=utcDayOffset(i);
+   try{const candidate=await fetchDay(coin,day);if(render(candidate)){ $('day').value=day;setStatus(`آرشیو تاریخ انتخاب‌شده در دسترس نبود؛ آخرین روز دارای داده نمایش داده شد: ${day}.`,'ok');found=true;break}}catch(_){/* continue */}
+  }
+  if(!found)setStatus('آرشیو دریافت نشد. فایل روز انتخاب‌شده و ۷ روز اخیر پیدا نشدند؛ اجرای Workflow و وجود فایل data/history/'+coin+'/ را بررسی کنید. ('+e.message+')','error');
+ }
+}
+$('day').value=utcDayOffset(0);
+$('load').addEventListener('click',load);
+$('coin').addEventListener('change',load);
+$('day').addEventListener('change',load);
+// Load automatically on page entry; previously the page waited for a manual click.
+load();
+</script></body></html>
