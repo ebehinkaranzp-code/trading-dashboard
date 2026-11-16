@@ -1,332 +1,121 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>مرکز مدیریت و به‌روزرسانی داشبورد</title>
-<style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#111c2d;--panel2:#172438;--line:#2a3a52;--text:#e8eef8;--muted:#9aabc2;--blue:#4b9cff;--green:#36c98f;--red:#ff6b76;--amber:#f4bd58}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.8 Tahoma,Arial,sans-serif}
-header{padding:22px 18px;border-bottom:1px solid var(--line);background:#0e1929}
-header h1{font-size:21px;margin:0 0 4px}header p{margin:0;color:var(--muted)}
-main{max-width:1180px;margin:22px auto;padding:0 14px;display:grid;gap:16px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
-h2{font-size:16px;margin:0 0 12px}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-button,.button{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 13px;border-radius:9px;cursor:pointer;font:inherit}
-button.primary{background:#185ca7;border-color:#2876c5}button.good{background:#126b50;border-color:#258b6b}button.danger{border-color:#8c3944;color:#ffb7bd}
-button:disabled{opacity:.45;cursor:not-allowed}
-input,textarea,select{width:100%;background:#0b1524;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit}
-textarea{min-height:210px;direction:ltr;text-align:left;font-family:Consolas,monospace;font-size:12px;resize:vertical}
-label{display:block;margin:8px 0 5px;color:var(--muted)}
-.drop{border:1px dashed #527092;border-radius:12px;padding:20px;text-align:center;background:#0d1929}
-.drop strong{display:block;font-size:15px}.drop input{margin-top:10px}
-.status{padding:10px 12px;border-radius:9px;background:#0c1928;border:1px solid var(--line);white-space:pre-wrap}
-.status.ok{border-color:#226c55}.status.warn{border-color:#8a672c}.status.err{border-color:#8c3944}
-table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}th{color:var(--muted)}
-.path{direction:ltr;text-align:left;word-break:break-all;font-family:Consolas,monospace}
-.pill{display:inline-block;border-radius:30px;padding:1px 8px;background:#24364d;color:#c6d7ed;font-size:11px}
-#preview{width:100%;height:360px;border:1px solid var(--line);border-radius:9px;background:white}
-hr{border:0;border-top:1px solid var(--line);margin:14px 0}
-@media(max-width:720px){.grid{grid-template-columns:1fr}header h1{font-size:18px}table{min-width:600px}.tablewrap{overflow:auto}}
-</style>
-</head>
-<body>
-<header>
-  <h1>مرکز مدیریت و به‌روزرسانی داشبورد</h1>
-  <p>ورود فایل تکی یا پروژه کامل، آزمایش محلی، بازبینی و انتشار با تأیید نهایی</p>
-</header>
-<main>
-  <section class="card">
-    <h2>۱) افزودن تغییرات</h2>
-    <div class="grid">
-      <div class="drop">
-        <strong>آپلود پروژه کامل یا چند فایل</strong>
-        <div class="small">فایل ZIP پروژه را یکجا بده؛ یا چند فایل را هم‌زمان انتخاب کن. مسیر پوشه‌ها حفظ می‌شود.</div>
-        <label for="bulkFiles">انتخاب ZIP یا چند فایل</label>
-        <input id="bulkFiles" type="file" multiple accept=".zip,.js,.css,.html,.json,.txt,.md">
-        <div class="actions" style="justify-content:center;margin-top:10px">
-          <button class="primary" id="importFiles">افزودن به نسخه آزمایشی</button>
-        </div>
-      </div>
-      <div>
-        <label for="urlInput">دریافت یک فایل از اینترنت (URL)</label>
-        <input id="urlInput" type="url" placeholder="https://example.com/module.js">
-        <label for="urlPath">مسیر ذخیره داخل پروژه</label>
-        <input id="urlPath" placeholder="modules/module.js" class="path">
-        <button id="fetchUrl">دریافت و افزودن</button>
-        <p class="small">دریافت از بعضی سایت‌ها به‌دلیل محدودیت CORS ممکن نیست؛ در این حالت فایل را دانلود و از بخش آپلود وارد کن.</p>
-      </div>
-    </div>
-    <hr>
-    <h2>۲) ورود مستقیم متن یا کد</h2>
-    <div class="grid">
-      <div>
-        <label for="textPath">مسیر فایل مقصد</label>
-        <input id="textPath" class="path" placeholder="modules/example.js">
-        <label for="textContent">متن یا کد فایل</label>
-        <textarea id="textContent" placeholder="کد یا متن کامل فایل را اینجا قرار بده..."></textarea>
-        <div class="actions">
-          <button class="primary" id="saveText">ذخیره در نسخه آزمایشی</button>
-          <button id="clearText">پاک کردن متن</button>
-        </div>
-      </div>
-      <div>
-        <label for="fileList">فایل‌های موجود در نسخه آزمایشی</label>
-        <div class="status" id="summary">هنوز فایلی وارد نشده است.</div>
-        <p class="small">فایل‌ها در فضای محلی همین مرورگر نگهداری می‌شوند و با بستن صفحه از بین نمی‌روند. پاک‌کردن داده‌های مرورگر ممکن است آن‌ها را حذف کند.</p>
-        <div class="actions">
-          <button id="validate">بررسی فایل‌ها</button>
-          <button id="exportZip">دانلود بسته آزمایشی ZIP</button>
-          <button class="danger" id="clearStage">پاک‌کردن نسخه آزمایشی</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>۳) فهرست فایل‌ها و ویرایش</h2>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>مسیر</th><th>حجم</th><th>وضعیت</th><th>عملیات</th></tr></thead>
-        <tbody id="fileRows"><tr><td colspan="4" class="muted">فایلی وارد نشده است.</td></tr></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>۴) آزمایش و بازبینی</h2>
-    <div id="validation" class="status">ابتدا فایل‌ها را وارد کن و «بررسی فایل‌ها» را بزن.</div>
-    <div class="grid" style="margin-top:12px">
-      <div>
-        <label for="previewSelect">پیش‌نمایش فایل HTML</label>
-        <select id="previewSelect"><option value="">فایل HTML موجود نیست</option></select>
-        <button id="previewBtn">نمایش پیش‌نمایش HTML</button>
-        <p class="small">این پیش‌نمایش در محیط ایزوله مرورگر باز می‌شود. فایل‌های وابسته با مسیر نسبی ممکن است در این پیش‌نمایش بارگذاری نشوند؛ برای تست کامل پروژه، بسته ZIP را در محیط محلی وب‌سرور اجرا کن.</p>
-      </div>
-      <div>
-        <label>کنترل‌های ایمنی</label>
-        <div class="status">• کد JavaScript فقط از نظر Syntax بررسی می‌شود و در این صفحه اجرا نمی‌شود.<br>• JSON از نظر ساختار تجزیه می‌شود.<br>• فایل اصلی سایت تا زمان انتشار تغییر نمی‌کند.<br>• انتشار آنلاین فقط بعد از تأیید صریح انجام می‌شود.</div>
-      </div>
-    </div>
-    <iframe id="preview" title="پیش‌نمایش محلی" sandbox="allow-scripts"></iframe>
-  </section>
-
-  <section class="card">
-    <h2>۵) انتشار آنلاین با تأیید تو</h2>
-    <p class="muted">برای انتشار امن، یک واسط سمت سرور (مثلاً Cloudflare Worker) لازم است. کلید GitHub نباید در این صفحه یا فایل‌های عمومی سایت قرار بگیرد.</p>
-    <label for="publishEndpoint">آدرس سرویس انتشار امن</label>
-    <input id="publishEndpoint" type="url" placeholder="https://your-worker.example.workers.dev/publish">
-    <label for="publishKey">کلید مدیریتی سرویس (فقط در حافظه همین صفحه)</label>
-    <input id="publishKey" type="password" autocomplete="off" placeholder="کلید مدیریتی Worker">
-    <div class="actions" style="margin-top:12px">
-      <button class="good" id="publishBtn" disabled>انتشار نسخه آزمایشی با تأیید نهایی</button>
-    </div>
-    <div id="publishStatus" class="status" style="margin-top:10px">انتشار آنلاین تا زمان نصب و تنظیم سرویس امن غیرفعال است.</div>
-    <p class="small">این فایل به‌تنهایی توکن GitHub را دریافت یا ذخیره نمی‌کند. بعد از آماده‌شدن Worker، آدرس آن را اینجا وارد می‌کنی.</p>
-  </section>
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script>
-(() => {
-'use strict';
-const DB_NAME='trading-dashboard-update-manager';
-const STORE='staged-files';
-const $=id=>document.getElementById(id);
-let db=null;
-let staged=new Map();
-let dirty=false;
-
-function safePath(path){
-  let p=String(path||'').replace(/\\/g,'/').replace(/^\/+/,'').trim();
-  if(!p || p.split('/').some(part=>part==='..') || p.includes('\0')) throw new Error('مسیر فایل نامعتبر است: '+path);
-  return p.replace(/\/+/g,'/');
-}
-function bytes(text){return new Blob([text]).size}
-function openDB(){
- return new Promise((resolve,reject)=>{
-  const req=indexedDB.open(DB_NAME,1);
-  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE,{keyPath:'path'});};
-  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
- });
-}
-function tx(mode,work){
- return new Promise((resolve,reject)=>{
-  const t=db.transaction(STORE,mode),s=t.objectStore(STORE);
-  let result;
-  try{result=work(s)}catch(e){reject(e);return}
-  t.oncomplete=()=>resolve(result);t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error);
- });
-}
-async function loadStage(){
- const rows=await new Promise((resolve,reject)=>{
-  const req=db.transaction(STORE).objectStore(STORE).getAll();
-  req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
- });
- staged=new Map(rows.map(x=>[x.path,x.content]));
- render();
-}
-async function putFile(path,content){
- path=safePath(path);
- staged.set(path,String(content));
- await tx('readwrite',s=>s.put({path,content:String(content),updatedAt:Date.now()}));
- dirty=true;render();
-}
-async function deleteFile(path){
- staged.delete(path);await tx('readwrite',s=>s.delete(path));dirty=true;render();
-}
-function formatSize(n){return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'}
-function render(){
- const entries=[...staged.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
- $('summary').textContent=entries.length
-  ? `${entries.length} فایل در نسخه آزمایشی · ${formatSize(entries.reduce((n,x)=>n+bytes(x[1]),0))} مجموع حجم`
-  : 'هنوز فایلی وارد نشده است.';
- $('fileRows').innerHTML='';
- if(!entries.length){$('fileRows').innerHTML='<tr><td colspan="4" class="muted">فایلی وارد نشده است.</td></tr>';}
- for(const [path,content] of entries){
-  const tr=document.createElement('tr');
-  const td1=document.createElement('td');td1.className='path';td1.textContent=path;
-  const td2=document.createElement('td');td2.textContent=formatSize(bytes(content));
-  const td3=document.createElement('td');td3.innerHTML='<span class="pill">آزمایشی</span>';
-  const td4=document.createElement('td');td4.className='actions';
-  const edit=document.createElement('button');edit.textContent='ویرایش';edit.onclick=()=>{$('textPath').value=path;$('textContent').value=content;window.scrollTo({top:0,behavior:'smooth'});};
-  const del=document.createElement('button');del.textContent='حذف';del.className='danger';del.onclick=async()=>{if(confirm('این فایل از نسخه آزمایشی حذف شود؟\n'+path))await deleteFile(path);};
-  td4.append(edit,del);tr.append(td1,td2,td3,td4);$('fileRows').append(tr);
- }
- const htmls=entries.map(x=>x[0]).filter(p=>/\.html?$/i.test(p));
- $('previewSelect').innerHTML=htmls.length?'':'<option value="">فایل HTML موجود نیست</option>';
- htmls.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;$('previewSelect').append(o);});
- $('publishBtn').disabled=!entries.length;
-}
-function setStatus(id,msg,kind=''){const el=$(id);el.textContent=msg;el.className='status '+kind;}
-function stripCommonRoot(paths){
- if(!paths.length)return paths;
- const parts=paths.map(p=>p.split('/'));
- if(parts.every(p=>p.length>1) && parts.every(p=>p[0]===parts[0][0])){
-  return paths.map(p=>p.split('/').slice(1).join('/'));
- }
- return paths;
-}
-async function importFiles(){
- const files=[...$('bulkFiles').files];
- if(!files.length){alert('ابتدا فایل یا ZIP را انتخاب کن.');return;}
- try{
-  const zipFile=files.find(f=>/\.zip$/i.test(f.name));
-  if(zipFile){
-   if(files.length>1)throw new Error('برای جلوگیری از اشتباه، ZIP را جداگانه وارد کن یا فایل‌های عادی را جدا انتخاب کن.');
-   if(!window.JSZip)throw new Error('کتابخانه ZIP بارگذاری نشده؛ اتصال اینترنت را بررسی کن.');
-   const zip=await JSZip.loadAsync(zipFile);
-   const items=Object.values(zip.files).filter(f=>!f.dir && !f.name.startsWith('__MACOSX/') && !f.name.endsWith('.DS_Store'));
-   let paths=stripCommonRoot(items.map(f=>f.name));
-   for(let i=0;i<items.length;i++){
-    const p=safePath(paths[i]);
-    const content=await items[i].async('string');
-    await putFile(p,content);
-   }
-   setStatus('validation',`ورود ZIP انجام شد: ${items.length} فایل به نسخه آزمایشی اضافه شد. برای بررسی، دکمه «بررسی فایل‌ها» را بزن.`,'ok');
-  }else{
-   for(const f of files){
-    const p=safePath(f.webkitRelativePath||f.name);
-    const content=await f.text();
-    await putFile(p,content);
-   }
-   setStatus('validation',`${files.length} فایل به نسخه آزمایشی اضافه شد.`,'ok');
+@media (max-width: 720px) {
+  body {
+    font-size: 14px;
   }
-  $('bulkFiles').value='';
- }catch(e){setStatus('validation','خطا در ورود فایل: '+e.message,'err');}
+
+  header {
+    padding: 15px 12px;
+  }
+
+  header h1 {
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  header p {
+    font-size: 12px;
+  }
+
+  main {
+    margin: 12px auto;
+    padding: 0 9px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 11px;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .actions {
+    gap: 7px;
+  }
+
+  .actions button {
+    flex: 1 1 100%;
+    min-height: 43px;
+  }
+
+  button {
+    min-height: 42px;
+  }
+
+  input, textarea, select {
+    font-size: 14px;
+    min-width: 0;
+  }
+
+  textarea {
+    min-height: 180px;
+  }
+
+  .tablewrap {
+    overflow: visible;
+  }
+
+  table {
+    width: 100%;
+    min-width: 0;
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: block;
+    width: 100%;
+  }
+
+  tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel2);
+  }
+
+  tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: anywhere;
+  }
+
+  tbody td::before {
+    font-weight: bold;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  tbody td:nth-child(1)::before { content: "مسیر:"; }
+  tbody td:nth-child(2)::before { content: "حجم:"; }
+  tbody td:nth-child(3)::before { content: "وضعیت:"; }
+  tbody td:nth-child(4)::before { content: "عملیات:"; }
+
+  tbody td:last-child {
+    border-bottom: 0;
+    flex-wrap: wrap;
+  }
+
+  tbody td:last-child button {
+    flex: 1;
+  }
+
+  #preview {
+    height: 280px;
+  }
+
+  .drop {
+    padding: 13px;
+  }
 }
-async function validate(){
- const errors=[],warnings=[];
- for(const [path,content] of staged){
-  try{
-   if(/\.json$/i.test(path))JSON.parse(content);
-   else if(/\.m?js$/i.test(path))new Function(content);
-   else if(/\.html?$/i.test(path)){
-    const doc=new DOMParser().parseFromString(content,'text/html');
-    if(doc.querySelector('parsererror'))throw new Error('خطای تجزیه HTML');
-    if(!doc.documentElement)throw new Error('ساختار HTML ناقص است');
-   }
-  }catch(e){errors.push(path+' : '+e.message);}
-  if(content.length===0)warnings.push(path+' : فایل خالی است');
- }
- const total=[...staged.values()].reduce((n,v)=>n+bytes(v),0);
- let msg=`تعداد فایل‌ها: ${staged.size}\nحجم کل: ${formatSize(total)}\n`;
- msg+=errors.length?'\nخطاها:\n- '+errors.join('\n- '):'\nخطای Syntax در فایل‌های قابل بررسی پیدا نشد.';
- if(warnings.length)msg+='\n\nهشدارها:\n- '+warnings.join('\n- ');
- msg+='\n\nتوجه: این بررسی جایگزین اجرای کامل و تست عملکرد داشبورد نیست.';
- setStatus('validation',msg,errors.length?'err':warnings.length?'warn':'ok');
- return errors.length===0;
-}
-async function exportZip(){
- if(!staged.size){alert('نسخه آزمایشی خالی است.');return;}
- if(!window.JSZip){alert('کتابخانه ZIP بارگذاری نشده است.');return;}
- const zip=new JSZip();
- for(const [path,content] of staged)zip.file(path,content);
- const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
- const a=document.createElement('a');const url=URL.createObjectURL(blob);
- a.href=url;a.download='trading-dashboard-staged.zip';a.click();
- setTimeout(()=>URL.revokeObjectURL(url),3000);
-}
-async function previewHTML(){
- const path=$('previewSelect').value;
- if(!path){alert('فایل HTML برای پیش‌نمایش انتخاب نشده است.');return;}
- const source=staged.get(path);
- if(source==null)return;
- $('preview').srcdoc=source;
-}
-async function fetchURL(){
- const url=$('urlInput').value.trim(),path=$('urlPath').value.trim();
- if(!url||!path){alert('آدرس و مسیر فایل را وارد کن.');return;}
- try{
-  const response=await fetch(url);
-  if(!response.ok)throw new Error('HTTP '+response.status);
-  await putFile(path,await response.text());
-  setStatus('validation','فایل از URL دریافت و در نسخه آزمایشی ذخیره شد.','ok');
- }catch(e){setStatus('validation','دریافت انجام نشد: '+e.message+' — ممکن است سرور مقصد CORS را محدود کرده باشد.','err');}
-}
-async function publish(){
- const endpoint=$('publishEndpoint').value.trim(),key=$('publishKey').value;
- if(!endpoint||!key){alert('آدرس Worker و کلید مدیریتی را وارد کن.');return;}
- if(!(await validate())){alert('ابتدا خطاهای بررسی را برطرف کن.');return;}
- const count=staged.size;
- const answer=prompt(`تأیید انتشار آنلاین\n${count} فایل در نسخه آزمایشی وجود دارد.\nبرای ادامه دقیقاً عبارت PUBLISH را وارد کن:`);
- if(answer!=='PUBLISH')return;
- const btn=$('publishBtn');btn.disabled=true;
- setStatus('publishStatus','در حال ارسال فایل‌ها به سرویس انتشار امن...','warn');
- try{
-  const files=[...staged.entries()].map(([path,content])=>({path,content}));
-  const response=await fetch(endpoint,{
-   method:'POST',
-   headers:{'Content-Type':'application/json','X-Dashboard-Admin-Key':key},
-   body:JSON.stringify({action:'publish',files})
-  });
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error||('HTTP '+response.status));
-  setStatus('publishStatus',data.message||'درخواست انتشار با موفقیت به سرویس ارسال شد. وضعیت نهایی را در پاسخ سرویس بررسی کن.','ok');
- }catch(e){setStatus('publishStatus','انتشار انجام نشد: '+e.message,'err');}
- finally{btn.disabled=!staged.size;}
-}
-async function clearStage(){
- if(!confirm('تمام فایل‌های نسخه آزمایشی این مرورگر پاک شوند؟'))return;
- await tx('readwrite',s=>s.clear());staged.clear();dirty=false;
- $('preview').srcdoc='';render();setStatus('validation','نسخه آزمایشی پاک شد.','');
-}
-$('importFiles').addEventListener('click',importFiles);
-$('saveText').addEventListener('click',async()=>{
- try{const p=$('textPath').value.trim();if(!p)throw new Error('مسیر فایل را وارد کن.');await putFile(p,$('textContent').value);setStatus('validation','متن در نسخه آزمایشی ذخیره شد.','ok');}
- catch(e){setStatus('validation',e.message,'err');}
-});
-$('clearText').addEventListener('click',()=>{$('textPath').value='';$('textContent').value='';});
-$('validate').addEventListener('click',validate);
-$('exportZip').addEventListener('click',exportZip);
-$('previewBtn').addEventListener('click',previewHTML);
-$('fetchUrl').addEventListener('click',fetchURL);
-$('publishBtn').addEventListener('click',publish);
-$('clearStage').addEventListener('click',clearStage);
-(async()=>{try{db=await openDB();await loadStage();}catch(e){setStatus('validation','مرورگر اجازه ذخیره محلی نداده است: '+e.message,'err');}})();
-})();
-</script>
-</body>
-</html>
