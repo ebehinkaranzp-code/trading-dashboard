@@ -33,5 +33,5 @@
     "/api/v5/rubik/stat/contracts/long-short-account-ratio: HTTP Error 400: Bad Request",
     "/api/v5/rubik/stat/taker-volume: HTTP Error 400: Bad Request"
   ],
-  "time": "2026-11-16T19:11:05.686989+00:00"
+  "time": "2026-11-16T20:00:26.165946+00:00"
 }
