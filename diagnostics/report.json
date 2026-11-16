@@ -1,21 +1,34 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T06:06:40.726Z",
+  "generatedAt": "2026-11-16T08:49:20.760Z",
   "repository": "ebehinkaranzp-code/trading-dashboard",
   "siteUrl": "https://ebehinkaranzp-code.github.io/trading-dashboard/",
-  "overall": "healthy",
+  "overall": "issues",
   "summary": {
     "checkCount": 3,
-    "errors": 0,
+    "errors": 3,
     "warnings": 0,
-    "browserErrors": 0,
-    "failedWorkflowRuns": 1
+    "browserErrors": 3,
+    "failedWorkflowRuns": 11
   },
   "browser": {
-    "consoleErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 ()"
+    ],
     "pageErrors": [],
-    "failedRequests": [],
-    "responses": [],
+    "failedRequests": [
+      {
+        "url": "https://ebehinkaranzp-code.github.io/trading-dashboard/modules/candlestick-intelligence.js",
+        "method": "GET",
+        "error": "net::ERR_ABORTED"
+      }
+    ],
+    "responses": [
+      {
+        "url": "https://ebehinkaranzp-code.github.io/trading-dashboard/modules/candlestick-intelligence.js",
+        "status": 404
+      }
+    ],
     "httpStatus": 200,
     "title": "داشبورد تحلیل بازار",
     "url": "https://ebehinkaranzp-code.github.io/trading-dashboard/",
@@ -45,7 +58,7 @@
       "GOLD",
       "XAU"
     ],
-    "generatedAt": "2026-11-16T05:06:45.302058+00:00",
+    "generatedAt": "2026-11-16T06:12:32.193958+00:00",
     "marketDetails": {
       "BTC": {
         "timeframes": [
@@ -211,233 +224,343 @@
         "workflow": ".github/workflows/diagnostics.yml",
         "status": "in_progress",
         "conclusion": null,
-        "runNumber": 12,
+        "runNumber": 13,
         "event": "schedule",
-        "createdAt": "2026-11-16T06:06:06Z",
-        "updatedAt": "2026-11-16T06:06:08Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43814489729"
+        "createdAt": "2026-11-16T08:48:52Z",
+        "updatedAt": "2026-11-16T08:48:55Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43834297526"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "in_progress",
+        "conclusion": null,
+        "runNumber": 138,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:48:33Z",
+        "updatedAt": "2026-11-16T08:49:03Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43834252747"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 114,
+        "runNumber": 137,
         "event": "dynamic",
-        "createdAt": "2026-11-16T05:10:09Z",
-        "updatedAt": "2026-11-16T05:10:48Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43808466538"
+        "createdAt": "2026-11-16T08:41:01Z",
+        "updatedAt": "2026-11-16T08:41:47Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43833223161"
       },
       {
-        "name": "Update BTC market data and diagnostics",
-        "workflow": ".github/workflows/update-btc.yml",
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "success",
-        "runNumber": 27,
-        "event": "schedule",
-        "createdAt": "2026-11-16T05:10:00Z",
-        "updatedAt": "2026-11-16T05:10:11Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43808450148"
+        "conclusion": "cancelled",
+        "runNumber": 136,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:40:39Z",
+        "updatedAt": "2026-11-16T08:41:05Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43833171564"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 135,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:40:05Z",
+        "updatedAt": "2026-11-16T08:40:43Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43833091031"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 113,
+        "runNumber": 134,
         "event": "dynamic",
-        "createdAt": "2026-11-16T05:06:48Z",
-        "updatedAt": "2026-11-16T05:07:35Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43808114657"
+        "createdAt": "2026-11-16T08:39:00Z",
+        "updatedAt": "2026-11-16T08:39:37Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832945620"
       },
       {
-        "name": "Update Market Data",
-        "workflow": ".github/workflows/update-market.yml",
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "success",
-        "runNumber": 11,
-        "event": "schedule",
-        "createdAt": "2026-11-16T05:06:23Z",
-        "updatedAt": "2026-11-16T05:06:50Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43808074129"
+        "conclusion": "cancelled",
+        "runNumber": 133,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:38:29Z",
+        "updatedAt": "2026-11-16T08:39:05Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832874107"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 112,
+        "runNumber": 132,
         "event": "dynamic",
-        "createdAt": "2026-11-16T05:01:22Z",
-        "updatedAt": "2026-11-16T05:02:05Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43807560873"
+        "createdAt": "2026-11-16T08:37:11Z",
+        "updatedAt": "2026-11-16T08:37:49Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832700912"
       },
       {
-        "name": "Trading Dashboard Diagnostics",
-        "workflow": ".github/workflows/diagnostics.yml",
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "success",
-        "runNumber": 11,
-        "event": "schedule",
-        "createdAt": "2026-11-16T05:00:46Z",
-        "updatedAt": "2026-11-16T05:01:24Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43807492941"
+        "conclusion": "cancelled",
+        "runNumber": 131,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:36:37Z",
+        "updatedAt": "2026-11-16T08:37:16Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832619336"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 130,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:36:19Z",
+        "updatedAt": "2026-11-16T08:36:42Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832580985"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 111,
+        "runNumber": 129,
         "event": "dynamic",
-        "createdAt": "2026-11-16T03:47:12Z",
-        "updatedAt": "2026-11-16T03:47:50Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43800218663"
+        "createdAt": "2026-11-16T08:35:23Z",
+        "updatedAt": "2026-11-16T08:36:06Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832449866"
       },
       {
-        "name": "Update BTC market data and diagnostics",
-        "workflow": ".github/workflows/update-btc.yml",
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "success",
-        "runNumber": 26,
-        "event": "schedule",
-        "createdAt": "2026-11-16T03:47:03Z",
-        "updatedAt": "2026-11-16T03:47:12Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43800203926"
+        "conclusion": "cancelled",
+        "runNumber": 128,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:35:04Z",
+        "updatedAt": "2026-11-16T08:35:30Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832402565"
       },
       {
-        "name": "Update Market Data",
-        "workflow": ".github/workflows/update-market.yml",
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "failure",
-        "runNumber": 10,
-        "event": "schedule",
-        "createdAt": "2026-11-16T03:43:59Z",
-        "updatedAt": "2026-11-16T03:44:24Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43799906599"
+        "conclusion": "cancelled",
+        "runNumber": 127,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:34:26Z",
+        "updatedAt": "2026-11-16T08:35:09Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832313963"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 126,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:33:43Z",
+        "updatedAt": "2026-11-16T08:34:32Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832218722"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 125,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:33:03Z",
+        "updatedAt": "2026-11-16T08:33:48Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832129242"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 124,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:32:43Z",
+        "updatedAt": "2026-11-16T08:33:08Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832085102"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 110,
+        "runNumber": 123,
         "event": "dynamic",
-        "createdAt": "2026-11-16T03:32:00Z",
-        "updatedAt": "2026-11-16T03:32:44Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43798742734"
-      },
-      {
-        "name": "Trading Dashboard Diagnostics",
-        "workflow": ".github/workflows/diagnostics.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 10,
-        "event": "schedule",
-        "createdAt": "2026-11-16T03:31:20Z",
-        "updatedAt": "2026-11-16T03:32:02Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43798682959"
+        "createdAt": "2026-11-16T07:56:44Z",
+        "updatedAt": "2026-11-16T07:57:22Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43827383756"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 109,
+        "runNumber": 122,
         "event": "dynamic",
-        "createdAt": "2026-11-16T02:45:18Z",
-        "updatedAt": "2026-11-16T02:46:00Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43794059911"
-      },
-      {
-        "name": "Update BTC market data and diagnostics",
-        "workflow": ".github/workflows/update-btc.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 25,
-        "event": "schedule",
-        "createdAt": "2026-11-16T02:45:09Z",
-        "updatedAt": "2026-11-16T02:45:20Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43794043231"
+        "createdAt": "2026-11-16T07:55:13Z",
+        "updatedAt": "2026-11-16T07:55:47Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43827197255"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
         "conclusion": "success",
-        "runNumber": 108,
+        "runNumber": 121,
         "event": "dynamic",
-        "createdAt": "2026-11-16T02:42:01Z",
-        "updatedAt": "2026-11-16T02:42:36Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43793742713"
-      },
-      {
-        "name": "Update Market Data",
-        "workflow": ".github/workflows/update-market.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 9,
-        "event": "schedule",
-        "createdAt": "2026-11-16T02:41:42Z",
-        "updatedAt": "2026-11-16T02:42:03Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43793712795"
+        "createdAt": "2026-11-16T07:53:46Z",
+        "updatedAt": "2026-11-16T07:54:27Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43827022610"
       },
       {
         "name": "pages build and deployment",
         "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "success",
-        "runNumber": 107,
+        "conclusion": "cancelled",
+        "runNumber": 120,
         "event": "dynamic",
-        "createdAt": "2026-11-16T02:23:46Z",
-        "updatedAt": "2026-11-16T02:24:29Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43791898038"
-      },
-      {
-        "name": "Trading Dashboard Diagnostics",
-        "workflow": ".github/workflows/diagnostics.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 9,
-        "event": "schedule",
-        "createdAt": "2026-11-16T02:22:55Z",
-        "updatedAt": "2026-11-16T02:23:49Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43791814368"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 106,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T01:56:24Z",
-        "updatedAt": "2026-11-16T01:57:13Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43789153714"
-      },
-      {
-        "name": "Update BTC market data and diagnostics",
-        "workflow": ".github/workflows/update-btc.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 24,
-        "event": "schedule",
-        "createdAt": "2026-11-16T01:56:16Z",
-        "updatedAt": "2026-11-16T01:56:25Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43789140855"
+        "createdAt": "2026-11-16T07:53:30Z",
+        "updatedAt": "2026-11-16T07:53:52Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43826993087"
       }
     ],
     "failedRecent": [
       {
-        "name": "Update Market Data",
-        "workflow": ".github/workflows/update-market.yml",
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
         "status": "completed",
-        "conclusion": "failure",
-        "runNumber": 10,
-        "event": "schedule",
-        "createdAt": "2026-11-16T03:43:59Z",
-        "updatedAt": "2026-11-16T03:44:24Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43799906599"
+        "conclusion": "cancelled",
+        "runNumber": 136,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:40:39Z",
+        "updatedAt": "2026-11-16T08:41:05Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43833171564"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 135,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:40:05Z",
+        "updatedAt": "2026-11-16T08:40:43Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43833091031"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 133,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:38:29Z",
+        "updatedAt": "2026-11-16T08:39:05Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832874107"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 131,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:36:37Z",
+        "updatedAt": "2026-11-16T08:37:16Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832619336"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 130,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:36:19Z",
+        "updatedAt": "2026-11-16T08:36:42Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832580985"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 128,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:35:04Z",
+        "updatedAt": "2026-11-16T08:35:30Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832402565"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 127,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:34:26Z",
+        "updatedAt": "2026-11-16T08:35:09Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832313963"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 126,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:33:43Z",
+        "updatedAt": "2026-11-16T08:34:32Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832218722"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 125,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:33:03Z",
+        "updatedAt": "2026-11-16T08:33:48Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832129242"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 124,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T08:32:43Z",
+        "updatedAt": "2026-11-16T08:33:08Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43832085102"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "runNumber": 120,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T07:53:30Z",
+        "updatedAt": "2026-11-16T07:53:52Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43826993087"
       }
     ]
   },
@@ -446,19 +569,19 @@
       "name": "markets.json",
       "status": "ok",
       "detail": "HTTP 200; 7 markets",
-      "at": "2026-11-16T06:06:40.863Z"
+      "at": "2026-11-16T08:49:20.900Z"
     },
     {
       "name": "dashboard page",
       "status": "ok",
       "detail": "HTTP 200; title=داشبورد تحلیل بازار",
-      "at": "2026-11-16T06:06:52.283Z"
+      "at": "2026-11-16T08:49:30.543Z"
     },
     {
       "name": "GitHub Actions history",
       "status": "ok",
-      "detail": "20 recent runs; 1 failed/cancelled",
-      "at": "2026-11-16T06:06:52.894Z"
+      "detail": "20 recent runs; 11 failed/cancelled",
+      "at": "2026-11-16T08:49:31.150Z"
     }
   ],
   "history": [
@@ -511,7 +634,12 @@
       "generatedAt": "2026-11-16T05:01:09.317Z",
       "overall": "healthy",
       "errorCount": 0
+    },
+    {
+      "generatedAt": "2026-11-16T06:06:40.726Z",
+      "overall": "healthy",
+      "errorCount": 0
     }
   ],
-  "completedAt": "2026-11-16T06:06:52.917Z"
+  "completedAt": "2026-11-16T08:49:31.175Z"
 }
