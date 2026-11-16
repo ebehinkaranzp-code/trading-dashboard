@@ -4,390 +4,414 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1020">
-<title>مدیریت واقعی پروژه</title>
+<meta name="theme-color" content="#101827">
+<title>مدیریت پروژه Trading Dashboard</title>
 <style>
-:root{--bg:#0b1020;--panel:#121d32;--panel2:#192943;--line:#293b59;--text:#edf3ff;--muted:#9aabc5;--blue:#6688ff;--green:#20c997;--red:#ff647c;--yellow:#f4bd58}
+:root{color-scheme:dark;--bg:#0b1220;--panel:#131e30;--line:#26364d;--text:#e8eef8;--muted:#91a2ba;--blue:#3478f6;--red:#d94b58;--green:#1eaa75}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;font-size:14px}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-.layout{min-height:100vh;display:flex}
-.sidebar{width:245px;position:fixed;right:0;top:0;bottom:0;background:#0e1729;border-left:1px solid var(--line);padding:22px 15px}
-.brand{font-size:19px;font-weight:bold;padding:8px 10px 25px}
-.nav{display:block;width:100%;padding:13px;margin:4px 0;text-align:right;background:none;border:0;border-radius:10px;color:var(--muted)}
-.nav.active,.nav:hover{background:var(--panel2);color:white}
-.main{margin-right:245px;width:calc(100% - 245px)}
-.top{height:65px;padding:0 25px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#0e1729}
-.content{padding:25px;max-width:1300px;margin:auto}
-.page{display:none}.page.active{display:block}
-h1{font-size:21px;margin:0 0 8px}h2{font-size:16px;margin:0 0 15px}
-.muted{color:var(--muted);font-size:12px;line-height:1.9}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:16px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.row>*{flex:1}
-input,textarea{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#0b1425;color:white;outline:none}
+header{padding:17px;background:#101a2b;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+h1{font-size:18px;margin:0 0 7px}
+small,.muted{color:var(--muted)}
+main{max-width:1100px;margin:auto;padding:14px;display:grid;gap:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+h2{font-size:15px;margin:0 0 12px}
+input,textarea,button{font:inherit;border-radius:8px}
+input,textarea{background:#0b1423;color:var(--text);border:1px solid var(--line);padding:11px;width:100%;outline:none}
 input:focus,textarea:focus{border-color:var(--blue)}
-textarea{min-height:55vh;resize:vertical;direction:ltr;text-align:left;line-height:1.65;font-family:Consolas,monospace;font-size:13px}
-label{display:block;color:#b9c8df;font-size:12px;margin-bottom:7px}
-.field{margin-bottom:14px}
-.btn{padding:10px 14px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);color:white}
-.btn.primary{background:var(--blue);border-color:var(--blue)}
-.btn.green{background:#12513f;border-color:#176b53}
-.btn.red{background:#512334;border-color:#743247}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.status{padding:11px 13px;border-radius:9px;background:#172641;color:#c9d8f5;margin:12px 0;line-height:1.8}
-.status.good{background:#10372d;color:#a4f0d3}
-.status.bad{background:#48202c;color:#ffb1bd}
-.status.warn{background:#3e321d;color:#ffe0a0}
-.files{max-height:65vh;overflow:auto}
-.file{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
-.file button{flex-shrink:0}
-.file-name{flex:1;direction:ltr;text-align:left;overflow-wrap:anywhere;cursor:pointer}
-.file-name:hover{color:#a9bbff}
-.small{font-size:11px;color:var(--muted)}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.badge{font-size:10px;color:#a9c1ff;background:#23385c;border-radius:20px;padding:4px 7px}
-#toast{position:fixed;bottom:20px;left:20px;background:#23385c;padding:12px 17px;border-radius:10px;display:none;z-index:20}
-.mobilebar{display:none}
-@media(max-width:800px){
- .sidebar{display:none}.main{width:100%;margin:0}
- .top{height:58px;padding:0 14px}.content{padding:16px 12px 90px}
- .mobilebar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;bottom:0;right:0;left:0;background:#101a2d;border-top:1px solid var(--line);padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:10}
- .mobilebar button{background:none;border:0;color:var(--muted);font-size:10px;padding:7px 2px}
- .mobilebar button.active{color:#a9bbff}
- textarea{min-height:48vh}
- .file{padding:10px 4px}
+button{border:0;padding:11px 14px;background:var(--blue);color:white;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.secondary{background:#293950}
+button.danger{background:var(--red)}
+button.success{background:var(--green)}
+button.small{padding:8px 10px;font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+.status{padding:10px;background:#0b1423;border:1px solid var(--line);border-radius:8px;color:var(--muted);line-height:1.8}
+.layout{display:grid;grid-template-columns: minmax(220px, .8fr) minmax(0,2fr);gap:13px}
+#fileList{max-height:65vh;overflow:auto}
+.file{display:block;width:100%;text-align:right;background:transparent;color:var(--text);padding:10px;border-bottom:1px solid #26364d;border-radius:0;overflow-wrap:anywhere}
+.file.active{background:#20385b;color:#fff}
+.file:hover{background:#1b2a40}
+#editor{width:100%;min-height:52vh;resize:vertical;direction:ltr;text-align:left;font-family:Consolas,monospace;font-size:13px;line-height:1.6;tab-size:2}
+#path{direction:ltr;text-align:left}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.actions button{flex:1;min-width:100px}
+.hidden{display:none!important}
+#token{direction:ltr;text-align:left}
+.note{font-size:12px;line-height:1.9;color:var(--muted)}
+@media(max-width:700px){
+ main{padding:9px}
+ .layout{grid-template-columns:1fr}
+ #fileList{max-height:230px}
+ #editor{min-height:48vh}
+ header{padding:13px}
+ h1{font-size:16px}
+ .panel{padding:11px}
 }
 </style>
 </head>
 <body>
-<div class="layout">
-<aside class="sidebar">
- <div class="brand">⚙️ مدیریت پروژه</div>
- <button class="nav active" data-page="files">📁 فایل‌های مخزن</button>
- <button class="nav" data-page="editor">📝 ویرایش فایل</button>
- <button class="nav" data-page="connect">🔐 اتصال GitHub</button>
- <button class="nav" data-page="about">ℹ️ وضعیت انتشار</button>
- <div class="muted" style="margin:30px 10px">Trading Dashboard<br>اتصال مستقیم به مخزن اصلی</div>
-</aside>
-<main class="main">
-<header class="top">
- <strong id="topTitle">فایل‌های مخزن</strong>
- <span class="small" id="connectionLabel">● متصل نیست</span>
+<header>
+<h1>مدیریت Trading Dashboard</h1>
+<small>مدیریت مستقیم فایل‌های GitHub | شاخه main</small>
 </header>
-<div class="content">
 
-<section class="page active" id="page-files">
- <h1>فایل‌های واقعی پروژه</h1>
- <p class="muted">فهرست مستقیماً از مخزن GitHub دریافت می‌شود.</p>
- <div class="card">
-  <div class="toolbar">
-   <button class="btn primary" onclick="loadFiles()">🔄 دریافت فایل‌ها</button>
-   <button class="btn" onclick="newFile()">＋ فایل جدید</button>
-   <button class="btn" onclick="go('connect')">تنظیم اتصال</button>
-  </div>
-  <div class="field"><input id="search" placeholder="جست‌وجوی فایل..." oninput="renderFiles()"></div>
-  <div id="fileList" class="files"><div class="muted">برای دریافت فایل‌ها، ابتدا اتصال را تنظیم کن.</div></div>
- </div>
+<main>
+<section class="panel">
+<h2>اتصال به GitHub</h2>
+<div class="row">
+<input id="token" type="password" placeholder="GitHub Personal Access Token" autocomplete="off">
+<button id="connect">اتصال و دریافت فایل‌ها</button>
+</div>
+<p class="note">توکن در حافظه موقت همین صفحه نگهداری می‌شود و در حافظه مرورگر ذخیره نمی‌شود. برای اتصال، توکن Fine-grained با دسترسی Contents: Read and write و Metadata: Read-only برای همین مخزن لازم است.</p>
+<div id="status" class="status">هنوز متصل نشده‌اید.</div>
 </section>
 
-<section class="page" id="page-editor">
- <h1>ویرایشگر فایل</h1>
- <p class="muted">ذخیره، تغییر واقعی را در مخزن ثبت می‌کند.</p>
- <div class="card">
-  <div class="field">
-   <label>مسیر فایل در مخزن</label>
-   <input id="path" placeholder="مثلاً index.html" dir="ltr">
-  </div>
-  <div class="field">
-   <label>محتوای فایل</label>
-   <textarea id="code" spellcheck="false" placeholder="محتوای فایل..."></textarea>
-  </div>
-  <div class="toolbar">
-   <button class="btn green" onclick="saveFile()">💾 ذخیره و انتشار در GitHub</button>
-   <button class="btn" onclick="downloadFile()">⬇ دریافت نسخه</button>
-   <button class="btn red" onclick="deleteCurrent()">حذف فایل از مخزن</button>
-  </div>
-  <div id="editorStatus" class="status">فایلی انتخاب نشده است.</div>
- </div>
+<section class="panel">
+<div class="row">
+<input id="search" placeholder="جست‌وجو در نام فایل‌ها..." disabled>
+<button id="refresh" class="secondary" disabled>تازه‌سازی</button>
+<button id="newFile" class="success" disabled>+ فایل جدید</button>
+</div>
 </section>
 
-<section class="page" id="page-connect">
- <h1>اتصال به GitHub</h1>
- <p class="muted">تنظیم مخزن پروژه و توکن دسترسی.</p>
- <div class="card">
-  <div class="field"><label>نام کاربری GitHub</label><input id="owner" value="ebehinkaranzp-code" dir="ltr"></div>
-  <div class="field"><label>نام مخزن</label><input id="repo" value="trading-dashboard" dir="ltr"></div>
-  <div class="field"><label>شاخه</label><input id="branch" value="main" dir="ltr"></div>
-  <div class="field"><label>توکن دسترسی GitHub</label><input id="token" type="password" placeholder="ghp_... یا github_pat_..." autocomplete="off" dir="ltr"></div>
-  <div class="muted">توکن فقط در حافظه نشست فعلی مرورگر نگهداری می‌شود و در فضای ذخیره‌سازی دائمی ثبت نمی‌شود. برای مخزن خصوصی یا عمومی، مجوز Contents: Read and write لازم است.</div>
-  <div class="actions">
-   <button class="btn primary" onclick="connect()">اتصال و بررسی دسترسی</button>
-   <button class="btn" onclick="disconnect()">قطع اتصال</button>
-  </div>
-  <div id="connectStatus" class="status">هنوز متصل نشده‌ای.</div>
- </div>
+<div class="layout">
+<section class="panel">
+<h2>فهرست فایل‌ها</h2>
+<div id="fileList" class="muted">ابتدا به GitHub متصل شوید.</div>
 </section>
 
-<section class="page" id="page-about">
- <h1>وضعیت پروژه</h1>
- <div class="card">
-  <h2>اطلاعات اتصال</h2>
-  <div id="repoInfo" class="muted">اتصال برقرار نشده است.</div>
-  <hr style="border-color:var(--line)">
-  <h2>وضعیت انتشار</h2>
-  <div id="publishInfo" class="status">هنوز تغییری منتشر نشده است.</div>
-  <p class="muted">پس از ثبت Commit در GitHub، انتشار سایت توسط GitHub Pages انجام می‌شود و ممکن است کمی زمان ببرد.</p>
- </div>
+<section class="panel">
+<h2>ویرایشگر فایل</h2>
+<input id="path" placeholder="مسیر فایل، مانند index.html" disabled>
+<div style="height:9px"></div>
+<textarea id="editor" spellcheck="false" placeholder="یک فایل انتخاب کنید یا فایل جدید بسازید..." disabled></textarea>
+<div class="actions">
+<button id="save" class="success" disabled>ذخیره در GitHub</button>
+<button id="delete" class="danger" disabled>حذف فایل</button>
+<button id="clear" class="secondary" disabled>پاک کردن فرم</button>
+</div>
+<p class="note">ذخیره و حذف، مستقیماً روی شاخه main انجام می‌شود و یک Commit جدید در مخزن ایجاد می‌کند. قبل از ذخیره، تغییرات خود را بررسی کنید.</p>
 </section>
-
 </div>
 </main>
-</div>
-
-<nav class="mobilebar">
- <button class="active" data-page="files">📁<br>فایل‌ها</button>
- <button data-page="editor">📝<br>ویرایش</button>
- <button data-page="connect">🔐<br>اتصال</button>
- <button data-page="about">ℹ️<br>وضعیت</button>
-</nav>
-<div id="toast"></div>
 
 <script>
+(() => {
 "use strict";
 
-const API="https://api.github.com";
-let token="";
-let owner="ebehinkaranzp-code";
-let repo="trading-dashboard";
-let branch="main";
-let files=[];
-let currentSha=null;
-let currentPath="";
-let busy=false;
+const OWNER = "ebehinkaranzp-code";
+const REPO = "trading-dashboard";
+const BRANCH = "main";
+const API = "https://api.github.com";
+const $ = id => document.getElementById(id);
 
-const $=id=>document.getElementById(id);
+let token = "";
+let files = [];
+let selectedPath = "";
+let selectedSha = "";
+let busy = false;
 
-function toast(s){
- const t=$("toast");t.textContent=s;t.style.display="block";
- clearTimeout(window.toastTimer);
- window.toastTimer=setTimeout(()=>t.style.display="none",3000);
+function status(message, error=false) {
+  $("status").textContent = message;
+  $("status").style.color = error ? "#ff8790" : "#91d8b5";
 }
-function go(page){
- document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
- $("page-"+page).classList.add("active");
- document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
- const titles={files:"فایل‌های مخزن",editor:"ویرایش فایل",connect:"اتصال GitHub",about:"وضعیت انتشار"};
- $("topTitle").textContent=titles[page];
- window.scrollTo(0,0);
-}
-document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
 
-function headers(extra={}){
- return {
-  "Accept":"application/vnd.github+json",
-  "Authorization":"Bearer "+token,
-  "X-GitHub-Api-Version":"2022-11-28",
-  ...extra
- };
-}
-function apiUrl(path){
- return API+"/repos/"+encodeURIComponent(owner)+"/"+encodeURIComponent(repo)+path;
-}
-async function request(url,options={}){
- const res=await fetch(url,{...options,headers:headers(options.headers||{})});
- const data=await res.json().catch(()=>({}));
- if(!res.ok){
-  let msg=data.message||("HTTP "+res.status);
-  if(res.status===401)msg="توکن نامعتبر یا منقضی شده است.";
-  if(res.status===403)msg="دسترسی کافی نیست؛ مجوز Contents را بررسی کن.";
-  if(res.status===404)msg="مخزن یا مسیر فایل پیدا نشد.";
-  throw new Error(msg);
- }
- return data;
-}
-function setBusy(v){
- busy=v;
- document.querySelectorAll("button").forEach(b=>{
-  if(b.dataset.noLock!=="1")b.disabled=v;
- });
-}
-async function connect(){
- owner=$("owner").value.trim();
- repo=$("repo").value.trim();
- branch=$("branch").value.trim()||"main";
- token=$("token").value.trim();
- if(!owner||!repo||!token){$("connectStatus").textContent="اطلاعات اتصال کامل نیست.";return}
- setBusy(true);
- try{
-  const data=await request(apiUrl(""));
-  const branchData=await request(apiUrl("/branches/"+encodeURIComponent(branch)));
-  $("connectStatus").className="status good";
-  $("connectStatus").textContent="اتصال موفق؛ مخزن و شاخه قابل دسترسی هستند.";
-  $("connectionLabel").textContent="● متصل به GitHub";
-  $("connectionLabel").style.color="#20c997";
-  $("repoInfo").textContent=data.full_name+" | شاخه: "+branchData.name;
-  sessionStorage.setItem("td_owner",owner);
-  sessionStorage.setItem("td_repo",repo);
-  sessionStorage.setItem("td_branch",branch);
-  await loadFiles();
-  toast("اتصال برقرار شد");
-  go("files");
- }catch(e){
-  $("connectStatus").className="status bad";
-  $("connectStatus").textContent=e.message;
-  token="";
- }finally{setBusy(false)}
-}
-function disconnect(){
- token="";
- $("token").value="";
- $("connectionLabel").textContent="● متصل نیست";
- $("connectionLabel").style.color="";
- $("connectStatus").className="status";
- $("connectStatus").textContent="اتصال قطع شد.";
- $("fileList").innerHTML='<div class="muted">اتصال قطع شده است.</div>';
- files=[];
- toast("اتصال قطع شد");
-}
-async function loadFiles(){
- if(!token){toast("ابتدا اتصال GitHub را برقرار کن");go("connect");return}
- setBusy(true);
- try{
-  const data=await request(apiUrl("/git/trees/"+encodeURIComponent(branch)+"?recursive=1"));
-  if(data.truncated)throw new Error("مخزن بسیار بزرگ است و فهرست کامل دریافت نشد.");
-  files=(data.tree||[]).filter(x=>x.type==="blob").map(x=>({path:x.path,sha:x.sha,size:x.size}));
-  renderFiles();
-  $("repoInfo").textContent=owner+"/"+repo+" | شاخه "+branch+" | "+files.length+" فایل";
-  toast(files.length+" فایل دریافت شد");
- }catch(e){toast(e.message)}
- finally{setBusy(false)}
-}
-function renderFiles(){
- const q=($("search").value||"").toLowerCase();
- const list=files.filter(f=>f.path.toLowerCase().includes(q));
- $("fileList").innerHTML=list.length?list.map(f=>`
-  <div class="file">
-   <span class="file-name" onclick="openFile('${encodeURIComponent(f.path)}')">${esc(f.path)}</span>
-   <span class="badge">${size(f.size)}</span>
-   <button class="btn" onclick="openFile('${encodeURIComponent(f.path)}')">ویرایش</button>
-  </div>`).join(""):'<div class="muted" style="padding:20px">فایلی پیدا نشد.</div>';
-}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function size(n){return n<1024?n+" B":(n/1024).toFixed(1)+" KB"}
-function decodeBase64(s){
- const binary=atob(s.replace(/\n/g,""));
- const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
- return new TextDecoder("utf-8").decode(bytes);
-}
-function encodeBase64(s){
- const bytes=new TextEncoder().encode(s);
- let binary="";
- for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
- return btoa(binary);
-}
-async function openFile(encoded){
- if(!token){toast("ابتدا متصل شو");return}
- const path=decodeURIComponent(encoded);
- setBusy(true);
- try{
-  const data=await request(apiUrl("/contents/"+path.split("/").map(encodeURIComponent).join("/")+"?ref="+encodeURIComponent(branch)));
-  if(data.encoding!=="base64")throw new Error("این نوع فایل برای ویرایش متنی پشتیبانی نمی‌شود.");
-  currentPath=path;
-  currentSha=data.sha;
-  $("path").value=path;
-  $("code").value=decodeBase64(data.content);
-  $("editorStatus").className="status good";
-  $("editorStatus").textContent="فایل از مخزن اصلی دریافت شد.";
-  go("editor");
- }catch(e){toast(e.message)}
- finally{setBusy(false)}
-}
-function newFile(){
- currentPath="";
- currentSha=null;
- $("path").value="";
- $("code").value="";
- $("editorStatus").className="status";
- $("editorStatus").textContent="فایل جدید؛ مسیر و محتوای فایل را وارد کن.";
- go("editor");
-}
-async function saveFile(){
- if(!token){toast("ابتدا اتصال GitHub را برقرار کن");go("connect");return}
- const path=$("path").value.trim().replace(/^\/+/,"");
- const content=$("code").value;
- if(!path||path.includes("..")){toast("مسیر فایل معتبر نیست");return}
- if(path.endsWith("/")){toast("نام فایل را کامل وارد کن");return}
- if(busy)return;
- setBusy(true);
- try{
-  let sha=currentSha;
-  if(path!==currentPath){
-   try{
-    const old=await request(apiUrl("/contents/"+path.split("/").map(encodeURIComponent).join("/")+"?ref="+encodeURIComponent(branch)));
-    sha=old.sha;
-   }catch(e){
-    if(!String(e.message).includes("پیدا نشد"))throw e;
-    sha=null;
-   }
-  }
-  const body={
-   message:(sha?"Update ":"Add ")+path,
-   content:encodeBase64(content),
-   branch
+function headers() {
+  return {
+    "Accept": "application/vnd.github+json",
+    "Authorization": "Bearer " + token,
+    "X-GitHub-Api-Version": "2022-11-28"
   };
-  if(sha)body.sha=sha;
-  const result=await request(apiUrl("/contents/"+path.split("/").map(encodeURIComponent).join("/")),{
-   method:"PUT",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify(body)
+}
+
+async function request(url, options={}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {...headers(), ...(options.headers || {})}
   });
-  currentPath=path;
-  currentSha=result.content.sha;
-  $("editorStatus").className="status good";
-  $("editorStatus").textContent="ثبت شد؛ Commit: "+result.commit.sha.slice(0,7);
-  $("publishInfo").className="status good";
-  $("publishInfo").textContent="تغییر در GitHub ثبت شد: "+result.commit.sha.slice(0,7);
-  toast("فایل در GitHub ثبت شد");
-  await loadFiles();
- }catch(e){
-  $("editorStatus").className="status bad";
-  $("editorStatus").textContent="ذخیره ناموفق: "+e.message;
-  toast(e.message);
- }finally{setBusy(false)}
+
+  let data = {};
+  try { data = await response.json(); } catch (_) {}
+
+  if (!response.ok) {
+    throw new Error(data.message || ("خطای GitHub: " + response.status));
+  }
+  return data;
 }
-async function deleteCurrent(){
- if(!token||!currentPath||!currentSha){toast("ابتدا یک فایل موجود را باز کن");return}
- if(!confirm("فایل "+currentPath+" از مخزن GitHub حذف شود؟"))return;
- setBusy(true);
- try{
-  const result=await request(apiUrl("/contents/"+currentPath.split("/").map(encodeURIComponent).join("/")),{
-   method:"DELETE",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({message:"Delete "+currentPath,sha:currentSha,branch})
+
+function setConnected(value) {
+  ["search","refresh","newFile","path","editor","clear"].forEach(id => {
+    $(id).disabled = !value;
   });
-  $("publishInfo").className="status good";
-  $("publishInfo").textContent="حذف فایل در GitHub ثبت شد: "+result.commit.sha.slice(0,7);
-  toast("فایل حذف شد");
-  newFile();
-  await loadFiles();
- }catch(e){toast("حذف ناموفق: "+e.message)}
- finally{setBusy(false)}
 }
-function downloadFile(){
- const path=$("path").value.trim()||"file.txt";
- const blob=new Blob([$("code").value],{type:"text/plain;charset=utf-8"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");a.href=url;a.download=path.split("/").pop();a.click();
- setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+function setBusy(value) {
+  busy = value;
+  ["connect","refresh","newFile","save","delete","clear"].forEach(id => {
+    $(id).disabled = value || !token;
+  });
+  $("search").disabled = value || !token;
 }
-(function restore(){
- owner=sessionStorage.getItem("td_owner")||owner;
- repo=sessionStorage.getItem("td_repo")||repo;
- branch=sessionStorage.getItem("td_branch")||branch;
- $("owner").value=owner;$("repo").value=repo;$("branch").value=branch;
+
+function renderFiles() {
+  const query = $("search").value.trim().toLowerCase();
+  const list = $("fileList");
+  list.replaceChildren();
+
+  const filtered = files.filter(file =>
+    file.path.toLowerCase().includes(query)
+  );
+
+  if (!filtered.length) {
+    list.textContent = "فایلی پیدا نشد.";
+    return;
+  }
+
+  filtered.forEach(file => {
+    const button = document.createElement("button");
+    button.className = "file" +
+      (file.path === selectedPath ? " active" : "");
+    button.textContent = file.path;
+    button.onclick = () => openFile(file);
+    list.appendChild(button);
+  });
+}
+
+async function loadFiles() {
+  status("در حال دریافت فهرست فایل‌ها...");
+  const branch = await request(
+    `${API}/repos/${OWNER}/${REPO}/branches/${BRANCH}`
+  );
+  const sha = branch.commit.commit.tree.sha;
+
+  const tree = await request(
+    `${API}/repos/${OWNER}/${REPO}/git/trees/${sha}?recursive=1`
+  );
+
+  if (tree.truncated) {
+    throw new Error("فهرست مخزن بسیار بزرگ است و GitHub آن را ناقص برگردانده است.");
+  }
+
+  files = tree.tree
+    .filter(item => item.type === "blob")
+    .map(item => ({path:item.path, sha:item.sha}))
+    .sort((a,b) => a.path.localeCompare(b.path));
+
+  renderFiles();
+  status(`${files.length} فایل دریافت شد. شاخه: ${BRANCH}`);
+}
+
+async function openFile(file) {
+  if (busy) return;
+  try {
+    setBusy(true);
+    status("در حال دریافت " + file.path);
+
+    const result = await request(
+      `${API}/repos/${OWNER}/${REPO}/contents/${file.path.split("/").map(encodeURIComponent).join("/")}?ref=${BRANCH}`
+    );
+
+    if (result.encoding !== "base64" || !result.content) {
+      throw new Error("محتوای این فایل به شکل قابل ویرایش دریافت نشد.");
+    }
+
+    const binary = atob(result.content.replace(/\n/g,""));
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    const content = new TextDecoder("utf-8").decode(bytes);
+
+    selectedPath = file.path;
+    selectedSha = result.sha;
+    $("path").value = file.path;
+    $("editor").value = content;
+    $("save").disabled = false;
+    $("delete").disabled = false;
+    renderFiles();
+    status("فایل دریافت شد: " + file.path);
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    setBusy(false);
+    $("save").disabled = !selectedPath;
+    $("delete").disabled = !selectedPath;
+  }
+}
+
+function newFile() {
+  selectedPath = "";
+  selectedSha = "";
+  $("path").value = "";
+  $("editor").value = "";
+  $("path").focus();
+  $("save").disabled = false;
+  $("delete").disabled = true;
+  renderFiles();
+  status("مسیر فایل جدید و محتوای آن را وارد کنید.");
+}
+
+function encodeBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i=0; i<bytes.length; i+=chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i,i+chunk));
+  }
+  return btoa(binary);
+}
+
+async function saveFile() {
+  if (busy) return;
+
+  const path = $("path").value.trim().replace(/^\/+/,"");
+  const content = $("editor").value;
+
+  if (!path || path.endsWith("/")) {
+    status("مسیر فایل معتبر نیست.", true);
+    return;
+  }
+
+  if (path.split("/").some(part => part === ".." || part === ".")) {
+    status("مسیر فایل نامعتبر است.", true);
+    return;
+  }
+
+  if (!confirm(`فایل ${path} در شاخه ${BRANCH} ذخیره شود؟`)) return;
+
+  try {
+    setBusy(true);
+    status("در حال ذخیره فایل در GitHub...");
+
+    let sha = selectedPath === path ? selectedSha : "";
+
+    if (!sha) {
+      try {
+        const existing = await request(
+          `${API}/repos/${OWNER}/${REPO}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${BRANCH}`
+        );
+        sha = existing.sha;
+      } catch (error) {
+        if (!String(error.message).includes("404")) throw error;
+      }
+    }
+
+    const body = {
+      message: (sha ? "Update " : "Create ") + path,
+      content: encodeBase64(content),
+      branch: BRANCH
+    };
+    if (sha) body.sha = sha;
+
+    const result = await request(
+      `${API}/repos/${OWNER}/${REPO}/contents/${path.split("/").map(encodeURIComponent).join("/")}`,
+      {method:"PUT", body:JSON.stringify(body)}
+    );
+
+    selectedPath = path;
+    selectedSha = result.content.sha;
+    await loadFiles();
+    $("save").disabled = false;
+    $("delete").disabled = false;
+    status("ذخیره موفق بود. Commit: " + result.commit.sha.slice(0,7));
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    setBusy(false);
+    $("save").disabled = !selectedPath;
+    $("delete").disabled = !selectedPath;
+  }
+}
+
+async function deleteFile() {
+  if (busy || !selectedPath || !selectedSha) return;
+
+  const path = selectedPath;
+  if (!confirm(`فایل ${path} برای همیشه از شاخه ${BRANCH} حذف شود؟`)) return;
+
+  try {
+    setBusy(true);
+    status("در حال حذف فایل...");
+
+    const result = await request(
+      `${API}/repos/${OWNER}/${REPO}/contents/${path.split("/").map(encodeURIComponent).join("/")}`,
+      {
+        method:"DELETE",
+        body:JSON.stringify({
+          message:"Delete " + path,
+          sha:selectedSha,
+          branch:BRANCH
+        })
+      }
+    );
+
+    selectedPath = "";
+    selectedSha = "";
+    $("path").value = "";
+    $("editor").value = "";
+    await loadFiles();
+    status("فایل حذف شد. Commit: " + result.commit.sha.slice(0,7));
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    setBusy(false);
+    $("save").disabled = true;
+    $("delete").disabled = true;
+  }
+}
+
+async function connect() {
+  const entered = $("token").value.trim();
+  if (!entered) {
+    status("ابتدا توکن GitHub را وارد کنید.", true);
+    return;
+  }
+
+  token = entered;
+  setBusy(true);
+
+  try {
+    status("در حال بررسی دسترسی GitHub...");
+    await request(`${API}/repos/${OWNER}/${REPO}`);
+    setConnected(true);
+    await loadFiles();
+  } catch (error) {
+    token = "";
+    setConnected(false);
+    status("اتصال ناموفق: " + error.message, true);
+  } finally {
+    setBusy(false);
+    if (!token) setConnected(false);
+  }
+}
+
+$("connect").addEventListener("click", connect);
+$("refresh").addEventListener("click", async () => {
+  if (busy) return;
+  try {
+    setBusy(true);
+    await loadFiles();
+  } catch(error) {
+    status(error.message,true);
+  } finally {
+    setBusy(false);
+  }
+});
+$("newFile").addEventListener("click", newFile);
+$("save").addEventListener("click", saveFile);
+$("delete").addEventListener("click", deleteFile);
+$("search").addEventListener("input", renderFiles);
+$("clear").addEventListener("click", () => {
+  selectedPath = "";
+  selectedSha = "";
+  $("path").value = "";
+  $("editor").value = "";
+  $("save").disabled = true;
+  $("delete").disabled = true;
+  renderFiles();
+  status("فرم پاک شد.");
+});
+
+setConnected(false);
 })();
 </script>
 </body>
