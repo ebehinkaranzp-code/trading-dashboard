@@ -3,848 +3,392 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1020">
-<title>مدیریت آپدیت | Trading Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<title>مدیریت واقعی پروژه</title>
 <style>
-:root{
-  --bg:#0b1020;--panel:#111a2e;--panel2:#17233b;--line:#263550;
-  --text:#edf3ff;--muted:#91a2bd;--accent:#6d8cff;
-  --green:#24c78b;--red:#ff647c;--yellow:#f5bd55;
-  --radius:17px;
-}
+:root{--bg:#0b1020;--panel:#121d32;--panel2:#192943;--line:#293b59;--text:#edf3ff;--muted:#9aabc5;--blue:#6688ff;--green:#20c997;--red:#ff647c;--yellow:#f4bd58}
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Tahoma,Arial,sans-serif;font-size:14px;
-}
-button,input,textarea,select{font:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;font-size:14px}
+button,input,textarea{font:inherit}
 button{cursor:pointer}
-.app{min-height:100vh;display:flex}
-.sidebar{
-  width:245px;position:fixed;right:0;top:0;bottom:0;
-  background:#0e1729;border-left:1px solid var(--line);
-  padding:23px 15px;display:flex;flex-direction:column;z-index:10;
-}
-.brand{padding:5px 12px 25px}
-.brand strong{font-size:18px;display:block}
-.brand small{color:var(--muted);display:block;margin-top:8px}
-.nav-title{font-size:11px;color:#71829f;padding:12px}
-.nav-btn{
-  width:100%;border:0;background:transparent;color:#aab8d0;
-  padding:13px 14px;border-radius:12px;text-align:right;
-  margin:3px 0;display:flex;gap:12px;align-items:center;
-}
-.nav-btn:hover,.nav-btn.active{background:#1d2b49;color:white}
-.nav-btn.active{box-shadow:inset -3px 0 var(--accent)}
-.sidebar-foot{margin-top:auto;padding:12px;color:var(--muted);font-size:11px;line-height:2}
-.main{width:calc(100% - 245px);margin-right:245px;min-height:100vh}
-.topbar{
-  height:72px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 30px;background:#0d1526;
-}
-.topbar small{color:var(--muted)}
-.status{color:var(--green);font-size:12px}
-.content{max-width:1250px;margin:auto;padding:28px}
-.page{display:none}
-.page.active{display:block}
-.page-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}
-h1{font-size:22px;margin:0 0 8px}
-h2{font-size:16px;margin:0 0 16px}
-h3{font-size:14px;margin:0 0 12px}
-p{line-height:1.9}
-.muted{color:var(--muted)}
-.small{font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
-.card{
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:var(--radius);padding:19px;margin-bottom:16px;
-}
-.stat-label{font-size:12px;color:var(--muted)}
-.stat-number{font-size:27px;font-weight:bold;margin-top:12px}
-.stat-icon{font-size:20px;margin-bottom:10px}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.btn{
-  border:1px solid var(--line);background:var(--panel2);color:var(--text);
-  border-radius:11px;padding:10px 15px;display:inline-flex;
-  align-items:center;justify-content:center;gap:7px;
-}
-.btn:hover{filter:brightness(1.15)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:white}
-.btn.success{background:#124b3d;border-color:#176e56;color:#8df0c8}
-.btn.danger{background:#4a2030;border-color:#713045;color:#ff9bad}
-.btn.warning{background:#4b3920;border-color:#70552d;color:#ffdb93}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.field{margin-bottom:15px}
-.field label{display:block;color:#b7c5dc;font-size:12px;margin-bottom:8px}
-input,textarea,select{
-  width:100%;background:#0b1425;border:1px solid var(--line);
-  border-radius:10px;color:var(--text);padding:12px;outline:none;
-}
-input:focus,textarea:focus,select:focus{border-color:var(--accent)}
-textarea{min-height:180px;resize:vertical;line-height:1.8;direction:ltr;text-align:left}
-input[type=file]{padding:10px}
-input[type=checkbox]{width:auto}
-.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.layout{min-height:100vh;display:flex}
+.sidebar{width:245px;position:fixed;right:0;top:0;bottom:0;background:#0e1729;border-left:1px solid var(--line);padding:22px 15px}
+.brand{font-size:19px;font-weight:bold;padding:8px 10px 25px}
+.nav{display:block;width:100%;padding:13px;margin:4px 0;text-align:right;background:none;border:0;border-radius:10px;color:var(--muted)}
+.nav.active,.nav:hover{background:var(--panel2);color:white}
+.main{margin-right:245px;width:calc(100% - 245px)}
+.top{height:65px;padding:0 25px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#0e1729}
+.content{padding:25px;max-width:1300px;margin:auto}
+.page{display:none}.page.active{display:block}
+h1{font-size:21px;margin:0 0 8px}h2{font-size:16px;margin:0 0 15px}
+.muted{color:var(--muted);font-size:12px;line-height:1.9}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .row>*{flex:1}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:560px}
-th,td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:right}
-th{font-size:12px;color:var(--muted);font-weight:normal}
-td{font-size:13px}
-.file-name{font-weight:bold;direction:ltr;text-align:right}
-.tag{display:inline-block;padding:5px 9px;border-radius:20px;background:#203354;color:#bcd0ff;font-size:11px}
-.empty{text-align:center;padding:35px;color:var(--muted)}
-.notice{
-  padding:13px 15px;border:1px solid #34466b;background:#14213a;
-  color:#c8d8fa;border-radius:12px;line-height:1.9;margin-bottom:15px;
-}
-.notice.warn{border-color:#66502b;background:#302719;color:#ffdfa0}
-.notice.good{border-color:#205b4a;background:#102c27;color:#a2f0d2}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
-.editor-layout{display:grid;grid-template-columns:280px 1fr;gap:15px}
-.file-list{max-height:600px;overflow:auto}
-.file-item{
-  padding:12px;border-bottom:1px solid var(--line);cursor:pointer;
-  border-radius:8px;direction:ltr;text-align:left;overflow-wrap:anywhere;
-}
-.file-item:hover,.file-item.selected{background:#203354}
-.preview-frame{width:100%;height:500px;background:white;border:0;border-radius:10px}
-#toast{
-  position:fixed;bottom:90px;left:20px;z-index:100;
-  background:#203354;color:white;padding:13px 18px;border-radius:12px;
-  box-shadow:0 8px 30px #0008;display:none;max-width:85vw;
-}
-.mobile-nav{display:none}
-hr{border:0;border-top:1px solid var(--line);margin:18px 0}
-@media(max-width:900px){
-  .sidebar{display:none}
-  .main{width:100%;margin:0}
-  .topbar{height:60px;padding:0 17px}
-  .content{padding:19px 14px 100px}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .two-col{grid-template-columns:1fr}
-  .editor-layout{grid-template-columns:1fr}
-  .file-list{max-height:220px}
-  .page-head{align-items:flex-start;flex-direction:column}
-  .mobile-nav{
-    display:grid;grid-template-columns:repeat(5,1fr);
-    position:fixed;bottom:0;right:0;left:0;z-index:20;
-    background:#101a2d;border-top:1px solid var(--line);
-    padding:8px 4px calc(8px + env(safe-area-inset-bottom));
-  }
-  .mobile-nav button{
-    background:none;border:0;color:#91a2bd;
-    font-size:10px;padding:7px 2px;display:flex;
-    flex-direction:column;align-items:center;gap:5px;
-  }
-  .mobile-nav button span:first-child{font-size:19px}
-  .mobile-nav button.active{color:#9eb2ff}
-  .stat-number{font-size:23px}
-  .card{padding:15px}
-  h1{font-size:19px}
-  .btn{padding:10px 12px}
-  #toast{bottom:85px}
-}
-@media(max-width:380px){
-  .grid{grid-template-columns:1fr 1fr}
-  .stat-number{font-size:20px}
+input,textarea{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#0b1425;color:white;outline:none}
+input:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:55vh;resize:vertical;direction:ltr;text-align:left;line-height:1.65;font-family:Consolas,monospace;font-size:13px}
+label{display:block;color:#b9c8df;font-size:12px;margin-bottom:7px}
+.field{margin-bottom:14px}
+.btn{padding:10px 14px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);color:white}
+.btn.primary{background:var(--blue);border-color:var(--blue)}
+.btn.green{background:#12513f;border-color:#176b53}
+.btn.red{background:#512334;border-color:#743247}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.status{padding:11px 13px;border-radius:9px;background:#172641;color:#c9d8f5;margin:12px 0;line-height:1.8}
+.status.good{background:#10372d;color:#a4f0d3}
+.status.bad{background:#48202c;color:#ffb1bd}
+.status.warn{background:#3e321d;color:#ffe0a0}
+.files{max-height:65vh;overflow:auto}
+.file{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.file button{flex-shrink:0}
+.file-name{flex:1;direction:ltr;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+.file-name:hover{color:#a9bbff}
+.small{font-size:11px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.badge{font-size:10px;color:#a9c1ff;background:#23385c;border-radius:20px;padding:4px 7px}
+#toast{position:fixed;bottom:20px;left:20px;background:#23385c;padding:12px 17px;border-radius:10px;display:none;z-index:20}
+.mobilebar{display:none}
+@media(max-width:800px){
+ .sidebar{display:none}.main{width:100%;margin:0}
+ .top{height:58px;padding:0 14px}.content{padding:16px 12px 90px}
+ .mobilebar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;bottom:0;right:0;left:0;background:#101a2d;border-top:1px solid var(--line);padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:10}
+ .mobilebar button{background:none;border:0;color:var(--muted);font-size:10px;padding:7px 2px}
+ .mobilebar button.active{color:#a9bbff}
+ textarea{min-height:48vh}
+ .file{padding:10px 4px}
 }
 </style>
 </head>
 <body>
-<div class="app">
-
+<div class="layout">
 <aside class="sidebar">
-  <div class="brand">
-    <strong>⚙️ مدیریت آپدیت</strong>
-    <small>Trading Dashboard</small>
-  </div>
-  <div class="nav-title">مدیریت سیستم</div>
-  <button class="nav-btn active" data-page="dashboard">🏠 داشبورد</button>
-  <button class="nav-btn" data-page="files">📁 فایل‌ها</button>
-  <button class="nav-btn" data-page="editor">📝 ویرایشگر</button>
-  <button class="nav-btn" data-page="tools">🧰 ابزارها و پشتیبان</button>
-  <button class="nav-btn" data-page="settings">⚙️ تنظیمات</button>
-  <div class="sidebar-foot">
-    نسخه پنل: 2.0<br>
-    ذخیره‌سازی محلی مرورگر
-  </div>
+ <div class="brand">⚙️ مدیریت پروژه</div>
+ <button class="nav active" data-page="files">📁 فایل‌های مخزن</button>
+ <button class="nav" data-page="editor">📝 ویرایش فایل</button>
+ <button class="nav" data-page="connect">🔐 اتصال GitHub</button>
+ <button class="nav" data-page="about">ℹ️ وضعیت انتشار</button>
+ <div class="muted" style="margin:30px 10px">Trading Dashboard<br>اتصال مستقیم به مخزن اصلی</div>
 </aside>
-
 <main class="main">
-  <header class="topbar">
-    <strong id="topTitle">داشبورد مدیریت</strong>
-    <span class="status">● فضای کاری محلی</span>
-  </header>
+<header class="top">
+ <strong id="topTitle">فایل‌های مخزن</strong>
+ <span class="small" id="connectionLabel">● متصل نیست</span>
+</header>
+<div class="content">
 
-  <div class="content">
-
-    <section class="page active" id="page-dashboard">
-      <div class="page-head">
-        <div>
-          <h1>داشبورد مدیریت</h1>
-          <div class="muted small">وضعیت فایل‌ها و ابزارهای آپدیت پروژه</div>
-        </div>
-        <button class="btn primary" onclick="go('files')">＋ مدیریت فایل‌ها</button>
-      </div>
-
-      <div class="grid">
-        <div class="card">
-          <div class="stat-icon">📁</div>
-          <div class="stat-label">تعداد فایل‌ها</div>
-          <div class="stat-number" id="statFiles">۰</div>
-        </div>
-        <div class="card">
-          <div class="stat-icon">💾</div>
-          <div class="stat-label">حجم اطلاعات</div>
-          <div class="stat-number" id="statSize">۰ KB</div>
-        </div>
-        <div class="card">
-          <div class="stat-icon">🧩</div>
-          <div class="stat-label">فایل‌های JSON</div>
-          <div class="stat-number" id="statJson">۰</div>
-        </div>
-        <div class="card">
-          <div class="stat-icon">📜</div>
-          <div class="stat-label">فایل‌های HTML</div>
-          <div class="stat-number" id="statHtml">۰</div>
-        </div>
-      </div>
-
-      <div class="two-col">
-        <div class="card">
-          <h2>شروع سریع</h2>
-          <div class="actions">
-            <button class="btn primary" onclick="go('editor');newFile()">＋ فایل جدید</button>
-            <button class="btn" onclick="go('tools')">📦 ورود یا خروج فایل</button>
-            <button class="btn" onclick="go('files')">📂 مشاهده فهرست</button>
-          </div>
-        </div>
-        <div class="card">
-          <h2>آخرین وضعیت</h2>
-          <div id="recentInfo" class="muted small">هنوز فایلی ثبت نشده است.</div>
-          <hr>
-          <div class="small muted">تغییرات در حافظه همین مرورگر ذخیره می‌شوند.</div>
-        </div>
-      </div>
-
-      <div class="notice warn">
-        توجه: ذخیره در این پنل به معنی انتشار در سایت نیست.
-        برای انتشار امن روی GitHub باید اتصال سرور واسط راه‌اندازی شود.
-      </div>
-    </section>
-
-    <section class="page" id="page-files">
-      <div class="page-head">
-        <div>
-          <h1>مدیریت فایل‌ها</h1>
-          <div class="muted small">مشاهده، جست‌وجو، ویرایش و حذف فایل‌ها</div>
-        </div>
-        <button class="btn primary" onclick="go('editor');newFile()">＋ فایل جدید</button>
-      </div>
-      <div class="card">
-        <div class="row">
-          <div class="field">
-            <label>جست‌وجوی نام فایل</label>
-            <input id="fileSearch" placeholder="مثلاً index.html" oninput="renderFiles()">
-          </div>
-          <div class="field">
-            <label>فیلتر نوع فایل</label>
-            <select id="fileFilter" onchange="renderFiles()">
-              <option value="">همه فایل‌ها</option>
-              <option value="html">HTML</option>
-              <option value="js">JavaScript</option>
-              <option value="css">CSS</option>
-              <option value="json">JSON</option>
-              <option value="other">سایر</option>
-            </select>
-          </div>
-        </div>
-        <div class="toolbar">
-          <button class="btn" onclick="refreshFiles()">🔄 تازه‌سازی</button>
-          <button class="btn" onclick="go('tools')">📦 ورود فایل‌ها</button>
-          <button class="btn" onclick="exportZip()">⬇ خروجی ZIP</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>نام فایل</th><th>نوع</th><th>حجم</th><th>عملیات</th></tr></thead>
-            <tbody id="filesBody"></tbody>
-          </table>
-        </div>
-        <div id="filesEmpty" class="empty" style="display:none">هنوز فایلی در فضای کاری وجود ندارد.</div>
-      </div>
-    </section>
-
-    <section class="page" id="page-editor">
-      <div class="page-head">
-        <div>
-          <h1>ویرایشگر فایل</h1>
-          <div class="muted small">ایجاد یا ویرایش محتوای فایل‌ها</div>
-        </div>
-        <div class="actions">
-          <button class="btn primary" onclick="saveEditor()">💾 ذخیره</button>
-          <button class="btn" onclick="newFile()">＋ جدید</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="field">
-          <label>مسیر و نام فایل</label>
-          <input id="editorName" placeholder="مثلاً index.html" dir="ltr">
-        </div>
-        <div class="field">
-          <label>محتوای فایل</label>
-          <textarea id="editorContent" spellcheck="false" placeholder="محتوای فایل را اینجا وارد کنید..."></textarea>
-        </div>
-        <div class="toolbar">
-          <button class="btn primary" onclick="saveEditor()">💾 ذخیره فایل</button>
-          <button class="btn" onclick="validateEditor()">✓ بررسی کد</button>
-          <button class="btn" onclick="previewEditor()">👁 پیش‌نمایش</button>
-          <button class="btn" onclick="downloadCurrent()">⬇ دریافت فایل</button>
-          <button class="btn danger" onclick="clearEditor()">پاک‌کردن ویرایشگر</button>
-        </div>
-        <div id="editorResult" class="small muted"></div>
-      </div>
-      <div class="card" id="previewCard" style="display:none">
-        <h2>پیش‌نمایش</h2>
-        <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts"></iframe>
-      </div>
-    </section>
-
-    <section class="page" id="page-tools">
-      <div class="page-head">
-        <div>
-          <h1>ابزارها و پشتیبان</h1>
-          <div class="muted small">ورود فایل، خروجی، پشتیبان‌گیری و اعتبارسنجی</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>ورود فایل‌ها</h2>
-        <p class="muted small">می‌توانی یک یا چند فایل انتخاب کنی. ساختار پوشه‌ها تا حد امکان حفظ می‌شود.</p>
-        <div class="field">
-          <label>انتخاب فایل‌ها</label>
-          <input type="file" id="fileInput" multiple>
-        </div>
-        <div class="field">
-          <label>یا انتخاب فایل ZIP پروژه</label>
-          <input type="file" id="zipInput" accept=".zip,application/zip">
-        </div>
-        <div class="actions">
-          <button class="btn primary" onclick="importFiles()">ورود فایل‌های انتخاب‌شده</button>
-          <button class="btn" onclick="importZip()">بازکردن ZIP و ورود فایل‌ها</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>پشتیبان‌گیری</h2>
-        <p class="muted small">از تمام فایل‌های موجود در فضای کاری یک نسخه ZIP تهیه کن.</p>
-        <div class="actions">
-          <button class="btn success" onclick="exportZip()">⬇ دریافت پشتیبان ZIP</button>
-          <button class="btn" onclick="exportManifest()">⬇ دریافت فهرست JSON</button>
-        </div>
-        <hr>
-        <h3>بازیابی از ZIP</h3>
-        <p class="muted small">فایل‌های داخل ZIP به فضای کاری اضافه می‌شوند یا نسخه هم‌نام قبلی را جایگزین می‌کنند.</p>
-        <input type="file" id="restoreInput" accept=".zip">
-        <div class="actions" style="margin-top:12px">
-          <button class="btn warning" onclick="restoreZip()">بازیابی پشتیبان</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>بررسی فایل</h2>
-        <p class="muted small">فایل مورد نظر را از فهرست انتخاب کن یا نام آن را وارد کن.</p>
-        <div class="field">
-          <label>نام فایل</label>
-          <input id="validateName" placeholder="مثلاً data/modules.json" dir="ltr">
-        </div>
-        <button class="btn" onclick="validateNamed()">بررسی و اعتبارسنجی</button>
-        <div id="validationResult" class="small muted" style="margin-top:15px"></div>
-      </div>
-    </section>
-
-    <section class="page" id="page-settings">
-      <div class="page-head">
-        <div>
-          <h1>تنظیمات</h1>
-          <div class="muted small">تنظیمات فضای کاری و اتصال انتشار</div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>مشخصات پروژه</h2>
-        <div class="field">
-          <label>آدرس مخزن GitHub</label>
-          <input value="https://github.com/ebehinkaranzp-code/trading-dashboard" readonly dir="ltr">
-        </div>
-        <div class="field">
-          <label>شاخه اصلی</label>
-          <input value="main" readonly dir="ltr">
-        </div>
-        <div class="field">
-          <label>آدرس سایت</label>
-          <input value="https://ebehinkaranzp-code.github.io/trading-dashboard/" readonly dir="ltr">
-        </div>
-      </div>
-      <div class="card">
-        <h2>اتصال سرور انتشار</h2>
-        <div class="notice warn">
-          برای انتشار مستقیم، به یک Worker یا سرور واسط نیاز داریم.
-          توکن GitHub نباید داخل این صفحه یا کد مرورگر قرار بگیرد.
-        </div>
-        <div class="field">
-          <label>آدرس Worker</label>
-          <input id="workerUrl" placeholder="https://your-worker.example.workers.dev" dir="ltr">
-        </div>
-        <button class="btn primary" onclick="saveSettings()">ذخیره تنظیمات</button>
-        <div class="muted small" style="margin-top:12px" id="settingsResult"></div>
-      </div>
-      <div class="card">
-        <h2>اطلاعات فضای کاری</h2>
-        <p class="muted small">داده‌ها در IndexedDB مرورگر ذخیره می‌شوند. پاک‌کردن اطلاعات مرورگر ممکن است باعث حذف آن‌ها شود؛ مرتب پشتیبان بگیر.</p>
-        <button class="btn" onclick="refreshFiles()">به‌روزرسانی آمار</button>
-      </div>
-    </section>
-
+<section class="page active" id="page-files">
+ <h1>فایل‌های واقعی پروژه</h1>
+ <p class="muted">فهرست مستقیماً از مخزن GitHub دریافت می‌شود.</p>
+ <div class="card">
+  <div class="toolbar">
+   <button class="btn primary" onclick="loadFiles()">🔄 دریافت فایل‌ها</button>
+   <button class="btn" onclick="newFile()">＋ فایل جدید</button>
+   <button class="btn" onclick="go('connect')">تنظیم اتصال</button>
   </div>
+  <div class="field"><input id="search" placeholder="جست‌وجوی فایل..." oninput="renderFiles()"></div>
+  <div id="fileList" class="files"><div class="muted">برای دریافت فایل‌ها، ابتدا اتصال را تنظیم کن.</div></div>
+ </div>
+</section>
+
+<section class="page" id="page-editor">
+ <h1>ویرایشگر فایل</h1>
+ <p class="muted">ذخیره، تغییر واقعی را در مخزن ثبت می‌کند.</p>
+ <div class="card">
+  <div class="field">
+   <label>مسیر فایل در مخزن</label>
+   <input id="path" placeholder="مثلاً index.html" dir="ltr">
+  </div>
+  <div class="field">
+   <label>محتوای فایل</label>
+   <textarea id="code" spellcheck="false" placeholder="محتوای فایل..."></textarea>
+  </div>
+  <div class="toolbar">
+   <button class="btn green" onclick="saveFile()">💾 ذخیره و انتشار در GitHub</button>
+   <button class="btn" onclick="downloadFile()">⬇ دریافت نسخه</button>
+   <button class="btn red" onclick="deleteCurrent()">حذف فایل از مخزن</button>
+  </div>
+  <div id="editorStatus" class="status">فایلی انتخاب نشده است.</div>
+ </div>
+</section>
+
+<section class="page" id="page-connect">
+ <h1>اتصال به GitHub</h1>
+ <p class="muted">تنظیم مخزن پروژه و توکن دسترسی.</p>
+ <div class="card">
+  <div class="field"><label>نام کاربری GitHub</label><input id="owner" value="ebehinkaranzp-code" dir="ltr"></div>
+  <div class="field"><label>نام مخزن</label><input id="repo" value="trading-dashboard" dir="ltr"></div>
+  <div class="field"><label>شاخه</label><input id="branch" value="main" dir="ltr"></div>
+  <div class="field"><label>توکن دسترسی GitHub</label><input id="token" type="password" placeholder="ghp_... یا github_pat_..." autocomplete="off" dir="ltr"></div>
+  <div class="muted">توکن فقط در حافظه نشست فعلی مرورگر نگهداری می‌شود و در فضای ذخیره‌سازی دائمی ثبت نمی‌شود. برای مخزن خصوصی یا عمومی، مجوز Contents: Read and write لازم است.</div>
+  <div class="actions">
+   <button class="btn primary" onclick="connect()">اتصال و بررسی دسترسی</button>
+   <button class="btn" onclick="disconnect()">قطع اتصال</button>
+  </div>
+  <div id="connectStatus" class="status">هنوز متصل نشده‌ای.</div>
+ </div>
+</section>
+
+<section class="page" id="page-about">
+ <h1>وضعیت پروژه</h1>
+ <div class="card">
+  <h2>اطلاعات اتصال</h2>
+  <div id="repoInfo" class="muted">اتصال برقرار نشده است.</div>
+  <hr style="border-color:var(--line)">
+  <h2>وضعیت انتشار</h2>
+  <div id="publishInfo" class="status">هنوز تغییری منتشر نشده است.</div>
+  <p class="muted">پس از ثبت Commit در GitHub، انتشار سایت توسط GitHub Pages انجام می‌شود و ممکن است کمی زمان ببرد.</p>
+ </div>
+</section>
+
+</div>
 </main>
 </div>
 
-<nav class="mobile-nav">
-  <button class="active" data-page="dashboard"><span>🏠</span><span>خانه</span></button>
-  <button data-page="files"><span>📁</span><span>فایل‌ها</span></button>
-  <button data-page="editor"><span>📝</span><span>ویرایش</span></button>
-  <button data-page="tools"><span>🧰</span><span>ابزارها</span></button>
-  <button data-page="settings"><span>⚙️</span><span>تنظیمات</span></button>
+<nav class="mobilebar">
+ <button class="active" data-page="files">📁<br>فایل‌ها</button>
+ <button data-page="editor">📝<br>ویرایش</button>
+ <button data-page="connect">🔐<br>اتصال</button>
+ <button data-page="about">ℹ️<br>وضعیت</button>
 </nav>
-
 <div id="toast"></div>
 
 <script>
 "use strict";
 
-const DB_NAME = "trading-dashboard-admin-v2";
-const STORE = "workspace";
-let db = null;
-let currentFile = null;
-let allFiles = [];
+const API="https://api.github.com";
+let token="";
+let owner="ebehinkaranzp-code";
+let repo="trading-dashboard";
+let branch="main";
+let files=[];
+let currentSha=null;
+let currentPath="";
+let busy=false;
 
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
 
-function toast(message){
-  const el=$("toast");
-  el.textContent=message;
-  el.style.display="block";
-  clearTimeout(window.toastTimer);
-  window.toastTimer=setTimeout(()=>el.style.display="none",2800);
+function toast(s){
+ const t=$("toast");t.textContent=s;t.style.display="block";
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>t.style.display="none",3000);
 }
-
 function go(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  const target=$("page-"+page);
-  if(target) target.classList.add("active");
-
-  document.querySelectorAll("[data-page]").forEach(b=>{
-    b.classList.toggle("active",b.dataset.page===page);
-  });
-
-  const titles={
-    dashboard:"داشبورد مدیریت",files:"مدیریت فایل‌ها",
-    editor:"ویرایشگر فایل",tools:"ابزارها و پشتیبان",
-    settings:"تنظیمات"
-  };
-  $("topTitle").textContent=titles[page]||"مدیریت";
-  if(page==="files"||page==="dashboard") refreshFiles();
-  window.scrollTo({top:0,behavior:"smooth"});
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ $("page-"+page).classList.add("active");
+ document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+ const titles={files:"فایل‌های مخزن",editor:"ویرایش فایل",connect:"اتصال GitHub",about:"وضعیت انتشار"};
+ $("topTitle").textContent=titles[page];
+ window.scrollTo(0,0);
 }
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
 
-document.querySelectorAll("[data-page]").forEach(btn=>{
-  btn.addEventListener("click",()=>go(btn.dataset.page));
-});
-
-function openDB(){
-  return new Promise((resolve,reject)=>{
-    const request=indexedDB.open(DB_NAME,1);
-    request.onupgradeneeded=()=>{
-      const database=request.result;
-      if(!database.objectStoreNames.contains(STORE)){
-        database.createObjectStore(STORE,{keyPath:"path"});
-      }
-    };
-    request.onsuccess=()=>{db=request.result;resolve(db)};
-    request.onerror=()=>reject(request.error);
-  });
+function headers(extra={}){
+ return {
+  "Accept":"application/vnd.github+json",
+  "Authorization":"Bearer "+token,
+  "X-GitHub-Api-Version":"2022-11-28",
+  ...extra
+ };
 }
-
-function store(mode="readonly"){
-  return db.transaction(STORE,mode).objectStore(STORE);
+function apiUrl(path){
+ return API+"/repos/"+encodeURIComponent(owner)+"/"+encodeURIComponent(repo)+path;
 }
-
-function getAll(){
-  return new Promise((resolve,reject)=>{
-    const request=store().getAll();
-    request.onsuccess=()=>resolve(request.result||[]);
-    request.onerror=()=>reject(request.error);
-  });
+async function request(url,options={}){
+ const res=await fetch(url,{...options,headers:headers(options.headers||{})});
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok){
+  let msg=data.message||("HTTP "+res.status);
+  if(res.status===401)msg="توکن نامعتبر یا منقضی شده است.";
+  if(res.status===403)msg="دسترسی کافی نیست؛ مجوز Contents را بررسی کن.";
+  if(res.status===404)msg="مخزن یا مسیر فایل پیدا نشد.";
+  throw new Error(msg);
+ }
+ return data;
 }
-
-function getFile(path){
-  return new Promise((resolve,reject)=>{
-    const request=store().get(path);
-    request.onsuccess=()=>resolve(request.result||null);
-    request.onerror=()=>reject(request.error);
-  });
+function setBusy(v){
+ busy=v;
+ document.querySelectorAll("button").forEach(b=>{
+  if(b.dataset.noLock!=="1")b.disabled=v;
+ });
 }
-
-function putFile(file){
-  return new Promise((resolve,reject)=>{
-    const request=store("readwrite").put(file);
-    request.onsuccess=()=>resolve();
-    request.onerror=()=>reject(request.error);
-  });
+async function connect(){
+ owner=$("owner").value.trim();
+ repo=$("repo").value.trim();
+ branch=$("branch").value.trim()||"main";
+ token=$("token").value.trim();
+ if(!owner||!repo||!token){$("connectStatus").textContent="اطلاعات اتصال کامل نیست.";return}
+ setBusy(true);
+ try{
+  const data=await request(apiUrl(""));
+  const branchData=await request(apiUrl("/branches/"+encodeURIComponent(branch)));
+  $("connectStatus").className="status good";
+  $("connectStatus").textContent="اتصال موفق؛ مخزن و شاخه قابل دسترسی هستند.";
+  $("connectionLabel").textContent="● متصل به GitHub";
+  $("connectionLabel").style.color="#20c997";
+  $("repoInfo").textContent=data.full_name+" | شاخه: "+branchData.name;
+  sessionStorage.setItem("td_owner",owner);
+  sessionStorage.setItem("td_repo",repo);
+  sessionStorage.setItem("td_branch",branch);
+  await loadFiles();
+  toast("اتصال برقرار شد");
+  go("files");
+ }catch(e){
+  $("connectStatus").className="status bad";
+  $("connectStatus").textContent=e.message;
+  token="";
+ }finally{setBusy(false)}
 }
-
-function deleteFile(path){
-  return new Promise((resolve,reject)=>{
-    const request=store("readwrite").delete(path);
-    request.onsuccess=()=>resolve();
-    request.onerror=()=>reject(request.error);
-  });
+function disconnect(){
+ token="";
+ $("token").value="";
+ $("connectionLabel").textContent="● متصل نیست";
+ $("connectionLabel").style.color="";
+ $("connectStatus").className="status";
+ $("connectStatus").textContent="اتصال قطع شد.";
+ $("fileList").innerHTML='<div class="muted">اتصال قطع شده است.</div>';
+ files=[];
+ toast("اتصال قطع شد");
 }
-
-function cleanPath(path){
-  return String(path||"")
-    .replace(/\\/g,"/")
-    .replace(/^\/+/,"")
-    .split("/")
-    .filter(part=>part && part!=="." && part!=="..")
-    .join("/");
+async function loadFiles(){
+ if(!token){toast("ابتدا اتصال GitHub را برقرار کن");go("connect");return}
+ setBusy(true);
+ try{
+  const data=await request(apiUrl("/git/trees/"+encodeURIComponent(branch)+"?recursive=1"));
+  if(data.truncated)throw new Error("مخزن بسیار بزرگ است و فهرست کامل دریافت نشد.");
+  files=(data.tree||[]).filter(x=>x.type==="blob").map(x=>({path:x.path,sha:x.sha,size:x.size}));
+  renderFiles();
+  $("repoInfo").textContent=owner+"/"+repo+" | شاخه "+branch+" | "+files.length+" فایل";
+  toast(files.length+" فایل دریافت شد");
+ }catch(e){toast(e.message)}
+ finally{setBusy(false)}
 }
-
-function extension(path){
-  const name=path.split("/").pop();
-  return name.includes(".")?name.split(".").pop().toLowerCase():"";
-}
-
-function formatSize(bytes){
-  if(bytes<1024)return bytes+" B";
-  if(bytes<1024*1024)return (bytes/1024).toFixed(1)+" KB";
-  return (bytes/1024/1024).toFixed(2)+" MB";
-}
-
-function escapeHTML(value){
-  return String(value).replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-async function refreshFiles(){
-  if(!db)return;
-  try{
-    allFiles=await getAll();
-    renderFiles();
-    updateStats();
-  }catch(error){
-    toast("خطا در خواندن فایل‌ها");
-  }
-}
-
 function renderFiles(){
-  const search=($("fileSearch")?.value||"").toLowerCase();
-  const filter=$("fileFilter")?.value||"";
-  const body=$("filesBody");
-  if(!body)return;
-
-  const filtered=allFiles.filter(file=>{
-    const ext=extension(file.path);
-    const matchesName=file.path.toLowerCase().includes(search);
-    const matchesType=!filter ||
-      (filter==="other"? !["html","js","css","json"].includes(ext):ext===filter);
-    return matchesName&&matchesType;
-  });
-
-  body.innerHTML=filtered.map(file=>{
-    const ext=extension(file.path)||"بدون پسوند";
-    return `<tr>
-      <td class="file-name">${escapeHTML(file.path)}</td>
-      <td><span class="tag">${escapeHTML(ext)}</span></td>
-      <td>${formatSize(new Blob([file.content||""]).size)}</td>
-      <td>
-        <div class="actions">
-          <button class="btn" onclick="editFile('${encodeURIComponent(file.path)}')">ویرایش</button>
-          <button class="btn danger" onclick="removeFile('${encodeURIComponent(file.path)}')">حذف</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join("");
-
-  $("filesEmpty").style.display=filtered.length?"none":"block";
+ const q=($("search").value||"").toLowerCase();
+ const list=files.filter(f=>f.path.toLowerCase().includes(q));
+ $("fileList").innerHTML=list.length?list.map(f=>`
+  <div class="file">
+   <span class="file-name" onclick="openFile('${encodeURIComponent(f.path)}')">${esc(f.path)}</span>
+   <span class="badge">${size(f.size)}</span>
+   <button class="btn" onclick="openFile('${encodeURIComponent(f.path)}')">ویرایش</button>
+  </div>`).join(""):'<div class="muted" style="padding:20px">فایلی پیدا نشد.</div>';
 }
-
-function updateStats(){
-  const count=allFiles.length;
-  const total=allFiles.reduce((sum,f)=>sum+new Blob([f.content||""]).size,0);
-  const json=allFiles.filter(f=>extension(f.path)==="json").length;
-  const html=allFiles.filter(f=>extension(f.path)==="html").length;
-  $("statFiles").textContent=count.toLocaleString("fa-IR");
-  $("statSize").textContent=formatSize(total);
-  $("statJson").textContent=json.toLocaleString("fa-IR");
-  $("statHtml").textContent=html.toLocaleString("fa-IR");
-  $("recentInfo").textContent=count
-    ? `${count} فایل در فضای کاری وجود دارد. آخرین به‌روزرسانی: ${new Date().toLocaleString("fa-IR")}`
-    : "هنوز فایلی ثبت نشده است.";
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function size(n){return n<1024?n+" B":(n/1024).toFixed(1)+" KB"}
+function decodeBase64(s){
+ const binary=atob(s.replace(/\n/g,""));
+ const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+ return new TextDecoder("utf-8").decode(bytes);
 }
-
+function encodeBase64(s){
+ const bytes=new TextEncoder().encode(s);
+ let binary="";
+ for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+ return btoa(binary);
+}
+async function openFile(encoded){
+ if(!token){toast("ابتدا متصل شو");return}
+ const path=decodeURIComponent(encoded);
+ setBusy(true);
+ try{
+  const data=await request(apiUrl("/contents/"+path.split("/").map(encodeURIComponent).join("/")+"?ref="+encodeURIComponent(branch)));
+  if(data.encoding!=="base64")throw new Error("این نوع فایل برای ویرایش متنی پشتیبانی نمی‌شود.");
+  currentPath=path;
+  currentSha=data.sha;
+  $("path").value=path;
+  $("code").value=decodeBase64(data.content);
+  $("editorStatus").className="status good";
+  $("editorStatus").textContent="فایل از مخزن اصلی دریافت شد.";
+  go("editor");
+ }catch(e){toast(e.message)}
+ finally{setBusy(false)}
+}
 function newFile(){
-  currentFile=null;
-  $("editorName").value="";
-  $("editorContent").value="";
-  $("editorResult").textContent="فایل جدید؛ نام و محتوای آن را وارد کن.";
-  $("previewCard").style.display="none";
-  go("editor");
-  $("editorName").focus();
+ currentPath="";
+ currentSha=null;
+ $("path").value="";
+ $("code").value="";
+ $("editorStatus").className="status";
+ $("editorStatus").textContent="فایل جدید؛ مسیر و محتوای فایل را وارد کن.";
+ go("editor");
 }
-
-async function editFile(encodedPath){
-  const path=decodeURIComponent(encodedPath);
-  const file=await getFile(path);
-  if(!file){toast("فایل پیدا نشد");return}
-  currentFile=path;
-  $("editorName").value=file.path;
-  $("editorContent").value=file.content||"";
-  $("editorResult").textContent="در حال ویرایش: "+path;
-  $("previewCard").style.display="none";
-  go("editor");
-}
-
-async function saveEditor(){
-  const path=cleanPath($("editorName").value);
-  const content=$("editorContent").value;
-  if(!path){toast("نام فایل را وارد کن");return}
-  if(!/\.[a-zA-Z0-9]+$/.test(path)){
-    if(!confirm("این نام پسوند ندارد. ذخیره شود؟"))return;
+async function saveFile(){
+ if(!token){toast("ابتدا اتصال GitHub را برقرار کن");go("connect");return}
+ const path=$("path").value.trim().replace(/^\/+/,"");
+ const content=$("code").value;
+ if(!path||path.includes("..")){toast("مسیر فایل معتبر نیست");return}
+ if(path.endsWith("/")){toast("نام فایل را کامل وارد کن");return}
+ if(busy)return;
+ setBusy(true);
+ try{
+  let sha=currentSha;
+  if(path!==currentPath){
+   try{
+    const old=await request(apiUrl("/contents/"+path.split("/").map(encodeURIComponent).join("/")+"?ref="+encodeURIComponent(branch)));
+    sha=old.sha;
+   }catch(e){
+    if(!String(e.message).includes("پیدا نشد"))throw e;
+    sha=null;
+   }
   }
-  try{
-    await putFile({
-      path,
-      content,
-      updatedAt:new Date().toISOString()
-    });
-    currentFile=path;
-    $("editorName").value=path;
-    $("editorResult").textContent="ذخیره شد: "+path;
-    toast("فایل ذخیره شد");
-    await refreshFiles();
-  }catch(error){
-    toast("ذخیره فایل ناموفق بود");
-  }
-}
-
-function clearEditor(){
-  if(!confirm("محتوای ویرایشگر پاک شود؟"))return;
-  $("editorContent").value="";
-  $("editorResult").textContent="محتوای ویرایشگر پاک شد.";
-}
-
-async function removeFile(encodedPath){
-  const path=decodeURIComponent(encodedPath);
-  if(!confirm("فایل "+path+" حذف شود؟"))return;
-  await deleteFile(path);
-  if(currentFile===path)newFile();
-  await refreshFiles();
-  toast("فایل حذف شد");
-}
-
-function downloadBlob(blob,name){
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download=name;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-
-function downloadCurrent(){
-  const name=cleanPath($("editorName").value);
-  if(!name){toast("ابتدا نام فایل را وارد کن");return}
-  const blob=new Blob([$ ("editorContent").value],{type:"text/plain;charset=utf-8"});
-  downloadBlob(blob,name.split("/").pop());
-}
-
-function validateContent(path,content){
-  const ext=extension(path);
-  try{
-    if(ext==="json"){
-      JSON.parse(content);
-      return {ok:true,message:"ساختار JSON معتبر است."};
-    }
-    if(ext==="js"){
-      new Function(content);
-      return {ok:true,message:"ساختار دستوری JavaScript معتبر است."};
-    }
-    if(ext==="html"){
-      const parser=new DOMParser();
-      const doc=parser.parseFromString(content,"text/html");
-      const errors=doc.querySelectorAll("parsererror");
-      if(errors.length)return {ok:false,message:"خطا در ساختار HTML."};
-      return {ok:true,message:"HTML قابل تجزیه است."};
-    }
-    if(ext==="css"){
-      const sheet=new CSSStyleSheet();
-      sheet.replaceSync(content);
-      return {ok:true,message:"ساختار CSS قابل پردازش است."};
-    }
-    return {ok:true,message:"برای این نوع فایل بررسی تخصصی تعریف نشده است."};
-  }catch(error){
-    return {ok:false,message:error.message||"خطای ساختاری"};
-  }
-}
-
-function validateEditor(){
-  const path=cleanPath($("editorName").value);
-  const result=validateContent(path,$("editorContent").value);
-  $("editorResult").textContent=(result.ok?"✓ ":"✕ ")+result.message;
-  $("editorResult").style.color=result.ok?"#24c78b":"#ff647c";
-}
-
-async function validateNamed(){
-  const path=cleanPath($("validateName").value);
-  if(!path){toast("نام فایل را وارد کن");return}
-  const file=await getFile(path);
-  if(!file){$("validationResult").textContent="فایل پیدا نشد.";return}
-  const result=validateContent(path,file.content||"");
-  $("validationResult").textContent=(result.ok?"✓ ":"✕ ")+result.message;
-  $("validationResult").style.color=result.ok?"#24c78b":"#ff647c";
-}
-
-function previewEditor(){
-  const path=cleanPath($("editorName").value);
-  if(extension(path)!=="html"){
-    toast("پیش‌نمایش فقط برای فایل HTML فعال است");
-    return;
-  }
-  $("previewCard").style.display="block";
-  $("previewFrame").srcdoc=$("editorContent").value;
-  $("previewCard").scrollIntoView({behavior:"smooth"});
-}
-
-async function importFiles(){
-  const files=Array.from($("fileInput").files||[]);
-  if(!files.length){toast("فایلی انتخاب نشده است");return}
-  let count=0;
-  for(const file of files){
-    const path=cleanPath(file.webkitRelativePath||file.name);
-    if(!path)continue;
-    const content=await file.text();
-    await putFile({path,content,updatedAt:new Date().toISOString()});
-    count++;
-  }
-  $("fileInput").value="";
-  await refreshFiles();
-  toast(count+" فایل وارد شد");
-}
-
-async function importZip(){
-  const file=$("zipInput").files[0];
-  if(!file){toast("ابتدا فایل ZIP را انتخاب کن");return}
-  if(!window.JSZip){toast("کتابخانه ZIP بارگذاری نشده؛ اتصال اینترنت را بررسی کن");return}
-  try{
-    const zip=await JSZip.loadAsync(file);
-    let count=0;
-    for(const [name,item] of Object.entries(zip.files)){
-      if(item.dir)continue;
-      const path=cleanPath(name);
-      if(!path)continue;
-      const content=await item.async("string");
-      await putFile({path,content,updatedAt:new Date().toISOString()});
-      count++;
-    }
-    $("zipInput").value="";
-    await refreshFiles();
-    toast(count+" فایل از ZIP وارد شد");
-  }catch(error){
-    toast("فایل ZIP معتبر نیست یا قابل خواندن نیست");
-  }
-}
-
-async function exportZip(){
-  if(!window.JSZip){toast("کتابخانه ZIP بارگذاری نشده است");return}
-  const files=await getAll();
-  if(!files.length){toast("فایلی برای خروجی وجود ندارد");return}
-  const zip=new JSZip();
-  files.forEach(file=>zip.file(file.path,file.content||""));
-  const blob=await zip.generateAsync({type:"blob"});
-  downloadBlob(blob,"trading-dashboard-backup.zip");
-  toast("فایل ZIP آماده شد");
-}
-
-async function exportManifest(){
-  const files=await getAll();
-  const manifest={
-    project:"trading-dashboard",
-    exportedAt:new Date().toISOString(),
-    files:files.map(f=>({
-      path:f.path,
-      size:new Blob([f.content||""]).size,
-      updatedAt:f.updatedAt||null
-    }))
+  const body={
+   message:(sha?"Update ":"Add ")+path,
+   content:encodeBase64(content),
+   branch
   };
-  downloadBlob(
-    new Blob([JSON.stringify(manifest,null,2)],{type:"application/json"}),
-    "manifest.json"
-  );
+  if(sha)body.sha=sha;
+  const result=await request(apiUrl("/contents/"+path.split("/").map(encodeURIComponent).join("/")),{
+   method:"PUT",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify(body)
+  });
+  currentPath=path;
+  currentSha=result.content.sha;
+  $("editorStatus").className="status good";
+  $("editorStatus").textContent="ثبت شد؛ Commit: "+result.commit.sha.slice(0,7);
+  $("publishInfo").className="status good";
+  $("publishInfo").textContent="تغییر در GitHub ثبت شد: "+result.commit.sha.slice(0,7);
+  toast("فایل در GitHub ثبت شد");
+  await loadFiles();
+ }catch(e){
+  $("editorStatus").className="status bad";
+  $("editorStatus").textContent="ذخیره ناموفق: "+e.message;
+  toast(e.message);
+ }finally{setBusy(false)}
 }
-
-async function restoreZip(){
-  const file=$("restoreInput").files[0];
-  if(!file){toast("فایل پشتیبان را انتخاب کن");return}
-  if(!confirm("فایل‌های ZIP به فضای کاری اضافه می‌شوند و فایل‌های هم‌نام جایگزین خواهند شد. ادامه می‌دهی؟"))return;
-  if(!window.JSZip){toast("کتابخانه ZIP بارگذاری نشده است");return}
-  try{
-    const zip=await JSZip.loadAsync(file);
-    let count=0;
-    for(const [name,item] of Object.entries(zip.files)){
-      if(item.dir)continue;
-      const path=cleanPath(name);
-      if(!path)continue;
-      const content=await item.async("string");
-      await putFile({path,content,updatedAt:new Date().toISOString()});
-      count++;
-    }
-    $("restoreInput").value="";
-    await refreshFiles();
-    toast("بازیابی انجام شد؛ "+count+" فایل");
-  }catch(error){
-    toast("بازیابی فایل پشتیبان ناموفق بود");
-  }
+async function deleteCurrent(){
+ if(!token||!currentPath||!currentSha){toast("ابتدا یک فایل موجود را باز کن");return}
+ if(!confirm("فایل "+currentPath+" از مخزن GitHub حذف شود؟"))return;
+ setBusy(true);
+ try{
+  const result=await request(apiUrl("/contents/"+currentPath.split("/").map(encodeURIComponent).join("/")),{
+   method:"DELETE",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({message:"Delete "+currentPath,sha:currentSha,branch})
+  });
+  $("publishInfo").className="status good";
+  $("publishInfo").textContent="حذف فایل در GitHub ثبت شد: "+result.commit.sha.slice(0,7);
+  toast("فایل حذف شد");
+  newFile();
+  await loadFiles();
+ }catch(e){toast("حذف ناموفق: "+e.message)}
+ finally{setBusy(false)}
 }
-
-function saveSettings(){
-  const url=$("workerUrl").value.trim();
-  if(url && !/^https:\/\/.+/i.test(url)){
-    toast("آدرس Worker باید با https شروع شود");
-    return;
-  }
-  localStorage.setItem("td_admin_worker_url",url);
-  $("settingsResult").textContent="تنظیمات ذخیره شد.";
-  toast("تنظیمات ذخیره شد");
+function downloadFile(){
+ const path=$("path").value.trim()||"file.txt";
+ const blob=new Blob([$("code").value],{type:"text/plain;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download=path.split("/").pop();a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-
-async function init(){
-  try{
-    await openDB();
-    const saved=localStorage.getItem("td_admin_worker_url")||"";
-    $("workerUrl").value=saved;
-    await refreshFiles();
-  }catch(error){
-    toast("خطا در راه‌اندازی حافظه مرورگر");
-    console.error(error);
-  }
-}
-
-init();
+(function restore(){
+ owner=sessionStorage.getItem("td_owner")||owner;
+ repo=sessionStorage.getItem("td_repo")||repo;
+ branch=sessionStorage.getItem("td_branch")||branch;
+ $("owner").value=owner;$("repo").value=repo;$("branch").value=branch;
+})();
 </script>
 </body>
 </html>
