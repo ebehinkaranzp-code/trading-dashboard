@@ -20,7 +20,7 @@
 (function (global) {
   'use strict';
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
 
   const CONFIG = {
     alligator: {
@@ -206,18 +206,13 @@
     const teethRaw = smma(median, CONFIG.alligator.teethPeriod);
     const lipsRaw = smma(median, CONFIG.alligator.lipsPeriod);
 
+    // Return unshifted SMMA values. index.html applies the visual
+    // 8/5/3 displacement when plotting; analysis must use current values.
     return {
-      jaw: shiftForDisplay(jawRaw, CONFIG.alligator.jawShift),
-      teeth: shiftForDisplay(teethRaw, CONFIG.alligator.teethShift),
-      lips: shiftForDisplay(lipsRaw, CONFIG.alligator.lipsShift),
-
-      // Raw values are included for transparent inspection.
-      raw: {
-        jaw: jawRaw,
-        teeth: teethRaw,
-        lips: lipsRaw
-      },
-
+      jaw: jawRaw,
+      teeth: teethRaw,
+      lips: lipsRaw,
+      raw: { jaw: jawRaw, teeth: teethRaw, lips: lipsRaw },
       settings: { ...CONFIG.alligator }
     };
   }
@@ -736,77 +731,54 @@
     const panel = createPanel();
     if (!panel) return;
 
-    panel.replaceChildren();
+    const title = panel.querySelector('#candleIntelTitle');
+    const body = panel.querySelector('#candleIntelBody');
+    const target = body || panel;
 
-    const heading = document.createElement('div');
-    heading.textContent = 'تحلیل هوشمند کندل انتخاب‌شده';
-    heading.style.cssText = 'font-size:14px;font-weight:bold;margin-bottom:8px';
+    if (title) title.textContent = 'تحلیل کندل انتخاب‌شده';
+    if (body) body.replaceChildren();
+    else target.replaceChildren();
 
-    panel.appendChild(heading);
+    panel.classList.add('open');
 
     if (!result || result.status !== 'OK') {
-      const message = document.createElement('div');
-      message.textContent = result?.message || 'برای مشاهده تحلیل، روی یک کندل کلیک کن.';
-      panel.appendChild(message);
+      target.textContent = result?.message || 'برای مشاهده تحلیل، روی یک کندل کلیک کن.';
       return;
     }
 
     const candle = result.candle;
+    const rows = [
+      ['قیمت بسته‌شدن', candle.close.toLocaleString('en-US')],
+      ['جهت Alligator', result.bias],
+      ['حجم نسبت به میانگین', result.volume.ratio === null ? 'داده کافی نیست' : result.volume.ratio.toFixed(2) + ' برابر'],
+      ['الگوهای کندلی', result.patterns.length ? result.patterns.map(p => p.name + ' — ' + p.description).join(' | ') : 'الگوی مشخصی شناسایی نشد'],
+      ['خطوط روند', result.trendlineBreaks.length ? result.trendlineBreaks.map(x => x.description).join(' | ') : 'شکست مشخصی شناسایی نشد']
+    ];
 
-    panel.appendChild(addPanelRow(
-      'قیمت بسته‌شدن',
-      candle.close.toLocaleString('en-US')
-    ));
-
-    panel.appendChild(addPanelRow(
-      'جهت کلی Alligator',
-      result.bias
-    ));
-
-    panel.appendChild(addPanelRow(
-      'حجم نسبت به میانگین',
-      result.volume.ratio === null
-        ? 'داده کافی نیست'
-        : result.volume.ratio.toFixed(2) + ' برابر'
-    ));
-
-    const patternText = result.patterns.length
-      ? result.patterns.map(p => p.name + ' — ' + p.description).join(' | ')
-      : 'الگوی مشخصی شناسایی نشد';
-
-    panel.appendChild(addPanelRow('الگوهای کندلی', patternText));
-
-    const breakText = result.trendlineBreaks.length
-      ? result.trendlineBreaks.map(x => x.description).join(' | ')
-      : 'شکست خط روند تأییدشده‌ای شناسایی نشد';
-
-    panel.appendChild(addPanelRow('خطوط روند', breakText));
+    rows.forEach(([label, value]) => target.appendChild(addPanelRow(label, value)));
 
     const reasonsTitle = document.createElement('div');
     reasonsTitle.textContent = 'دلایل تحلیل';
     reasonsTitle.style.cssText = 'font-weight:bold;margin-top:10px';
-
-    panel.appendChild(reasonsTitle);
+    target.appendChild(reasonsTitle);
 
     result.reasons.forEach(reason => {
       const item = document.createElement('div');
       item.textContent = '• ' + reason;
-      panel.appendChild(item);
+      target.appendChild(item);
     });
 
     if (result.conflicts) {
       const conflict = document.createElement('div');
-      conflict.textContent =
-        'هشدار: شواهد جهت‌دار با یکدیگر تعارض دارند؛ بررسی دستی ضروری است.';
+      conflict.textContent = 'هشدار: شواهد جهت‌دار با یکدیگر تعارض دارند؛ بررسی دستی ضروری است.';
       conflict.style.cssText = 'color:#e6b65b;margin-top:8px;font-weight:bold';
-      panel.appendChild(conflict);
+      target.appendChild(conflict);
     }
 
     const warning = document.createElement('div');
     warning.textContent = result.warning;
     warning.style.cssText = 'color:#e6b65b;margin-top:10px';
-
-    panel.appendChild(warning);
+    target.appendChild(warning);
   }
 
   // --------------------------------------------------
@@ -825,58 +797,8 @@
     }
   }
 
-  function renderAlligatorLines() {
-    if (!state.chart || typeof state.chart.addLineSeries !== 'function') {
-      return;
-    }
-
-    const bars = getBars();
-    if (!bars.length) return;
-
-    const lines = alligator(bars);
-
-    if (!state.alligatorSeries.length) {
-      try {
-        state.alligatorSeries = [
-          state.chart.addLineSeries({
-            color: '#e6b65b',
-            lineWidth: 2,
-            title: 'Alligator Jaw'
-          }),
-          state.chart.addLineSeries({
-            color: '#55aef5',
-            lineWidth: 2,
-            title: 'Alligator Teeth'
-          }),
-          state.chart.addLineSeries({
-            color: '#34c78a',
-            lineWidth: 2,
-            title: 'Alligator Lips'
-          })
-        ];
-      } catch (error) {
-        console.warn('[CandleIntel] Could not create Alligator lines:', error);
-        return;
-      }
-    }
-
-    const toSeriesData = values =>
-      values
-        .map((value, i) =>
-          Number.isFinite(value)
-            ? { time: bars[i].time, value }
-            : null
-        )
-        .filter(Boolean);
-
-    try {
-      state.alligatorSeries[0].setData(toSeriesData(lines.jaw));
-      state.alligatorSeries[1].setData(toSeriesData(lines.teeth));
-      state.alligatorSeries[2].setData(toSeriesData(lines.lips));
-    } catch (error) {
-      console.warn('[CandleIntel] Alligator update failed:', error);
-    }
-  }
+  // Alligator is already plotted by index.html; do not add duplicate series.
+  function renderAlligatorLines() { return; }
 
   function handleChartClick(param) {
     if (!param || param.time == null) return;
@@ -992,6 +914,35 @@
     };
   }
 
+  // Compatibility API used by signals.html.
+  function detect(input, index) {
+    const bars = normalizeBars(input);
+    const i = Number.isInteger(index) ? index : bars.length - 1;
+    return detectPatterns(bars, i);
+  }
+
+  function trendState(input, index) {
+    const bars = normalizeBars(input);
+    const i = Number.isInteger(index) ? index : bars.length - 1;
+    const breaks = detectTrendlineBreaks(bars, i);
+
+    return breaks.map(item => {
+      const fake = !item.confirmedByClose;
+      const bullish = item.type === 'RESISTANCE_BREAK_CANDIDATE' || item.type === 'RESISTANCE_WICK_BREACH';
+
+      return {
+        type: fake ? 'fake' : 'break',
+        name: fake
+          ? (bullish ? 'شکست کاذب احتمالی مقاومت' : 'شکست کاذب احتمالی حمایت')
+          : (bullish ? 'شکست احتمالی صعودی مقاومت' : 'شکست احتمالی نزولی حمایت'),
+        detail: item.description + ' · سطح تقریبی: ' + Number(item.level).toLocaleString('en-US'),
+        level: item.level,
+        direction: bullish ? 'BULLISH' : 'BEARISH',
+        confirmedByClose: item.confirmedByClose
+      };
+    });
+  }
+
   // --------------------------------------------------
   // Public API
   // --------------------------------------------------
@@ -1007,6 +958,8 @@
     alligatorAt,
     findPivots,
     detectPatterns,
+    detect,
+    trendState,
     detectTrendlineBreaks,
     analyze
   };
