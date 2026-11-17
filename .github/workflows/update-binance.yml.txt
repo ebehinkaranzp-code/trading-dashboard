@@ -1,0 +1,237 @@
+name: Binance Candle Archive (Spot and USD-M Futures)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs every 15 minutes; historical ZIP archive is not modified.
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: binance-historical-market-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Binance Spot and USD-M Futures candles
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python - <<'PY'
+          import json, os, time, tempfile, urllib.parse, urllib.request
+          from datetime import datetime, timezone
+
+          ASSETS = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'LTC', 'ADA']
+          INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d', '1w']
+          HISTORY_INTERVALS = ('1m', '5m', '15m')
+          HISTORY_LIMIT = 10000
+          MARKETS = {
+              'binance': {
+                  'base': 'https://data-api.binance.vision',
+                  'prefix': '/api/v3', 'kind': 'Spot', 'folder': 'data/binance'
+              },
+              'binance-futures': {
+                  'base': 'https://fapi.binance.com',
+                  'prefix': '/fapi/v1', 'kind': 'USD-M Futures', 'folder': 'data/binance-futures'
+              }
+          }
+          now = datetime.now(timezone.utc)
+          generated = now.isoformat(timespec='seconds').replace('+00:00', 'Z')
+          day = now.strftime('%Y-%m-%d')
+          errors = []
+
+          def atomic_json(path, obj):
+              os.makedirs(os.path.dirname(path), exist_ok=True)
+              fd, tmp = tempfile.mkstemp(prefix='.tmp-', dir=os.path.dirname(path))
+              try:
+                  with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                      json.dump(obj, f, ensure_ascii=False, separators=(',', ':'))
+                      f.write('\n')
+                  os.replace(tmp, path)
+              except Exception:
+                  if os.path.exists(tmp): os.remove(tmp)
+                  raise
+
+          def get(base, path, params=None):
+              query = urllib.parse.urlencode(params or {})
+              url = base + path + (('?' + query) if query else '')
+              last = None
+              for attempt in range(3):
+                  try:
+                      req = urllib.request.Request(url, headers={
+                          'User-Agent': 'TradingDashboard-Historical-Archive/1.0',
+                          'Accept': 'application/json'
+                      })
+                      with urllib.request.urlopen(req, timeout=25) as res:
+                          return json.loads(res.read().decode('utf-8'))
+                  except Exception as exc:
+                      last = exc
+                      if attempt < 2:
+                          time.sleep(1 + attempt * 2)
+              raise last
+
+          def read_json(path, default):
+              try:
+                  with open(path, encoding='utf-8') as f:
+                      return json.load(f)
+              except Exception:
+                  return default
+
+          def valid_klines(rows):
+              good = []
+              for row in rows if isinstance(rows, list) else []:
+                  if not isinstance(row, list) or len(row) < 12:
+                      continue
+                  try:
+                      op, hi, lo, cl, vol = (float(row[i]) for i in (1, 2, 3, 4, 5))
+                      if op > 0 and cl > 0 and hi >= max(op, cl, lo) and lo <= min(op, cl, hi) and vol >= 0:
+                          good.append(row)
+                  except (TypeError, ValueError, IndexError):
+                      continue
+              return good
+
+          def update_history(cfg, asset):
+              base, prefix, folder = cfg['base'], cfg['prefix'], cfg['folder']
+              symbol = asset + 'USDT'
+              path = os.path.join(folder, 'history', asset, day + '.json')
+              archive = read_json(path, {
+                  'schemaVersion': 1, 'symbol': symbol, 'date': day,
+                  'source': 'Binance ' + cfg['kind'], 'timeframes': {},
+                  'dataType': 'OHLCV candles only; no live trades, ticker snapshots, funding, open interest, or order book'
+              })
+              archive.setdefault('timeframes', {})
+              for interval in HISTORY_INTERVALS:
+                  try:
+                      rows = valid_klines(get(base, prefix + '/klines', {
+                          'symbol': symbol, 'interval': interval, 'limit': 1000
+                      }))
+                      old = archive['timeframes'].get(interval, [])
+                      merged = {str(x[0]): x for x in old if isinstance(x, list) and len(x) >= 12}
+                      for row in rows:
+                          merged[str(row[0])] = row
+                      archive['timeframes'][interval] = sorted(
+                          merged.values(), key=lambda x: int(x[0])
+                      )[-HISTORY_LIMIT:]
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset,
+                          'endpoint': 'history/' + interval, 'error': str(exc)[:250]})
+              archive['updatedAt'] = generated
+              atomic_json(path, archive)
+
+          def update_market(cfg, asset):
+              base, prefix = cfg['base'], cfg['prefix']
+              symbol = asset + 'USDT'
+              market = {
+                  'symbol': symbol, 'source': 'Binance ' + cfg['kind'],
+                  'updatedAt': generated, 'dataStatus': 'fresh', 'timeframes': {}
+              }
+              for interval in INTERVALS:
+                  try:
+                      rows = get(base, prefix + '/klines', {
+                          'symbol': symbol, 'interval': interval, 'limit': 500
+                      })
+                      market['timeframes'][interval] = {'klines': valid_klines(rows)}
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset,
+                          'endpoint': 'klines/' + interval, 'error': str(exc)[:250]})
+                      market['timeframes'][interval] = {'klines': []}
+
+              return market
+
+          for _, cfg in MARKETS.items():
+              markets = {}
+              for asset in ASSETS:
+                  print('Fetching', cfg['kind'], asset)
+                  try:
+                      market = update_market(cfg, asset)
+                      if len(market['timeframes'].get('4h', {}).get('klines', [])) >= 30:
+                          markets[asset] = market
+                      else:
+                          errors.append({'market': cfg['kind'], 'asset': asset,
+                              'error': 'fewer than 30 valid 4H candles; market omitted'})
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset,
+                          'error': str(exc)[:300]})
+                  try:
+                      update_history(cfg, asset)
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset,
+                          'endpoint': 'history', 'error': str(exc)[:300]})
+
+              if 'BTC' not in markets:
+                  raise SystemExit('BTC 4H Binance ' + cfg['kind'] +
+                      ' data unavailable; refusing to publish an empty market file.')
+
+              output = {
+                  'schemaVersion': 1, 'generatedAt': generated,
+                  'source': 'Binance ' + cfg['kind'], 'markets': markets,
+                  'fetchStatus': {
+                      'status': 'partial' if errors else 'success',
+                      'availableMarkets': list(markets), 'errorCount': len(errors),
+                      'dataType': 'periodic OHLCV candles only; no live trades, ticker snapshots, funding, open interest, or order book'
+                  }
+              }
+              atomic_json(os.path.join(cfg['folder'], 'markets.json'), output)
+
+          print('Binance candle archive updated. Errors:', len(errors))
+          for error in errors[:40]:
+              print('WARN:', error)
+          if not any(e.get('market') == 'Spot' for e in errors) and not any(e.get('market') == 'USD-M Futures' for e in errors):
+              print('Both Binance markets fetched without endpoint errors.')
+          PY
+
+      - name: Validate Binance candle archives
+        run: |
+          python - <<'PY'
+          import json, os
+          for path in ('data/binance/markets.json', 'data/binance-futures/markets.json'):
+              if not os.path.exists(path):
+                  raise SystemExit('Missing archive: ' + path)
+              with open(path, encoding='utf-8') as f:
+                  data = json.load(f)
+              btc = data.get('markets', {}).get('BTC', {})
+              candles = btc.get('timeframes', {}).get('4h', {}).get('klines', [])
+              if len(candles) < 30:
+                  raise SystemExit('BTC 4H validation failed: ' + path)
+              if not all(isinstance(row, list) and len(row) >= 12 for row in candles):
+                  raise SystemExit('Invalid candle row: ' + path)
+              print('Validated', path, '| BTC 4H candles:', len(candles),
+                    '| assets:', len(data.get('markets', {})))
+          PY
+
+      - name: Commit Binance data only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/binance/ data/binance-futures/
+          if git diff --cached --quiet; then
+            echo 'No Binance data changes.'
+            exit 0
+          fi
+          git commit -m 'chore(data): update periodic Binance candle archives [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo 'Rebase conflict; another workflow changed the same archive files.'
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              echo 'Binance candle archive published.'
+              exit 0
+            fi
+            echo "Push race detected (attempt ${attempt}/5); retrying..."
+            sleep $((attempt * 2))
+          done
+          echo 'Unable to publish after five retries.'
+          exit 1
