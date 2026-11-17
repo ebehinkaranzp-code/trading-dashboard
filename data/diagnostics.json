@@ -1,12 +1,12 @@
 {
   "reportVersion": 1,
-  "generatedAt": "2026-11-17T02:37:16.786292+00:00",
+  "generatedAt": "2026-11-17T03:26:37.450677+00:00",
   "workflow": "Update BTC market data and diagnostics",
   "repository": "ebehinkaranzp-code/trading-dashboard",
-  "runId": "44004321701",
-  "runNumber": "45",
-  "runUrl": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/44004321701",
-  "commit": "8f38daf2b46e1fcbf023dd13ed29a3e824dbd2fb",
+  "runId": "44010220310",
+  "runNumber": "46",
+  "runUrl": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/44010220310",
+  "commit": "e6729c2e1a35a8ae4292fa26efbfc5f49bf1f5e7",
   "steps": {
     "fetch": "success",
     "validation": "success"
