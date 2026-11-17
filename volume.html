@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09111e">
+<title>تحلیل حجم | داشبورد بازار</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+:root{--bg:#09111e;--panel:#101b2b;--line:#26364b;--text:#edf4ff;--muted:#9aacc3;--blue:#55aef5;--green:#34c78a;--red:#ef727b;--amber:#e6b65b;--purple:#b18cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+header{padding:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:17px;margin:0}.sub{font-size:11px;color:var(--muted);margin-top:5px}
+a{color:var(--blue);text-decoration:none;font-size:12px}
+main{max-width:1250px;margin:auto;padding:10px}
+.controls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+button,select{background:#17263a;color:var(--text);border:1px solid #34465f;border-radius:8px;padding:9px 13px;font:12px Tahoma;cursor:pointer}
+button.active{background:#17436a;border-color:var(--blue)}button:disabled{opacity:.5}
+.status{font-size:11px;color:var(--muted);padding:9px 2px;line-height:1.9}
+.notice{border:1px solid #80642e;background:#302817;color:#f2d89a;border-radius:9px;padding:10px;font-size:11px;line-height:1.9;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px;min-width:0}
+.metric-title,.plot-title{font-size:11px;color:var(--muted);margin-bottom:8px}
+.metric-value{font-size:19px;font-weight:bold;overflow-wrap:anywhere}.detail{font-size:10px;color:var(--muted);margin-top:6px}
+.section{font-size:14px;margin:18px 2px 9px}.plot{height:230px;position:relative}.wide{grid-column:1/-1}
+#priceChart{height:410px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:11px}td,th{padding:9px 7px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:normal}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
+footer{text-align:center;color:var(--muted);font-size:10px;padding:20px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}#priceChart{height:330px}.plot{height:210px}}
+</style>
+</head>
+<body>
+<header><div><h1>آزمایشگاه حجم معاملات</h1><div class="sub">Volume · Delta · CVD · Profile · RVOL · Absorption</div></div><a href="./index.html">بازگشت به داشبورد اصلی ↗</a></header>
+<main>
+<div class="controls" id="coins">
+<button class="active" data-coin="BTC">BTC</button><button data-coin="LTC">LTC</button><button data-coin="BCH">BCH</button><button data-coin="UNI">UNI</button>
+</div>
+<div class="controls" id="tfs">
+<button class="active" data-tf="4h">۴ ساعته</button><button data-tf="1d">روزانه</button><button data-tf="1w">هفتگی</button>
+<button id="reload">به‌روزرسانی</button>
+</div>
+<div id="status" class="status">در حال دریافت داده‌ها از OKX…</div>
+<div class="notice" id="qualityNotice">توجه: این صفحه فعلاً از داده کندل‌های OKX استفاده می‌کند. Delta و CVD تا وقتی تاریخچه معاملات واقعی به فایل داده اضافه نشود، تخمینی هستند. Volume Profile نیز از حجم کندل‌ها توزیع تقریبی می‌سازد؛ این‌ها Footprint واقعی نیستند.</div>
+<div class="section">وضعیت حجم بازار</div>
+<div class="grid">
+ <div class="card"><div class="metric-title">حجم آخرین کندل</div><div class="metric-value" id="mVol">—</div><div class="detail">حجم گزارش‌شده توسط OKX</div></div>
+ <div class="card"><div class="metric-title">Delta تخمینی آخرین کندل</div><div class="metric-value" id="mDelta">—</div><div class="detail">فشار خرید تخمینی منهای فروش تخمینی</div></div>
+ <div class="card"><div class="metric-title">CVD تخمینی</div><div class="metric-value" id="mCvd">—</div><div class="detail">انباشت Delta تخمینی</div></div>
+ <div class="card"><div class="metric-title">Relative Volume</div><div class="metric-value" id="mRvol">—</div><div class="detail">نسبت حجم کندل به میانگین ۲۰ کندل قبلی</div></div>
+ <div class="card"><div class="metric-title">POC تقریبی</div><div class="metric-value" id="mPoc">—</div><div class="detail">سطح دارای بیشترین حجم تخمینی</div></div>
+ <div class="card"><div class="metric-title">وضعیت فشار سفارش</div><div class="metric-value" id="mAbs">—</div><div class="detail">الگوی احتمالی جذب؛ نیازمند تأیید معاملات واقعی</div></div>
+</div>
+<div class="section">نمودار قیمت و حجم</div>
+<div class="card wide"><div id="priceChart"></div></div>
+<div class="section">تحلیل جریان حجم</div>
+<div class="grid">
+ <div class="card"><div class="plot-title">Delta تخمینی هر کندل</div><div class="plot"><canvas id="deltaChart"></canvas></div></div>
+ <div class="card"><div class="plot-title">CVD تخمینی</div><div class="plot"><canvas id="cvdChart"></canvas></div></div>
+ <div class="card"><div class="plot-title">Relative Volume</div><div class="plot"><canvas id="rvolChart"></canvas></div></div>
+ <div class="card"><div class="plot-title">Volume Profile تقریبی</div><div class="plot"><canvas id="profileChart"></canvas></div></div>
+</div>
+<div class="section">رویدادهای قابل بررسی</div>
+<div class="card table-wrap"><table><thead><tr><th>زمان</th><th>قیمت</th><th>حجم</th><th>Delta تخمینی</th><th>رویداد</th></tr></thead><tbody id="events"><tr><td colspan="5">در انتظار داده…</td></tr></tbody></table></div>
+<div class="status" id="sources"></div>
+</main>
+<footer>نسخه آزمایشی تحلیل حجم · منبع داده کندل‌ها: OKX · بدون MACD</footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const DATA_URL='./data/markets.json';
+let coin='BTC',tf='4h',payload=null,bars=[],charts={},priceChart=null,priceSeries=null,volumeSeries=null;
+const fmt=(v,d=2)=>v==null||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('en-US',{maximumFractionDigits:d});
+const stamp=v=>{let n=Number(v);return n<1e12?n*1000:n};
+const date=v=>new Date(stamp(v)).toLocaleString('fa-IR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+function arr(x){return Array.isArray(x)?x:[]}
+async function load(){let r=await fetch(DATA_URL+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('دریافت markets.json ناموفق بود: '+r.status);return r.json()}
+function marketData(p,c){return p?.markets?.[c]||p?.data?.[c]||(c==='BTC'&&p?.timeframes?p:null)}
+function getRows(item,timeframe){
+ let raw=item?.timeframes?.[timeframe];
+ if(raw&& !Array.isArray(raw))raw=raw.klines||raw.candles||raw.data||[];
+ if(!Array.isArray(raw))raw=item?.klines||[];
+ return raw.filter(x=>Array.isArray(x)&&x.length>=6)
+ .filter(x=>x.length<9||String(x[8])==='1')
+ .map(x=>({time:Number(x[0]),open:Number(x[1]),high:Number(x[2]),low:Number(x[3]),close:Number(x[4]),volume:Number(x[7]??x[6]??x[5])}))
+ .filter(x=>x.time&&x.close>0&&x.high>=x.low&&Number.isFinite(x.volume)&&x.volume>=0)
+ .sort((a,b)=>a.time-b.time).filter((x,i,a)=>!i||x.time!==a[i-1].time);
+}
+function analyze(data){
+ let cvd=0,rows=[];
+ data.forEach((b,i)=>{
+  const range=Math.max(b.high-b.low,1e-12);
+  const pressure=((b.close-b.low)-(b.high-b.close))/range;
+  const delta=b.volume*pressure;cvd+=delta;
+  const prev=data.slice(Math.max(0,i-20),i);
+  const avg=prev.length?prev.reduce((s,x)=>s+x.volume,0)/prev.length:null;
+  const rvol=avg?b.volume/avg:null;
+  const body=Math.abs(b.close-b.open)/range;
+  const upper=(b.high-Math.max(b.open,b.close))/range;
+  const lower=(Math.min(b.open,b.close)-b.low)/range;
+  let event='';
+  if(rvol>=1.8&&body<=.35&&delta<0&&lower>.25)event='احتمال جذب فروش';
+  else if(rvol>=1.8&&body<=.35&&delta>0&&upper>.25)event='احتمال جذب خرید';
+  else if(rvol>=2)event='افزایش غیرعادی حجم';
+  rows.push({...b,delta,cvd,rvol,avg,body,event});
+ });
+ return rows;
+}
+function profile(rows,bins=24){
+ if(!rows.length)return [];
+ const min=Math.min(...rows.map(x=>x.low)),max=Math.max(...rows.map(x=>x.high));
+ const step=(max-min)/bins||Math.max(max*.001,1e-8);
+ const levels=Array.from({length:bins},(_,i)=>({price:min+step*(i+.5),volume:0}));
+ rows.forEach(b=>{
+  const first=Math.max(0,Math.min(bins-1,Math.floor((b.low-min)/step)));
+  const last=Math.max(0,Math.min(bins-1,Math.floor((b.high-min)/step)));
+  const count=Math.max(1,last-first+1);
+  for(let i=first;i<=last;i++)levels[i].volume+=b.volume/count;
+ });
+ return levels;
+}
+function draw(id,type,labels,datasets,extra={}){
+ if(charts[id])charts[id].destroy();
+ charts[id]=new Chart($(id),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#cbd5e1',font:{size:10}}}},scales:{x:{ticks:{color:'#9aacc3',maxTicksLimit:6,font:{size:9}},grid:{color:'#26364b'}},y:{ticks:{color:'#9aacc3',font:{size:9}},grid:{color:'#26364b'}}},...extra}});
+}
+function renderPrice(rows){
+ const el=$('priceChart');if(!window.LightweightCharts){el.innerHTML='کتابخانه نمودار بارگذاری نشد.';return}
+ if(priceChart){priceChart.remove();priceChart=null}
+ priceChart=LightweightCharts.createChart(el,{width:el.clientWidth,height:410,layout:{background:{color:'#101b2b'},textColor:'#aabbd0',fontFamily:'Tahoma'},grid:{vertLines:{color:'#26364b'},horzLines:{color:'#26364b'}},rightPriceScale:{borderColor:'#34465f'},timeScale:{borderColor:'#34465f',timeVisible:false},handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true},handleScale:{mouseWheel:true,pinch:true}});
+ priceSeries=priceChart.addCandlestickSeries({upColor:'#34c78a',downColor:'#ef727b',borderUpColor:'#34c78a',borderDownColor:'#ef727b',wickUpColor:'#34c78a',wickDownColor:'#ef727b'});
+ volumeSeries=priceChart.addHistogramSeries({priceScaleId:'volume',priceFormat:{type:'volume'},scaleMargins:{top:.82,bottom:0}});
+ priceChart.priceScale('volume').applyOptions({scaleMargins:{top:.82,bottom:0},borderVisible:false});
+ priceSeries.setData(rows.map(b=>({time:Math.floor(stamp(b.time)/1000),open:b.open,high:b.high,low:b.low,close:b.close})));
+ volumeSeries.setData(rows.map(b=>({time:Math.floor(stamp(b.time)/1000),value:b.volume,color:b.close>=b.open?'rgba(52,199,138,.45)':'rgba(239,114,123,.45)'})));
+ priceChart.timeScale().fitContent();
+}
+function render(rows){
+ const last=rows.at(-1),p=profile(rows),poc=p.reduce((a,b)=>b.volume>a.volume?b:a,p[0]);
+ $('mVol').textContent=fmt(last.volume,2);$('mDelta').textContent=fmt(last.delta,2);$('mDelta').className='metric-value '+(last.delta>=0?'good':'bad');
+ $('mCvd').textContent=fmt(last.cvd,2);$('mRvol').textContent=last.rvol==null?'—':fmt(last.rvol,2)+'×';$('mPoc').textContent=fmt(poc?.price,5);
+ const absorption=last.event||'الگوی مشخصی دیده نشد';$('mAbs').textContent=absorption;$('mAbs').className='metric-value '+(last.event?'warn':'');
+ const labels=rows.map(x=>date(x.time));
+ draw('deltaChart','bar',labels,[{label:'Delta تخمینی',data:rows.map(x=>x.delta),backgroundColor:rows.map(x=>x.delta>=0?'rgba(52,199,138,.75)':'rgba(239,114,123,.75)')}]);
+ draw('cvdChart','line',labels,[{label:'CVD تخمینی',data:rows.map(x=>x.cvd),borderColor:'#b18cff',borderWidth:2,pointRadius:0,tension:.15}]);
+ draw('rvolChart','bar',labels,[{label:'RVOL',data:rows.map(x=>x.rvol),backgroundColor:'rgba(85,174,245,.65)'}]);
+ draw('profileChart','bar',p.map(x=>fmt(x.price,4)),[{label:'حجم تخمینی در محدوده قیمت',data:p.map(x=>x.volume),backgroundColor:'#55aef5'}],{indexAxis:'y'});
+ const ev=rows.filter(x=>x.event).slice(-25).reverse();
+ $('events').innerHTML=ev.length?ev.map(x=>`<tr><td>${date(x.time)}</td><td>${fmt(x.close,5)}</td><td>${fmt(x.volume,2)}</td><td>${fmt(x.delta,2)}</td><td class="warn">${x.event}</td></tr>`).join(''):'<tr><td colspan="5">رویداد حجمی قابل‌توجهی با قواعد فعلی پیدا نشد.</td></tr>';
+ renderPrice(rows);
+ $('sources').textContent=`منبع کندل‌ها: OKX · ${coin}-USDT · ${tf} · ${rows.length} کندل · Delta/CVD/Profile تخمینی`;
+}
+async function refresh(){
+ $('status').textContent='در حال دریافت داده‌ها از فایل مشترک بازار…';
+ try{
+  payload=await load();const item=marketData(payload,coin);if(!item)throw Error('بازار '+coin+' در markets.json پیدا نشد');
+  bars=getRows(item,tf);if(bars.length<10)throw Error('کندل کافی برای تحلیل وجود ندارد ('+bars.length+')');
+  render(analyze(bars));$('status').textContent=`دریافت موفق · ${coin}/USDT · ${tf} · آخرین کندل: ${date(bars.at(-1).time)}`;
+ }catch(e){$('status').textContent='خطا: '+e.message}
+}
+$('coins').addEventListener('click',e=>{const b=e.target.closest('[data-coin]');if(!b)return;coin=b.dataset.coin;document.querySelectorAll('[data-coin]').forEach(x=>x.classList.toggle('active',x===b));refresh()});
+$('tfs').addEventListener('click',e=>{const b=e.target.closest('[data-tf]');if(!b)return;tf=b.dataset.tf;document.querySelectorAll('[data-tf]').forEach(x=>x.classList.toggle('active',x===b));refresh()});
+$('reload').addEventListener('click',refresh);
+window.addEventListener('resize',()=>{if(priceChart)priceChart.applyOptions({width:$('priceChart').clientWidth})});
+refresh();
+</script>
+</body>
+</html>

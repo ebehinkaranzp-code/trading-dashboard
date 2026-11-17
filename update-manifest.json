@@ -1,0 +1,62 @@
+{
+  "name": "Trading Dashboard",
+  "version": "2.8.1",
+  "release_date": "2026-11-17",
+  "update_type": "full-project-replacement",
+  "entry_file": "index.html",
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "803db0b2a1410af9d8b62831228e9790c5d39ca4db6a2b7d6d017a5357204ba0",
+      "size_bytes": 86197
+    },
+    {
+      "path": "modules/strategy-engine.js",
+      "sha256": "93e8b5daeeead5f9ac1d51d8b9acda840bcb2c60213a3f5a599835042b9f6be9",
+      "size_bytes": 13316
+    },
+    {
+      "path": "data/strategy/btc.csv",
+      "sha256": "7b2447942e6e472865b9fb7648e4691a06b9d99fa057ba119bc45a056d6e4b3f",
+      "size_bytes": 131550
+    },
+    {
+      "path": "data/strategy/eth.csv",
+      "sha256": "6f8e1469a7212e7e3889b9f2f0f22fa9b85b9d46e7bcf46b63d7171d8b9d8b6a",
+      "size_bytes": 87759
+    },
+    {
+      "path": "data/strategy/README.md",
+      "sha256": "7121794cd0df30e1053cc019d894e78c663cf8139a1aad823c0fda46eafaaf9c",
+      "size_bytes": 732
+    },
+    {
+      "path": "STRATEGY-SIGNALS-2.8.1.md",
+      "sha256": "d717bbe9213850276764fb1f4bad86429e90b3910199920419cfa1b042e20064",
+      "size_bytes": 4328
+    },
+    {
+      "path": "UPDATE-2.8.1.txt",
+      "sha256": "4884e86795d41bade0af4765da44852d9753ae789ab60d6b04b9dd15b7b74955",
+      "size_bytes": 1939
+    },
+    {
+      "path": "TEST-REPORT-2.8.1.txt",
+      "sha256": "e3cd750bc047b044dd9a75e12bd500cf3003d28271d352ab084afbbe895b21d3",
+      "size_bytes": 883
+    },
+    {
+      "path": "scripts/test_strategy_engine.cjs",
+      "sha256": "cbc6f9f363b609ba495b4f7f0b639de1c56f2f3ce7ace2e89589bffe8b5ea444",
+      "size_bytes": 2476
+    }
+  ],
+  "features": [
+    "Independent Quattro Donchian v2 BTC 4H signal monitoring",
+    "Independent Momentum + volatility targeting BTC and ETH daily signal monitoring",
+    "Walk-forward lookback selection with 3-year training and 182-day test folds",
+    "Browser notifications, in-app alerts, deduplication and local signal history",
+    "Completed-candle-only signals and stale-data suppression",
+    "No live order execution; browser notifications require the page to remain open"
+  ]
+}

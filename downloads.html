@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09111e"><title>دریافت فایل‌های پروژه</title>
+<style>
+:root{--bg:#09111e;--panel:#101b2b;--line:#26364b;--text:#edf4ff;--muted:#9aacc3;--blue:#55aef5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Tahoma,Arial,sans-serif}
+header,main{max-width:1000px;margin:auto;padding:15px}header{border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font-size:18px;margin:0}p,.muted{color:var(--muted);line-height:1.9;font-size:12px}
+a,button{color:var(--text);background:#15243a;border:1px solid var(--line);border-radius:9px;padding:10px 13px;text-decoration:none;font:inherit;font-size:12px;cursor:pointer}
+.primary{background:#17436a;border-color:var(--blue)}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.files{display:grid;gap:7px;margin-top:12px}.file{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;padding:9px;border-bottom:1px solid var(--line);direction:ltr;text-align:left}.file small{color:var(--muted);overflow-wrap:anywhere}.status{margin-top:10px}
+</style></head>
+<body>
+<header><div><h1>مرکز دریافت فایل‌های داشبورد</h1><div class="muted">دانلود مستقیم از مخزن عمومی GitHub</div></div><a href="./index.html">بازگشت به داشبورد</a></header>
+<main>
+<section class="card"><h2>دریافت کامل پروژه</h2><p>برای بررسی و اصلاح کد، فایل ZIP کامل مخزن را دانلود کن. برای دریافت داده‌ها یا فایل‌های مشخص، از فهرست پایین استفاده کن.</p>
+<div class="actions"><a class="primary" href="https://github.com/ebehinkaranzp-code/trading-dashboard/archive/refs/heads/main.zip">دانلود کل پروژه (ZIP)</a><a href="https://github.com/ebehinkaranzp-code/trading-dashboard">مشاهده مخزن در GitHub</a><button id="refresh">بارگذاری فهرست فایل‌ها</button></div>
+<div id="status" class="status muted">برای نمایش فایل‌های موجود، «بارگذاری فهرست فایل‌ها» را بزن.</div></section>
+<section class="card"><h2>فایل‌های مخزن</h2><p>روی دانلود کنار هر فایل بزن. این فهرست از GitHub API خوانده می‌شود.</p><div id="files" class="files"></div></section>
+</main>
+<script>
+const owner='ebehinkaranzp-code', repo='trading-dashboard', branch='main';
+const statusEl=document.getElementById('status'), filesEl=document.getElementById('files');
+async function list(path=''){
+ const url=`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+ const r=await fetch(url,{headers:{'Accept':'application/vnd.github+json'}});
+ if(!r.ok) throw new Error(`GitHub API: ${r.status}`);
+ const items=await r.json(); let out=[];
+ for(const item of items){
+  if(item.type==='dir'){out.push(...await list(item.path));}
+  else if(item.type==='file'){out.push(item);}
+ }
+ return out;
+}
+document.getElementById('refresh').addEventListener('click',async()=>{
+ statusEl.textContent='در حال دریافت فهرست فایل‌ها از GitHub...'; filesEl.innerHTML='';
+ try{
+  const items=await list();
+  items.sort((a,b)=>a.path.localeCompare(b.path));
+  for(const item of items){
+   const row=document.createElement('div');row.className='file';
+   const label=document.createElement('small');label.textContent=item.path;
+   const link=document.createElement('a');link.href=item.download_url;link.textContent='دانلود';link.download='';
+   link.rel='noopener';link.target='_blank';
+   row.append(label,link);filesEl.append(row);
+  }
+  statusEl.textContent=`${items.length} فایل از مخزن دریافت شد.`;
+ }catch(e){statusEl.textContent='دریافت فهرست ممکن نشد: '+e.message+'؛ می‌توانی از دکمه دانلود ZIP استفاده کنی.';}
+});
+</script></body></html>
