@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09111e"><title>دریافت فایل‌های پروژه</title>
+<style>
+:root{--bg:#09111e;--panel:#101b2b;--line:#26364b;--text:#edf4ff;--muted:#9aacc3;--blue:#55aef5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Tahoma,Arial,sans-serif}
+header,main{max-width:1000px;margin:auto;padding:15px}header{border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font-size:18px;margin:0}p,.muted{color:var(--muted);line-height:1.9;font-size:12px}
+a,button{color:var(--text);background:#15243a;border:1px solid var(--line);border-radius:9px;padding:10px 13px;text-decoration:none;font:inherit;font-size:12px;cursor:pointer}
+.primary{background:#17436a;border-color:var(--blue)}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.files{display:grid;gap:7px;margin-top:12px}.file{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;padding:9px;border-bottom:1px solid var(--line);direction:ltr;text-align:left}.file small{color:var(--muted);overflow-wrap:anywhere}.status{margin-top:10px}
+</style></head>
+<body>
+<header><div><h1>مرکز دریافت فایل‌های داشبورد</h1><div class="muted">دانلود مستقیم از مخزن عمومی GitHub</div></div><a href="./index.html">بازگشت به داشبورد</a></header>
+<main>
+<section class="card"><h2>دریافت کامل پروژه</h2><p>برای بررسی و اصلاح کد، فایل ZIP کامل مخزن را دانلود کن. برای دریافت داده‌ها یا فایل‌های مشخص، از فهرست پایین استفاده کن.</p>
+<div class="actions"><a class="primary" href="https://github.com/ebehinkaranzp-code/trading-dashboard/archive/refs/heads/main.zip">دانلود کل پروژه (ZIP)</a><a href="https://github.com/ebehinkaranzp-code/trading-dashboard">مشاهده مخزن در GitHub</a><button id="refresh">بارگذاری فهرست فایل‌ها</button></div>
+<div id="status" class="status muted">برای نمایش فایل‌های موجود، «بارگذاری فهرست فایل‌ها» را بزن.</div></section>
+<section class="card"><h2>فایل‌های مخزن</h2><p>روی دانلود کنار هر فایل بزن. این فهرست از GitHub API خوانده می‌شود.</p><div id="files" class="files"></div></section>
+</main>
+<script>
+const owner='ebehinkaranzp-code', repo='trading-dashboard', branch='main';
+const statusEl=document.getElementById('status'), filesEl=document.getElementById('files');
+const zipUrl=`https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`;
+document.querySelector('.actions .primary').href=zipUrl;
+
+async function githubJson(url){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),20000);
+ try{
+  const response=await fetch(url,{headers:{'Accept':'application/vnd.github+json'},signal:controller.signal,cache:'no-store'});
+  if(!response.ok) throw new Error(`GitHub HTTP ${response.status}`);
+  return await response.json();
+ }finally{clearTimeout(timer);}
+}
+document.getElementById('refresh').addEventListener('click',async()=>{
+ statusEl.textContent='در حال دریافت فهرست فایل‌ها از GitHub...';
+ filesEl.replaceChildren();
+ try{
+  const tree=await githubJson(`https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`);
+  const items=(tree.tree||[]).filter(x=>x.type==='blob' && x.path && !x.path.startsWith('.git/'));
+  items.sort((a,b)=>a.path.localeCompare(b.path));
+  const fragment=document.createDocumentFragment();
+  for(const item of items){
+   const row=document.createElement('div');row.className='file';
+   const label=document.createElement('small');label.textContent=item.path;
+   const link=document.createElement('a');
+   link.href=`https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${item.path.split('/').map(encodeURIComponent).join('/')}`;
+   link.textContent='دانلود';link.rel='noopener';link.target='_blank';
+   row.append(label,link);fragment.append(row);
+  }
+  filesEl.append(fragment);
+  statusEl.textContent=`${items.length} فایل شناسایی شد.`+(tree.truncated?' فهرست GitHub ناقص است؛ برای دریافت همه فایل‌ها از ZIP کامل استفاده کن.':'');
+ }catch(e){
+  statusEl.textContent='فهرست فایل‌ها از GitHub دریافت نشد: '+(e.name==='AbortError'?'پایان مهلت اتصال':e.message)+'؛ لینک ZIP کامل همچنان قابل استفاده است.';
+ }
+});
+</script></body></html>
