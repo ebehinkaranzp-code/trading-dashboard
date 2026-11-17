@@ -1,0 +1,282 @@
+name: Binance Market Data Archive
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data-archive
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Binance Spot and USD-M Futures public data
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python - <<'PY'
+          import json, os, time, tempfile, urllib.parse, urllib.request
+          from datetime import datetime, timezone, timedelta
+
+          ASSETS = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'LTC', 'ADA']
+          INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d', '1w']
+          MARKETS = {
+              'binance': {
+                  'base': 'https://data-api.binance.vision',
+                  'prefix': '/api/v3', 'kind': 'Spot', 'folder': 'data/binance',
+                  'derivatives': False
+              },
+              'binance-futures': {
+                  'base': 'https://fapi.binance.com',
+                  'prefix': '/fapi/v1', 'kind': 'USD-M Futures', 'folder': 'data/binance-futures',
+                  'derivatives': True
+              }
+          }
+          now = datetime.now(timezone.utc)
+          generated = now.isoformat(timespec='seconds').replace('+00:00', 'Z')
+          day = now.strftime('%Y-%m-%d')
+          errors = []
+
+          def atomic_json(path, obj):
+              os.makedirs(os.path.dirname(path), exist_ok=True)
+              fd, tmp = tempfile.mkstemp(prefix='.tmp-', dir=os.path.dirname(path))
+              try:
+                  with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                      json.dump(obj, f, ensure_ascii=False, separators=(',', ':'))
+                      f.write('\n')
+                  os.replace(tmp, path)
+              except Exception:
+                  if os.path.exists(tmp): os.remove(tmp)
+                  raise
+
+          def get(base, path, params=None):
+              query = urllib.parse.urlencode(params or {})
+              url = base + path + (('?' + query) if query else '')
+              last = None
+              for attempt in range(3):
+                  try:
+                      req = urllib.request.Request(url, headers={
+                          'User-Agent': 'TradingDashboard-Binance-Archive/1.0',
+                          'Accept': 'application/json'})
+                      with urllib.request.urlopen(req, timeout=20) as res:
+                          return json.loads(res.read().decode('utf-8'))
+                  except Exception as exc:
+                      last = exc
+                      if attempt < 2: time.sleep(1.0 + attempt)
+              raise last
+
+          def read_json(path, default):
+              try:
+                  with open(path, encoding='utf-8') as f: return json.load(f)
+              except Exception: return default
+
+          def update_market(cfg, asset):
+              base, prefix = cfg['base'], cfg['prefix']
+              symbol = asset + 'USDT'
+              market = {'symbol': symbol, 'source': 'Binance ' + cfg['kind'],
+                        'updatedAt': generated, 'dataStatus': 'fresh', 'timeframes': {}}
+              for interval in INTERVALS:
+                  try:
+                      rows = get(base, prefix + '/klines', {'symbol': symbol, 'interval': interval, 'limit': 500})
+                      good = []
+                      for row in rows:
+                          if not isinstance(row, list) or len(row) < 12: continue
+                          try:
+                              vals = [float(row[i]) for i in (1, 2, 3, 4, 5)]
+                              op, hi, lo, cl, vol = vals
+                              if op > 0 and cl > 0 and hi >= max(op, cl, lo) and lo <= min(op, cl, hi) and vol >= 0:
+                                  good.append(row)
+                          except Exception: pass
+                      market['timeframes'][interval] = {'klines': good}
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'klines/' + interval, 'error': str(exc)[:250]})
+                      market['timeframes'][interval] = {'klines': []}
+
+              try:
+                  t = get(base, prefix + '/ticker/24hr', {'symbol': symbol})
+                  market['ticker'] = {
+                      'last': float(t.get('lastPrice') or 0),
+                      'change24h': float(t.get('priceChangePercent') or 0),
+                      'volume24h': float(t.get('quoteVolume') or 0),
+                      'bid': float(t.get('bidPrice') or 0),
+                      'ask': float(t.get('askPrice') or 0), 'time': generated
+                  }
+              except Exception as exc:
+                  errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'ticker', 'error': str(exc)[:250]})
+
+              try:
+                  book = get(base, prefix + '/depth', {'symbol': symbol, 'limit': 20})
+                  market['orderBook'] = {
+                      'bids': [{'price': float(x[0]), 'size': float(x[1])} for x in book.get('bids', [])],
+                      'asks': [{'price': float(x[0]), 'size': float(x[1])} for x in book.get('asks', [])],
+                      'time': generated
+                  }
+              except Exception as exc:
+                  errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'depth', 'error': str(exc)[:250]})
+
+              if cfg['derivatives']:
+                  derivatives = {}
+                  try:
+                      rows = get(base, prefix + '/fundingRate', {'symbol': symbol, 'limit': 1})
+                      if rows:
+                          derivatives['funding'] = {'fundingRate': rows[-1].get('fundingRate'), 'ts': rows[-1].get('fundingTime')}
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'fundingRate', 'error': str(exc)[:250]})
+                  try:
+                      oi = get(base, prefix + '/openInterest', {'symbol': symbol})
+                      derivatives['openInterest'] = {'oi': oi.get('openInterest'), 'ts': oi.get('time', int(time.time()*1000))}
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'openInterest', 'error': str(exc)[:250]})
+                  market['derivatives'] = derivatives
+              return market
+
+          def update_trades(cfg, asset):
+              base, prefix, folder = cfg['base'], cfg['prefix'], cfg['folder']
+              symbol = asset + 'USDT'
+              root = os.path.join(folder, 'history', asset)
+              os.makedirs(root, exist_ok=True)
+              path = os.path.join(root, day + '.json')
+              archive = read_json(path, {'schemaVersion': 1, 'symbol': symbol, 'date': day,
+                  'source': 'Binance ' + cfg['kind'], 'timeframes': {}, 'trades': [],
+                  'tradeCapture': 'incremental public aggTrades; partial rolling sample, maximum 6000 rows and six hours; capture starts at first workflow run'})
+              if archive.get('symbol') != symbol:
+                  archive = {'schemaVersion': 1, 'symbol': symbol, 'date': day,
+                      'source': 'Binance ' + cfg['kind'], 'timeframes': {}, 'trades': [],
+                      'tradeCapture': 'incremental public aggTrades; partial rolling sample, maximum 6000 rows and six hours; capture starts at first workflow run'}
+
+              # Keep recent 1m/5m/15m candle history separately from decision candles.
+              for interval in ('1m', '5m', '15m'):
+                  try:
+                      rows = get(base, prefix + '/klines', {'symbol': symbol, 'interval': interval, 'limit': 1000})
+                      old = archive.get('timeframes', {}).get(interval, [])
+                      merged = {str(x[0]): x for x in old if isinstance(x, list) and x}
+                      for row in rows:
+                          if isinstance(row, list) and len(row) >= 12: merged[str(row[0])] = row
+                      archive.setdefault('timeframes', {})[interval] = sorted(merged.values(), key=lambda x: int(x[0]))[-2500:]
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'history klines/' + interval, 'error': str(exc)[:250]})
+
+              state_path = os.path.join(folder, 'trade-cursors.json')
+              cursors = read_json(state_path, {})
+              cursor_key = symbol
+              last_id = cursors.get(cursor_key)
+              params = {'symbol': symbol, 'limit': 1000}
+              if last_id is not None: params['fromId'] = int(last_id) + 1
+              fetched = []
+              max_pages = 2 if asset in ('BTC', 'ETH') else 1
+              for page in range(max_pages):
+                  try:
+                      rows = get(base, prefix + '/aggTrades', params)
+                      if not rows: break
+                      for row in rows:
+                          try:
+                              maker = row.get('m')
+                              fetched.append({'tradeId': str(row.get('a')), 'ts': int(row.get('T')),
+                                  'px': float(row.get('p')), 'sz': float(row.get('q')),
+                                  'side': 'sell' if maker else 'buy'})
+                          except Exception: pass
+                      newest = max(int(x.get('a', 0)) for x in rows)
+                      cursors[cursor_key] = newest
+                      if len(rows) < 1000: break
+                      params['fromId'] = newest + 1
+                  except Exception as exc:
+                      # Binance Futures aggTrades only supports recent history (24h).
+                      # If the saved cursor has expired after a long workflow outage,
+                      # reseed from the latest page instead of getting stuck forever.
+                      if page == 0 and last_id is not None:
+                          try:
+                              rows = get(base, prefix + '/aggTrades', {'symbol': symbol, 'limit': 1000})
+                              fetched = []
+                              for row in rows:
+                                  maker = row.get('m')
+                                  fetched.append({'tradeId': str(row.get('a')), 'ts': int(row.get('T')),
+                                      'px': float(row.get('p')), 'sz': float(row.get('q')),
+                                      'side': 'sell' if maker else 'buy'})
+                              if rows:
+                                  cursors[cursor_key] = max(int(x.get('a', 0)) for x in rows)
+                              break
+                          except Exception as reseed_exc:
+                              errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'aggTrades reseed', 'error': str(reseed_exc)[:250]})
+                      errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'aggTrades', 'error': str(exc)[:250]})
+                      break
+              if last_id is None and fetched:
+                  archive['tradeCapture'] = 'incremental aggTrades; initial seed is latest API page, then continuous fromId capture'
+              old_trades = archive.get('trades', [])
+              by_id = {str(x.get('tradeId')): x for x in old_trades if isinstance(x, dict) and x.get('tradeId') is not None}
+              for trade in fetched: by_id[str(trade['tradeId'])] = trade
+              cutoff = int((now - timedelta(hours=6)).timestamp() * 1000)
+              merged = [x for x in by_id.values() if int(x.get('ts', 0)) >= cutoff]
+              merged.sort(key=lambda x: int(x.get('ts', 0)))
+              archive['trades'] = merged[-6000:]
+              archive['updatedAt'] = generated
+              archive['tradeCaptureStatus'] = 'active' if fetched else 'waiting_for_new_trades_or_api'
+              atomic_json(path, archive)
+              atomic_json(state_path, cursors)
+
+          for key, cfg in MARKETS.items():
+              markets = {}
+              for asset in ASSETS:
+                  print('Fetching', cfg['kind'], asset)
+                  try:
+                      market = update_market(cfg, asset)
+                      if len(market.get('timeframes', {}).get('4h', {}).get('klines', [])) >= 30:
+                          markets[asset] = market
+                      else:
+                          errors.append({'market': cfg['kind'], 'asset': asset, 'error': 'fewer than 30 4H candles'})
+                  except Exception as exc:
+                      errors.append({'market': cfg['kind'], 'asset': asset, 'error': str(exc)[:300]})
+                  try: update_trades(cfg, asset)
+                  except Exception as exc: errors.append({'market': cfg['kind'], 'asset': asset, 'endpoint': 'trade archive', 'error': str(exc)[:300]})
+              if 'BTC' not in markets:
+                  raise SystemExit('BTC 4H Binance ' + cfg['kind'] + ' data unavailable; refusing to publish an empty market file.')
+              output = {'schemaVersion': 1, 'generatedAt': generated,
+                  'source': 'Binance ' + cfg['kind'], 'markets': markets,
+                  'fetchStatus': {'status': 'partial' if errors else 'success',
+                                  'availableMarkets': list(markets), 'errorCount': len(errors),
+                                  'tradeData': 'incremental aggTrades, rolling six-hour window'}}
+              atomic_json(os.path.join(cfg['folder'], 'markets.json'), output)
+
+          print('Binance data published. Errors:', len(errors))
+          for e in errors[:30]: print('WARN:', e)
+          PY
+
+      - name: Validate Binance archives
+        run: |
+          python - <<'PY'
+          import json
+          for path in ('data/binance/markets.json', 'data/binance-futures/markets.json'):
+              with open(path, encoding='utf-8') as f: data = json.load(f)
+              btc = data.get('markets', {}).get('BTC', {})
+              candles = btc.get('timeframes', {}).get('4h', {}).get('klines', [])
+              if len(candles) < 30: raise SystemExit('BTC 4H validation failed: ' + path)
+              for row in candles:
+                  if len(row) < 12: raise SystemExit('Invalid kline row: ' + path)
+              print('Validated', path, 'BTC 4H candles:', len(candles))
+          PY
+
+      - name: Commit Binance data only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/binance/ data/binance-futures/
+          if git diff --cached --quiet; then
+            echo 'No Binance data changes.'
+          else
+            git commit -m 'chore(data): update Binance spot and futures archives [skip ci]'
+            # Rebase on the latest main in case another workflow/user pushed meanwhile.
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
