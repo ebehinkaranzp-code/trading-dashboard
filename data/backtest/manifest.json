@@ -1,0 +1,19 @@
+{
+  "dataset": "BTCUSDT Binance Spot 1m historical klines",
+  "source": "https://data.binance.vision/data/spot/",
+  "symbol": "BTCUSDT",
+  "market": "spot",
+  "interval": "1m",
+  "coverage_target": {
+    "from": "2017-08-17",
+    "to": "last complete UTC day at download time"
+  },
+  "status": "not_downloaded_in_this_environment",
+  "download_script": "scripts/download_binance_btcusdt_history.py",
+  "data_path": "data/backtest/binance/BTCUSDT/1m/",
+  "notes": [
+    "Raw Binance ZIP files are downloaded by the script on the machine running it.",
+    "The downloader verifies published SHA256 checksum files.",
+    "Normalize Spot timestamps: milliseconds before 2025-01-01, microseconds from 2025-01-01 onward."
+  ]
+}
