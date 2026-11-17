@@ -1,0 +1,140 @@
+name: Import Footprint Trades
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 2 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-footprint-trades
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Import recent BTC aggregate trades
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          import datetime as dt
+          import io
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+          import zipfile
+          from pathlib import Path
+
+          BASE = "https://data.binance.vision/data/spot/daily/aggTrades/BTCUSDT"
+          OUT = Path("data/history/BTC")
+          OUT.mkdir(parents=True, exist_ok=True)
+
+          # Frontend Footprint reader scans the latest seven daily files.
+          # Binance Vision daily files can appear with a short publication delay,
+          # so process yesterday back through the previous six days.
+          today = dt.datetime.now(dt.timezone.utc).date()
+          imported = 0
+          skipped = 0
+
+          for offset in range(1, 8):
+              day = today - dt.timedelta(days=offset)
+              day_text = day.isoformat()
+              filename = f"BTCUSDT-aggTrades-{day_text}.zip"
+              url = f"{BASE}/{filename}"
+              print(f"Downloading {filename}")
+
+              request = urllib.request.Request(
+                  url, headers={"User-Agent": "TradingDashboard-ArchiveImporter/1.0"}
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=120) as response:
+                      archive_bytes = response.read()
+              except urllib.error.HTTPError as exc:
+                  if exc.code == 404:
+                      print(f"Not published yet; skipping {day_text}")
+                      skipped += 1
+                      continue
+                  raise
+
+              with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+                  csv_name = next(
+                      (name for name in archive.namelist() if name.lower().endswith(".csv")),
+                      None,
+                  )
+                  if not csv_name:
+                      print(f"No CSV found in {filename}; skipping")
+                      skipped += 1
+                      continue
+
+                  trades = []
+                  with archive.open(csv_name) as raw:
+                      text_stream = io.TextIOWrapper(raw, encoding="utf-8", newline="")
+                      reader = csv.reader(text_stream)
+                      for row in reader:
+                          if not row or len(row) < 7:
+                              continue
+                          try:
+                              # Binance aggTrades columns:
+                              # aggregate ID, price, quantity, first ID, last ID,
+                              # timestamp (microseconds or milliseconds), buyer-is-maker, best-match
+                              trade_id = row[0]
+                              price = row[1]
+                              quantity = row[2]
+                              timestamp = int(row[5])
+                              if timestamp > 10**14:
+                                  timestamp //= 1000  # microseconds -> milliseconds
+                              buyer_is_maker = row[6].strip().lower() == "true"
+                              trades.append({
+                                  "tradeId": trade_id,
+                                  "ts": timestamp,
+                                  "px": price,
+                                  "sz": quantity,
+                                  "side": "sell" if buyer_is_maker else "buy",
+                              })
+                          except (ValueError, IndexError):
+                              # Ignore a possible header or malformed row.
+                              continue
+
+              target = OUT / f"{day_text}.json"
+              existing = {}
+              if target.exists():
+                  try:
+                      existing = json.loads(target.read_text(encoding="utf-8"))
+                  except Exception:
+                      existing = {}
+
+              if not isinstance(existing, dict):
+                  existing = {}
+              existing["date"] = day_text
+              existing["asset"] = "BTC"
+              existing["trades"] = trades
+              target.write_text(
+                  json.dumps(existing, separators=(",", ":"), ensure_ascii=False),
+                  encoding="utf-8",
+              )
+              print(f"Saved {len(trades):,} aggregate trades -> {target}")
+              imported += 1
+
+          print(f"Finished. Imported days: {imported}; unavailable days: {skipped}")
+          PY
+
+      - name: Commit imported trade history
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/history/BTC
+          if git diff --cached --quiet; then
+            echo "No trade-history changes to commit."
+          else
+            git commit -m "Import recent BTC footprint trade history"
+            git push
+          fi
