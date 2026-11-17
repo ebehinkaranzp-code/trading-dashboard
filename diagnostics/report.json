@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T23:26:03.881Z",
+  "generatedAt": "2026-11-17T01:18:41.717Z",
   "repository": "ebehinkaranzp-code/trading-dashboard",
   "siteUrl": "https://ebehinkaranzp-code.github.io/trading-dashboard/",
   "overall": "issues",
@@ -9,59 +9,15 @@
     "errors": 160,
     "warnings": 0,
     "browserErrors": 160,
-    "failedWorkflowRuns": 0
+    "failedWorkflowRuns": 2
   },
   "browser": {
     "consoleErrors": [
-      "Access to fetch at 'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Binance Failed to fetch",
-      "Bybit Failed to fetch",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Binance Failed to fetch",
-      "Bybit Failed to fetch",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
@@ -75,17 +31,17 @@
       "Failed to load resource: net::ERR_FAILED",
       "Binance Failed to fetch",
       "Bybit Failed to fetch",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
@@ -97,6 +53,28 @@
       "Failed to load resource: net::ERR_FAILED",
       "Binance Failed to fetch",
       "Bybit Failed to fetch",
+      "Access to fetch at 'https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Binance Failed to fetch",
+      "Bybit Failed to fetch",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
@@ -105,17 +83,39 @@
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Binance Failed to fetch",
+      "Bybit Failed to fetch",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
-      "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-      "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Access to fetch at 'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT' from origin 'https://ebehinkaranzp-code.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
       "Failed to load resource: net::ERR_FAILED",
       "Binance Failed to fetch",
       "Bybit Failed to fetch",
@@ -127,12 +127,12 @@
     "pageErrors": [],
     "failedRequests": [
       {
-        "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
+        "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
+        "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -147,12 +147,12 @@
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300",
+        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
+        "url": "https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -162,12 +162,7 @@
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT",
+        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -177,7 +172,32 @@
         "error": "net::ERR_FAILED"
       },
       {
+        "url": "https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
         "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -193,31 +213,6 @@
       },
       {
         "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -227,56 +222,11 @@
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
-        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
         "url": "https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
         "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
@@ -287,22 +237,17 @@
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
         "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
+        "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
+        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -313,6 +258,11 @@
       },
       {
         "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -337,7 +287,47 @@
         "error": "net::ERR_FAILED"
       },
       {
+        "url": "https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&limit=300",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
         "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -352,17 +342,27 @@
         "error": "net::ERR_FAILED"
       },
       {
-        "url": "https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25",
-        "method": "GET",
-        "error": "net::ERR_FAILED"
-      },
-      {
         "url": "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=20",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
       {
         "url": "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://api.bybit.com/v5/market/kline?category=linear&symbol=BTCUSDT&interval=60&limit=300",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://api.bybit.com/v5/market/orderbook?category=linear&symbol=BTCUSDT&limit=25",
+        "method": "GET",
+        "error": "net::ERR_FAILED"
+      },
+      {
+        "url": "https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT",
         "method": "GET",
         "error": "net::ERR_FAILED"
       },
@@ -407,7 +407,7 @@
       "GOLD",
       "XAU"
     ],
-    "generatedAt": "2026-11-16T22:53:42.987280+00:00",
+    "generatedAt": "2026-11-17T00:09:30.362781+00:00",
     "marketDetails": {
       "BTC": {
         "timeframes": [
@@ -573,10 +573,153 @@
         "workflow": ".github/workflows/diagnostics.yml",
         "status": "in_progress",
         "conclusion": null,
+        "runNumber": 27,
+        "event": "schedule",
+        "createdAt": "2026-11-17T01:18:06Z",
+        "updatedAt": "2026-11-17T01:18:09Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43994517135"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "failure",
+        "runNumber": 208,
+        "event": "dynamic",
+        "createdAt": "2026-11-17T01:12:32Z",
+        "updatedAt": "2026-11-17T01:13:20Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43993781233"
+      },
+      {
+        "name": "Update Market Data",
+        "workflow": ".github/workflows/update-market.yml",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 28,
+        "event": "schedule",
+        "createdAt": "2026-11-17T01:12:08Z",
+        "updatedAt": "2026-11-17T01:12:32Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43993727146"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 207,
+        "event": "dynamic",
+        "createdAt": "2026-11-17T00:26:58Z",
+        "updatedAt": "2026-11-17T00:27:46Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43987702065"
+      },
+      {
+        "name": "Update BTC market data and diagnostics",
+        "workflow": ".github/workflows/update-btc.yml",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 43,
+        "event": "schedule",
+        "createdAt": "2026-11-17T00:26:49Z",
+        "updatedAt": "2026-11-17T00:27:00Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43987682691"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 206,
+        "event": "dynamic",
+        "createdAt": "2026-11-17T00:09:33Z",
+        "updatedAt": "2026-11-17T00:10:19Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43985326784"
+      },
+      {
+        "name": "Update Market Data",
+        "workflow": ".github/workflows/update-market.yml",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 27,
+        "event": "schedule",
+        "createdAt": "2026-11-17T00:09:13Z",
+        "updatedAt": "2026-11-17T00:09:35Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43985280878"
+      },
+      {
+        "name": "Trading Dashboard Diagnostics",
+        "workflow": ".github/workflows/diagnostics.yml",
+        "status": "completed",
+        "conclusion": "failure",
+        "runNumber": 26,
+        "event": "schedule",
+        "createdAt": "2026-11-17T00:09:05Z",
+        "updatedAt": "2026-11-17T00:11:22Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43985261668"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 205,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T23:44:37Z",
+        "updatedAt": "2026-11-16T23:45:18Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43981887070"
+      },
+      {
+        "name": "Update BTC market data and diagnostics",
+        "workflow": ".github/workflows/update-btc.yml",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 42,
+        "event": "schedule",
+        "createdAt": "2026-11-16T23:44:28Z",
+        "updatedAt": "2026-11-16T23:44:38Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43981865132"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 204,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T23:29:21Z",
+        "updatedAt": "2026-11-16T23:29:58Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43979702360"
+      },
+      {
+        "name": "Update Market Data",
+        "workflow": ".github/workflows/update-market.yml",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 26,
+        "event": "schedule",
+        "createdAt": "2026-11-16T23:28:58Z",
+        "updatedAt": "2026-11-16T23:29:23Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43979648480"
+      },
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "success",
+        "runNumber": 203,
+        "event": "dynamic",
+        "createdAt": "2026-11-16T23:27:46Z",
+        "updatedAt": "2026-11-16T23:28:28Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43979482102"
+      },
+      {
+        "name": "Trading Dashboard Diagnostics",
+        "workflow": ".github/workflows/diagnostics.yml",
+        "status": "completed",
+        "conclusion": "success",
         "runNumber": 25,
         "event": "schedule",
         "createdAt": "2026-11-16T23:25:29Z",
-        "updatedAt": "2026-11-16T23:25:33Z",
+        "updatedAt": "2026-11-16T23:27:49Z",
         "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43979157343"
       },
       {
@@ -644,171 +787,51 @@
         "createdAt": "2026-11-16T22:40:37Z",
         "updatedAt": "2026-11-16T22:43:15Z",
         "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43972331056"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 199,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T22:21:22Z",
-        "updatedAt": "2026-11-16T22:22:16Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43969258192"
-      },
-      {
-        "name": "Update BTC market data and diagnostics",
-        "workflow": ".github/workflows/update-btc.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 40,
-        "event": "schedule",
-        "createdAt": "2026-11-16T22:21:14Z",
-        "updatedAt": "2026-11-16T22:21:24Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43969234541"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 198,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T22:12:17Z",
-        "updatedAt": "2026-11-16T22:12:58Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43967739710"
-      },
-      {
-        "name": "Update Market Data",
-        "workflow": ".github/workflows/update-market.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 24,
-        "event": "schedule",
-        "createdAt": "2026-11-16T22:11:55Z",
-        "updatedAt": "2026-11-16T22:12:19Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43967679399"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 197,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T21:58:55Z",
-        "updatedAt": "2026-11-16T21:59:35Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43965494218"
-      },
-      {
-        "name": "Trading Dashboard Diagnostics",
-        "workflow": ".github/workflows/diagnostics.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 23,
-        "event": "schedule",
-        "createdAt": "2026-11-16T21:56:32Z",
-        "updatedAt": "2026-11-16T21:58:56Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43965111343"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 196,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T21:32:06Z",
-        "updatedAt": "2026-11-16T21:32:56Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43961050545"
-      },
-      {
-        "name": "Update BTC market data and diagnostics",
-        "workflow": ".github/workflows/update-btc.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 39,
-        "event": "schedule",
-        "createdAt": "2026-11-16T21:31:57Z",
-        "updatedAt": "2026-11-16T21:32:08Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43961024711"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 195,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T21:26:15Z",
-        "updatedAt": "2026-11-16T21:26:47Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43960075599"
-      },
-      {
-        "name": "Update Market Data",
-        "workflow": ".github/workflows/update-market.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 23,
-        "event": "schedule",
-        "createdAt": "2026-11-16T21:25:51Z",
-        "updatedAt": "2026-11-16T21:26:16Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43960007644"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 194,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T21:12:33Z",
-        "updatedAt": "2026-11-16T21:13:09Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43957702390"
-      },
-      {
-        "name": "Trading Dashboard Diagnostics",
-        "workflow": ".github/workflows/diagnostics.yml",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 22,
-        "event": "schedule",
-        "createdAt": "2026-11-16T21:10:12Z",
-        "updatedAt": "2026-11-16T21:12:35Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43957296251"
-      },
-      {
-        "name": "pages build and deployment",
-        "workflow": "dynamic/pages/pages-build-deployment",
-        "status": "completed",
-        "conclusion": "success",
-        "runNumber": 193,
-        "event": "dynamic",
-        "createdAt": "2026-11-16T20:45:27Z",
-        "updatedAt": "2026-11-16T20:46:04Z",
-        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43953054329"
       }
     ],
-    "failedRecent": []
+    "failedRecent": [
+      {
+        "name": "pages build and deployment",
+        "workflow": "dynamic/pages/pages-build-deployment",
+        "status": "completed",
+        "conclusion": "failure",
+        "runNumber": 208,
+        "event": "dynamic",
+        "createdAt": "2026-11-17T01:12:32Z",
+        "updatedAt": "2026-11-17T01:13:20Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43993781233"
+      },
+      {
+        "name": "Trading Dashboard Diagnostics",
+        "workflow": ".github/workflows/diagnostics.yml",
+        "status": "completed",
+        "conclusion": "failure",
+        "runNumber": 26,
+        "event": "schedule",
+        "createdAt": "2026-11-17T00:09:05Z",
+        "updatedAt": "2026-11-17T00:11:22Z",
+        "url": "https://github.com/ebehinkaranzp-code/trading-dashboard/actions/runs/43985261668"
+      }
+    ]
   },
   "checks": [
     {
       "name": "markets.json",
       "status": "ok",
       "detail": "HTTP 200; 7 markets",
-      "at": "2026-11-16T23:26:04.141Z"
+      "at": "2026-11-17T01:18:41.914Z"
     },
     {
       "name": "dashboard page",
       "status": "ok",
       "detail": "HTTP 200; title=Trading Dashboard | Pro",
-      "at": "2026-11-16T23:27:43.947Z"
+      "at": "2026-11-17T01:20:22.926Z"
     },
     {
       "name": "GitHub Actions history",
       "status": "ok",
-      "detail": "20 recent runs; 0 failed/cancelled",
-      "at": "2026-11-16T23:27:44.456Z"
+      "detail": "20 recent runs; 2 failed/cancelled",
+      "at": "2026-11-17T01:20:23.444Z"
     }
   ],
   "history": [
@@ -921,7 +944,12 @@
       "generatedAt": "2026-11-16T22:41:27.917Z",
       "overall": "issues",
       "errorCount": 160
+    },
+    {
+      "generatedAt": "2026-11-16T23:26:03.881Z",
+      "overall": "issues",
+      "errorCount": 160
     }
   ],
-  "completedAt": "2026-11-16T23:27:44.478Z"
+  "completedAt": "2026-11-17T01:20:23.472Z"
 }
