@@ -1,0 +1,83 @@
+name: Build BTC-LTC Market Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_month:
+        description: 'First month to download (YYYY-MM)'
+        required: true
+        default: '2017-01'
+        type: string
+      end_month:
+        description: 'Last month (YYYY-MM). Leave blank for latest complete month.'
+        required: false
+        default: ''
+        type: string
+      include_aggregate_trades:
+        description: 'Also download Spot aggregate trades (large download)'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip
+
+      - name: Determine date range
+        id: dates
+        env:
+          START_MONTH: ${{ inputs.start_month }}
+          REQUESTED_END_MONTH: ${{ inputs.end_month }}
+        shell: bash
+        run: |
+          if [[ ! "$START_MONTH" =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
+            echo "Invalid start month: $START_MONTH"
+            exit 1
+          fi
+          if [[ -n "$REQUESTED_END_MONTH" ]]; then
+            if [[ ! "$REQUESTED_END_MONTH" =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
+              echo "Invalid end month: $REQUESTED_END_MONTH"
+              exit 1
+            fi
+            END_MONTH="$REQUESTED_END_MONTH"
+          else
+            END_MONTH="$(date -u -d "$(date -u +%Y-%m-01) -1 month" +%Y-%m)"
+          fi
+          echo "start=$START_MONTH" >> "$GITHUB_OUTPUT"
+          echo "end=$END_MONTH" >> "$GITHUB_OUTPUT"
+
+      - name: Build database
+        env:
+          START_MONTH: ${{ steps.dates.outputs.start }}
+          END_MONTH: ${{ steps.dates.outputs.end }}
+          INCLUDE_TRADES: ${{ inputs.include_aggregate_trades }}
+        shell: bash
+        run: |
+          ARGS=(--start "$START_MONTH" --end "$END_MONTH")
+          if [[ "$INCLUDE_TRADES" == "true" ]]; then
+            ARGS+=(--trades)
+          fi
+          python build_btc_ltc_db.py "${ARGS[@]}"
+
+      - name: Upload SQLite database
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-ltc-market-history
+          path: market_history.sqlite
+          if-no-files-found: error
+          retention-days: 7
