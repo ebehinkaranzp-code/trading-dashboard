@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": null,
+  "providers": [
+    {
+      "id": "okx",
+      "label": "OKX",
+      "markets": "./data/markets.json",
+      "historyRoot": "./data/history/",
+      "tradeSymbol": "{asset}-USDT-SWAP",
+      "format": "canonical",
+      "assets": []
+    }
+  ]
+}
