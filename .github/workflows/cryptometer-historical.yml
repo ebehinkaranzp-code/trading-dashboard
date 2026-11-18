@@ -1,1 +1,10 @@
-
+.github/
+  workflows/
+    cryptometer-archive.yml
+scripts/
+  cryptometer_collector.py
+data/
+  catalog.json
+  history/
+    cryptometer/
+      ...
