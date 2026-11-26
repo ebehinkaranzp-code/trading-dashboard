@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T17:21:58.220673+00:00",
+  "generatedAt": "2026-11-26T19:17:23.781108+00:00",
   "discovery": "all data/**/markets.json files with a valid markets object",
   "sources": [
     {
